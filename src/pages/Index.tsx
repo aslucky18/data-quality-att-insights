@@ -1,12 +1,29 @@
-// Update this page (the content is just a fallback if you fail to update the page)
+
+import { useState } from "react";
+import { LoginPage } from "@/components/LoginPage";
+import { MainDashboard } from "@/components/MainDashboard";
 
 const Index = () => {
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [userInfo, setUserInfo] = useState<{ attuid: string } | null>(null);
+
+  const handleLogin = (attuid: string) => {
+    setIsAuthenticated(true);
+    setUserInfo({ attuid });
+  };
+
+  const handleLogout = () => {
+    setIsAuthenticated(false);
+    setUserInfo(null);
+  };
+
   return (
-    <div className="min-h-screen flex items-center justify-center bg-background">
-      <div className="text-center">
-        <h1 className="text-4xl font-bold mb-4">Welcome to Your Blank App</h1>
-        <p className="text-xl text-muted-foreground">Start building your amazing project here!</p>
-      </div>
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-white">
+      {!isAuthenticated ? (
+        <LoginPage onLogin={handleLogin} />
+      ) : (
+        <MainDashboard userInfo={userInfo} onLogout={handleLogout} />
+      )}
     </div>
   );
 };
