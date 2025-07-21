@@ -63,41 +63,247 @@ export const DataSourceSelection = ({ onAssessmentComplete }: DataSourceSelectio
       const mockResults = {
         stage1: {
           kpis: {
-            empty_dataset: false,
-            num_columns: 443,
-            num_rows: 807031,
-            num_integer_columns: 62,
-            num_float_columns: 14,
-            num_string_columns: 367,
+            num_columns: 9,
+            num_rows: 1000,
+            num_integer_columns: 2,
+            num_float_columns: 1,
+            num_string_columns: 3,
             num_boolean_columns: 0,
-            num_date_columns: 0,
+            num_date_columns: 3,
             num_other_columns: 0,
-            num_duplicate_rows: 0,
-            column_names: ["_id.oid", "accountdetails.accountId"]
+            num_duplicate_rows: 0
           },
-          summary_table: "Mock polars dataframe summary",
-          plots: ["distribution", "correlation", "missing_values"]
+          columns: [
+            'accountdetails.isaMobile', 'accountdetails.ban', 'linedetails.sellerId', 
+            'services.productCode', 'orderdetails.actionDate', 'services.prepaidFundedDate',
+            'services.prepaidRatePlan', 'services.airlineAmount', 'lineitems.enrollmentDate'
+          ],
+          dateColumns: [
+            'orderdetails.actionDate', 'services.prepaidFundedDate', 'lineitems.enrollmentDate'
+          ],
+          datatypeDistribution: [
+            { name: 'Int64', value: 2, color: '#3b82f6' },
+            { name: 'String', value: 3, color: '#10b981' },
+            { name: 'Float64', value: 1, color: '#f59e0b' }
+          ],
+          constantDistribution: [
+            { name: 'false', value: 100, color: '#3b82f6' }
+          ]
         },
         stage2: {
           kpis: {
-            data_quality_score: 87.5,
-            completeness: 92.3,
-            consistency: 89.1,
-            accuracy: 85.7
+            overall_status: 'Failed',
+            total_checks: 7,
+            passed_checks: 2,
+            failed_checks: 2,
+            errored_checks: 0,
+            skipped_checks: 3
           },
-          summary_table: "Stage 2 polars summary",
-          plots: ["quality_metrics", "trend_analysis"]
+          checkTypeDistribution: [
+            { name: 'Uniqueness', value: 42.9, color: '#3b82f6' },
+            { name: 'cross_field_validation', value: 28.6, color: '#10b981' },
+            { name: 'null_check', value: 28.6, color: '#f59e0b' }
+          ],
+          statusDistribution: [
+            { name: 'Skipped', value: 42.9, color: '#3b82f6' },
+            { name: 'Failed', value: 28.6, color: '#ef4444' },
+            { name: 'Passed', value: 28.6, color: '#10b981' }
+          ],
+          summaryTable: [
+            {
+              name: "Uniqueness_'services.productCode'",
+              check_type: 'Uniqueness',
+              status: 'Failed',
+              rows_scanned: 1000,
+              breaching_rows: 992,
+              percentage_breached: 99.2,
+              details: "Uniqueness check on columns ['services.productCode']. Found 992 breaching rows.",
+              columns_checked: 'services.productCode'
+            },
+            {
+              name: "Uniqueness_lineitems.prevSellerId_productCode_businessType_ipIdentifier",
+              check_type: 'Uniqueness',
+              status: 'Skipped',
+              rows_scanned: 1000,
+              breaching_rows: 0,
+              percentage_breached: 0,
+              details: "Columns ['services.prevSellerId', 'accountdetails.businessType', 'lineitems.ipIdentifier'] not found in DataFrame. Check skipped.",
+              columns_checked: 'service.prevSellerId + service.prevSellerId + ...'
+            }
+          ],
+          breachPercentageData: [
+            { name: "Uniqueness_'services.productCode'", percentage: 99.2 },
+            { name: "Uniqueness_lineitems.productCodeLineItem", percentage: 0 },
+            { name: "Uniqueness_lineitems.productCodeLineItem", percentage: 0 },
+            { name: "Consistency_PrepaidFundedDateAndPrepaidRatePlanNotNull", percentage: 97.9 },
+            { name: "Consistency_EnrollmentDateBeforeActionDate", percentage: 0 },
+            { name: "Completeness_accountdetails.accountType_NotNull", percentage: 0 },
+            { name: "Completeness_orderdetails.actionDate_NotNull", percentage: 0 }
+          ],
+          checks: [
+            {
+              name: "Uniqueness_'services.productCode'",
+              check_type: 'Uniqueness',
+              status: 'Failed',
+              rows_scanned: 1000,
+              breaching_rows: 992,
+              percentage_breached: '99.2',
+              compound_check: 'False',
+              hasOutput: true
+            },
+            {
+              name: "Uniqueness_lineitems.prevSellerId_productCode_businessType_ipIdentifier",
+              check_type: 'Uniqueness',
+              status: 'Skipped',
+              rows_scanned: 1000,
+              breaching_rows: 0,
+              percentage_breached: '0.0',
+              compound_check: 'True',
+              hasOutput: false
+            },
+            {
+              name: "Uniqueness_lineitems.productCodeLineItem",
+              check_type: 'Uniqueness',
+              status: 'Skipped',
+              rows_scanned: 1000,
+              breaching_rows: 0,
+              percentage_breached: '0.0',
+              compound_check: 'False',
+              hasOutput: false
+            },
+            {
+              name: "Consistency_PrepaidFundedDateAndPrepaidRatePlanNotNull",
+              check_type: 'cross_field_validation',
+              status: 'Failed',
+              rows_scanned: 1000,
+              breaching_rows: 979,
+              percentage_breached: '97.9',
+              compound_check: 'None',
+              hasOutput: true
+            }
+          ],
+          metricsData: [
+            { column: 'accountdetails.isaMobile', null_percentage: 0 },
+            { column: 'accountdetails.ban', null_percentage: 0 },
+            { column: 'linedetails.sellerId', null_percentage: 0 },
+            { column: 'services.productCode', null_percentage: 0 },
+            { column: 'orderdetails.actionDate', null_percentage: 100 },
+            { column: 'services.prepaidFundedDate', null_percentage: 100 },
+            { column: 'services.prepaidRatePlan', null_percentage: 100 },
+            { column: 'services.airlineAmount', null_percentage: 100 },
+            { column: 'lineitems.enrollmentDate', null_percentage: 100 }
+          ],
+          detailedSummaryTable: [
+            {
+              column_name: 'accountdetails.isaMobile',
+              datatype: 'Int64',
+              null_count: 0,
+              not_null_count: 1000,
+              null_percentage: 0,
+              unique_count: 997,
+              unique_percentage: 99.7,
+              is_constant: 0,
+              zero_count: 0,
+              zero_percentage: 0,
+              negative_count: 0
+            },
+            {
+              column_name: 'accountdetails.ban',
+              datatype: 'Int64',
+              null_count: 0,
+              not_null_count: 1000,
+              null_percentage: 0,
+              unique_count: 986,
+              unique_percentage: 98.6,
+              is_constant: 0,
+              zero_count: 0,
+              zero_percentage: 0,
+              negative_count: 0
+            },
+            {
+              column_name: 'linedetails.sellerId',
+              datatype: 'String',
+              null_count: 0,
+              not_null_count: 1000,
+              null_percentage: 0,
+              unique_count: 925,
+              unique_percentage: 92.5,
+              is_constant: 0,
+              zero_count: 0,
+              zero_percentage: 0,
+              negative_count: 0
+            },
+            {
+              column_name: 'services.productCode',
+              datatype: 'String',
+              null_count: 0,
+              not_null_count: 1000,
+              null_percentage: 0,
+              unique_count: 23,
+              unique_percentage: 2.3,
+              is_constant: 0,
+              zero_count: 0,
+              zero_percentage: 0,
+              negative_count: 0
+            }
+          ]
         },
         stage3: {
           kpis: {
-            anomaly_count: 142,
-            anomaly_percentage: 0.176,
-            severity_high: 23,
-            severity_medium: 67,
-            severity_low: 52
+            model_type: 'Anomaly Detection',
+            model_name: 'Isolation Forest',
+            features_used: 9,
+            anomalies_found: 8
           },
-          summary_table: "Stage 3 anomaly summary",
-          plots: ["anomaly_distribution", "severity_chart"]
+          anomalyScoreDistribution: [
+            { score: '-0.05', frequency: 0 },
+            { score: '0', frequency: 150 },
+            { score: '0.05', frequency: 0 },
+            { score: '0.1', frequency: 0 },
+            { score: '0.15', frequency: 25 },
+            { score: '0.2', frequency: 50 },
+            { score: '0.25', frequency: 150 },
+            { score: '0.3', frequency: 175 },
+            { score: '0.35', frequency: 150 }
+          ],
+          pcaData: [
+            { pca1: -15, pca2: -8, class: 'Anomaly' },
+            { pca1: -10, pca2: 0, class: 'Normal' },
+            { pca1: -5, pca2: 2, class: 'Normal' },
+            { pca1: 0, pca2: -2, class: 'Normal' },
+            { pca1: 5, pca2: 0, class: 'Normal' },
+            { pca1: 10, pca2: -4, class: 'Anomaly' },
+            { pca1: 15, pca2: -6, class: 'Anomaly' }
+          ],
+          anomalyTableColumns: [
+            'linedetails.sellerId', 'accountdetails.isaMobile', 'services.prepaidFundedDate',
+            'orderdetails.actionDate', 'accountdetails.ban', 'services.productCode',
+            'services.prepaidRatePlan', 'services.airlineAmount', 'lineitems.enrollmentDate'
+          ],
+          anomalyEntries: [
+            {
+              'linedetails.sellerId': 'RXYTY',
+              'accountdetails.isaMobile': '4704398326',
+              'services.prepaidFundedDate': '20250622',
+              'orderdetails.actionDate': '20250522',
+              'accountdetails.ban': '53458689302',
+              'services.productCode': 'PP09',
+              'services.prepaidRatePlan': '20250622',
+              'services.airlineAmount': 'PP09',
+              'lineitems.enrollmentDate': '60'
+            },
+            {
+              'linedetails.sellerId': 'FMQTK',
+              'accountdetails.isaMobile': '3964627081',
+              'services.prepaidFundedDate': '20250612',
+              'orderdetails.actionDate': '20250512',
+              'accountdetails.ban': '52340924100',
+              'services.productCode': 'PP09',
+              'services.prepaidRatePlan': '',
+              'services.airlineAmount': 'PP09',
+              'lineitems.enrollmentDate': '61'
+            }
+          ]
         }
       };
       
