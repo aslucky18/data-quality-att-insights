@@ -1,5 +1,5 @@
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -12,15 +12,27 @@ import { toast } from "@/hooks/use-toast";
 
 interface DataSourceSelectionProps {
   onAssessmentComplete: (results: any) => void;
+  preselectedProject?: any;
 }
 
-export const DataSourceSelection = ({ onAssessmentComplete }: DataSourceSelectionProps) => {
+export const DataSourceSelection = ({ onAssessmentComplete, preselectedProject }: DataSourceSelectionProps) => {
   const [dataSource, setDataSource] = useState("");
   const [query, setQuery] = useState("");
   const [uploadedFiles, setUploadedFiles] = useState<File[]>([]);
   const [configFile, setConfigFile] = useState<File | null>(null);
   const [aiApproach, setAiApproach] = useState("");
   const [isRunning, setIsRunning] = useState(false);
+
+  // Pre-populate form if project is selected
+  useEffect(() => {
+    if (preselectedProject) {
+      setDataSource(preselectedProject.source === 'Oracle DB' ? 'oracle' : 
+                   preselectedProject.source === 'PostgreSQL' ? 'sql' :
+                   preselectedProject.source === 'MongoDB' ? 'mongodb' : '');
+      setQuery(preselectedProject.query || '');
+      setAiApproach(preselectedProject.aiApproach || '');
+    }
+  }, [preselectedProject]);
 
   const databaseSources = ["mongodb", "sql", "oracle"];
   const fileSources = ["xlsx", "csv", "json"];
@@ -330,6 +342,22 @@ export const DataSourceSelection = ({ onAssessmentComplete }: DataSourceSelectio
         <h2 className="text-3xl font-bold text-gray-900 mb-2">Data Quality Assessment Setup</h2>
         <p className="text-gray-600">Configure your data source and assessment parameters</p>
       </div>
+
+      {preselectedProject && (
+        <Card className="border-blue-200 bg-blue-50">
+          <CardContent className="pt-6">
+            <div className="flex items-center space-x-3">
+              <div className="p-2 bg-blue-100 rounded-lg">
+                <Database className="w-5 h-5 text-blue-600" />
+              </div>
+              <div>
+                <h3 className="font-semibold text-blue-900">Project Loaded: {preselectedProject.name}</h3>
+                <p className="text-sm text-blue-700">Data source and configuration have been pre-populated from your project settings.</p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      )}
 
       {/* Data Source Selection */}
       <Card>
