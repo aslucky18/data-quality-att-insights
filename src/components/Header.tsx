@@ -23,12 +23,15 @@ export const Header = ({ userInfo, onLogout }: HeaderProps) => {
         </div>
         
         <div className="flex items-center space-x-4">
-          <Link to="/dq-projects">
-            <Button variant="ghost" size="sm" className="text-gray-600 hover:text-gray-900">
-              <Database className="w-4 h-4 mr-2" />
+          <nav className="flex items-center space-x-2 text-gray-600">
+            <Link to="/dq-projects" className="hover:text-gray-900 transition-colors">
               DQ Projects
-            </Button>
-          </Link>
+            </Link>
+            <span>→</span>
+            <Link to="/" className="hover:text-gray-900 transition-colors">
+              DQ Engine
+            </Link>
+          </nav>
           <div className="flex items-center space-x-2 text-gray-600">
             <User className="w-4 h-4" />
             <span className="text-sm font-medium">{userInfo?.attuid}</span>
