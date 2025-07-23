@@ -1,6 +1,7 @@
 
 import { Button } from "@/components/ui/button";
-import { LogOut, User, Building2 } from "lucide-react";
+import { LogOut, User, Building2, Database } from "lucide-react";
+import { Link } from "react-router-dom";
 
 interface HeaderProps {
   userInfo: { attuid: string } | null;
@@ -22,6 +23,12 @@ export const Header = ({ userInfo, onLogout }: HeaderProps) => {
         </div>
         
         <div className="flex items-center space-x-4">
+          <Link to="/dq-projects">
+            <Button variant="ghost" size="sm" className="text-gray-600 hover:text-gray-900">
+              <Database className="w-4 h-4 mr-2" />
+              DQ Projects
+            </Button>
+          </Link>
           <div className="flex items-center space-x-2 text-gray-600">
             <User className="w-4 h-4" />
             <span className="text-sm font-medium">{userInfo?.attuid}</span>
