@@ -1,15 +1,15 @@
 
 import { useState } from "react";
-import { DataSourceSelection } from "./DataSourceSelection";
-import { ResultsDashboard } from "./ResultsDashboard";
-import { Header } from "./Header";
+import { DataSourceSelection } from "@/components/DataSourceSelection";
+import { ResultsDashboard } from "@/components/ResultsDashboard";
+import { Header } from "@/components/Header";
 
-interface MainDashboardProps {
+interface DQEngineProps {
   userInfo: { attuid: string } | null;
   onLogout: () => void;
 }
 
-export const MainDashboard = ({ userInfo, onLogout }: MainDashboardProps) => {
+export const DQEngine = ({ userInfo, onLogout }: DQEngineProps) => {
   const [currentStep, setCurrentStep] = useState<"selection" | "results">("selection");
   const [assessmentResults, setAssessmentResults] = useState<any>(null);
 

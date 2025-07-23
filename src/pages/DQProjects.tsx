@@ -1,4 +1,6 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { Header } from "@/components/Header";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -99,7 +101,13 @@ const initialRuns: DQRun[] = [
   }
 ];
 
-export const DQProjects = () => {
+interface DQProjectsProps {
+  userInfo: { attuid: string } | null;
+  onLogout: () => void;
+}
+
+export const DQProjects = ({ userInfo, onLogout }: DQProjectsProps) => {
+  const navigate = useNavigate();
   const [projects, setProjects] = useState<DQProject[]>(initialProjects);
   const [runs, setRuns] = useState<DQRun[]>(initialRuns);
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
@@ -138,6 +146,11 @@ export const DQProjects = () => {
         ? { ...p, status: p.status === 'active' ? 'paused' : 'active' }
         : p
     ));
+  };
+
+  const handleReadProject = (projectId: string) => {
+    // Navigate to DQ Engine with the selected project
+    navigate('/dq-engine', { state: { selectedProjectId: projectId } });
   };
 
   const handleRunProject = (projectId: string) => {
@@ -187,8 +200,9 @@ export const DQProjects = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-white p-6">
-      <div className="container mx-auto max-w-7xl">
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-white">
+      <Header userInfo={userInfo} onLogout={onLogout} />
+      <div className="container mx-auto max-w-7xl p-6">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           {/* DQ Projects Section */}
           <Card className="h-fit">
@@ -280,6 +294,15 @@ export const DQProjects = () => {
                     <div>Last run: {project.lastRun}</div>
                   </div>
                   <div className="flex gap-2">
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      onClick={() => handleReadProject(project.id)}
+                      className="flex items-center gap-1 text-blue-600 hover:text-blue-700"
+                    >
+                      <Play className="h-3 w-3" />
+                      Open
+                    </Button>
                     <Button
                       size="sm"
                       variant="outline"

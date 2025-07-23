@@ -1,9 +1,8 @@
-
 import { useState } from "react";
 import { LoginPage } from "@/components/LoginPage";
-import { DQProjects } from "@/pages/DQProjects";
+import { DQEngine } from "./DQEngine";
 
-const Index = () => {
+const DQEnginePage = () => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [userInfo, setUserInfo] = useState<{ attuid: string } | null>(null);
 
@@ -22,10 +21,10 @@ const Index = () => {
       {!isAuthenticated ? (
         <LoginPage onLogin={handleLogin} />
       ) : (
-        <DQProjects userInfo={userInfo} onLogout={handleLogout} />
+        <DQEngine userInfo={userInfo} onLogout={handleLogout} />
       )}
     </div>
   );
 };
 
-export default Index;
+export default DQEnginePage;

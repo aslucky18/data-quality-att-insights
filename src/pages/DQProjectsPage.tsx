@@ -1,9 +1,8 @@
-
 import { useState } from "react";
 import { LoginPage } from "@/components/LoginPage";
-import { DQProjects } from "@/pages/DQProjects";
+import { DQProjects } from "./DQProjects";
 
-const Index = () => {
+const DQProjectsPage = () => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [userInfo, setUserInfo] = useState<{ attuid: string } | null>(null);
 
@@ -28,4 +27,4 @@ const Index = () => {
   );
 };
 
-export default Index;
+export default DQProjectsPage;

@@ -24,11 +24,11 @@ export const Header = ({ userInfo, onLogout }: HeaderProps) => {
         
         <div className="flex items-center space-x-4">
           <nav className="flex items-center space-x-2 text-gray-600">
-            <Link to="/dq-projects" className="hover:text-gray-900 transition-colors">
+            <Link to="/" className="hover:text-gray-900 transition-colors">
               DQ Projects
             </Link>
             <span>→</span>
-            <Link to="/" className="hover:text-gray-900 transition-colors">
+            <Link to="/dq-engine" className="hover:text-gray-900 transition-colors">
               DQ Engine
             </Link>
           </nav>
