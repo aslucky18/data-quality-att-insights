@@ -339,7 +339,7 @@ export const DataSourceSelection = ({ onAssessmentComplete, preselectedProject }
   return (
     <div className="max-w-4xl mx-auto space-y-6">
       <div className="text-center mb-8">
-        <h2 className="text-3xl font-bold text-gray-900 mb-2">Data Quality Assessment Setup</h2>
+        <h2 className="text-3xl font-bold text-gray-900 mb-2">Data Configuration</h2>
         <p className="text-gray-600">Configure your data source and assessment parameters</p>
       </div>
 

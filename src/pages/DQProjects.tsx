@@ -1,10 +1,10 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Header } from "@/components/Header";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Play, Pause, Trash2, Plus, RotateCcw, TrendingUp, X, CheckCircle, XCircle, Clock, AlertTriangle } from "lucide-react";
+import { Play, Pause, Trash2, Plus, RotateCcw, TrendingUp, X, CheckCircle, XCircle, Clock, AlertTriangle, FileText } from "lucide-react";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -24,6 +24,7 @@ interface DQRun {
   id: string;
   projectId: string;
   runId: string;
+  runName: string;
   status: 'success' | 'failed' | 'running' | 'paused';
   startTime: string;
   duration: string;
@@ -63,6 +64,7 @@ const initialRuns: DQRun[] = [
     id: '1',
     projectId: '1',
     runId: 'run-001',
+    runName: 'Customer Data Validation Run',
     status: 'success',
     startTime: '2025-01-22 14:30',
     duration: '15m 32s',
@@ -73,6 +75,7 @@ const initialRuns: DQRun[] = [
     id: '2',
     projectId: '2',
     runId: 'run-002',
+    runName: 'Financial Records QC Run',
     status: 'failed',
     startTime: '2025-01-22 13:15',
     duration: '3m 12s',
@@ -83,6 +86,7 @@ const initialRuns: DQRun[] = [
     id: '3',
     projectId: '3',
     runId: 'run-003',
+    runName: 'Inventory Data Check Run',
     status: 'running',
     startTime: '2025-01-22 15:00',
     duration: '5m 20s',
@@ -93,6 +97,7 @@ const initialRuns: DQRun[] = [
     id: '4',
     projectId: '1',
     runId: 'run-004',
+    runName: 'Customer Data Validation Run',
     status: 'paused',
     startTime: '2025-01-22 12:30',
     duration: '8m 45s',
@@ -108,15 +113,33 @@ interface DQProjectsProps {
 
 export const DQProjects = ({ userInfo, onLogout }: DQProjectsProps) => {
   const navigate = useNavigate();
-  const [projects, setProjects] = useState<DQProject[]>(initialProjects);
-  const [runs, setRuns] = useState<DQRun[]>(initialRuns);
+  
+  // Load data from localStorage on component mount, fallback to initial data
+  const [projects, setProjects] = useState<DQProject[]>(() => {
+    const savedProjects = localStorage.getItem('dq-projects');
+    return savedProjects ? JSON.parse(savedProjects) : initialProjects;
+  });
+  
+  const [runs, setRuns] = useState<DQRun[]>(() => {
+    const savedRuns = localStorage.getItem('dq-runs');
+    return savedRuns ? JSON.parse(savedRuns) : initialRuns;
+  });
+  
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
   const [selectedProject, setSelectedProject] = useState<DQProject | null>(null);
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
 
+  // Save data to localStorage whenever projects or runs change
+  useEffect(() => {
+    localStorage.setItem('dq-projects', JSON.stringify(projects));
+  }, [projects]);
+
+  useEffect(() => {
+    localStorage.setItem('dq-runs', JSON.stringify(runs));
+  }, [runs]);
+
   const [newProject, setNewProject] = useState({
     name: '',
-    source: '',
     description: ''
   });
 
@@ -124,14 +147,14 @@ export const DQProjects = ({ userInfo, onLogout }: DQProjectsProps) => {
     const project: DQProject = {
       id: Date.now().toString(),
       name: newProject.name,
-      source: newProject.source,
+      source: 'Not Configured',
       status: 'active',
       lastRun: new Date().toLocaleString('sv-SE').replace('T', ' ').slice(0, 16),
       description: newProject.description
     };
     
     setProjects([...projects, project]);
-    setNewProject({ name: '', source: '', description: '' });
+    setNewProject({ name: '', description: '' });
     setIsCreateDialogOpen(false);
   };
 
@@ -149,15 +172,22 @@ export const DQProjects = ({ userInfo, onLogout }: DQProjectsProps) => {
   };
 
   const handleReadProject = (projectId: string) => {
-    // Navigate to DQ Engine with the selected project
-    navigate('/dq-engine', { state: { selectedProjectId: projectId } });
+    const project = projects.find(p => p.id === projectId);
+    // If data source is configured, go directly to DQ Engine, otherwise start with data source selection
+    if (project && project.source !== 'Not Configured') {
+      navigate('/dq-engine', { state: { selectedProjectId: projectId } });
+    } else {
+      navigate('/dq-engine', { state: { selectedProjectId: projectId, needsDataConfig: true } });
+    }
   };
 
   const handleRunProject = (projectId: string) => {
+    const project = projects.find(p => p.id === projectId);
     const newRun: DQRun = {
       id: Date.now().toString(),
       projectId,
       runId: `run-${String(runs.length + 1).padStart(3, '0')}`,
+      runName: `${project?.name || 'Unknown Project'} Run`,
       status: 'running',
       startTime: new Date().toLocaleString('sv-SE').replace('T', ' ').slice(0, 16),
       duration: '0m 0s',
@@ -241,22 +271,7 @@ export const DQProjects = ({ userInfo, onLogout }: DQProjectsProps) => {
                       />
                     </div>
                     <div className="grid gap-2">
-                      <Label htmlFor="source">Data Source</Label>
-                      <Select onValueChange={(value) => setNewProject({ ...newProject, source: value })}>
-                        <SelectTrigger>
-                          <SelectValue placeholder="Select data source" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="Oracle DB">Oracle DB</SelectItem>
-                          <SelectItem value="PostgreSQL">PostgreSQL</SelectItem>
-                          <SelectItem value="MongoDB">MongoDB</SelectItem>
-                          <SelectItem value="MySQL">MySQL</SelectItem>
-                          <SelectItem value="SQL Server">SQL Server</SelectItem>
-                        </SelectContent>
-                      </Select>
-                    </div>
-                    <div className="grid gap-2">
-                      <Label htmlFor="description">Description</Label>
+                      <Label htmlFor="description">Description (Optional)</Label>
                       <Textarea
                         id="description"
                         value={newProject.description}
@@ -271,7 +286,7 @@ export const DQProjects = ({ userInfo, onLogout }: DQProjectsProps) => {
                     </Button>
                     <Button 
                       onClick={handleCreateProject}
-                      disabled={!newProject.name || !newProject.source}
+                      disabled={!newProject.name}
                       className="bg-purple-600 hover:bg-purple-700"
                     >
                       Create Project
@@ -300,7 +315,7 @@ export const DQProjects = ({ userInfo, onLogout }: DQProjectsProps) => {
                       onClick={() => handleReadProject(project.id)}
                       className="flex items-center gap-1 text-blue-600 hover:text-blue-700"
                     >
-                      <Play className="h-3 w-3" />
+                      <FileText className="h-3 w-3" />
                       Open
                     </Button>
                     <Button
@@ -350,19 +365,27 @@ export const DQProjects = ({ userInfo, onLogout }: DQProjectsProps) => {
               </div>
             </CardHeader>
             <CardContent className="space-y-4">
-              {runs.map((run) => (
+              {runs.map((run) => {
+                const project = projects.find(p => p.id === run.projectId);
+                return (
                 <div key={run.id} className="border rounded-lg p-4 space-y-3">
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-2">
                       {getStatusIcon(run.status)}
-                      <h3 className="font-semibold">Run {run.runId}</h3>
+                      <div>
+                        <h3 className="font-semibold">Run {run.runId}</h3>
+                        <p className="text-sm text-muted-foreground">Project: {project?.name || 'Unknown'}</p>
+                      </div>
                     </div>
                     <Badge variant={getStatusBadgeVariant(run.status)} className="bg-purple-600 text-white">
                       {run.status}
                     </Badge>
                   </div>
-                  <div className="text-sm text-muted-foreground">
-                    Started: {run.startTime}
+                  <div className="text-sm text-muted-foreground space-y-1">
+                    <div>Run ID: {run.runId}</div>
+                    <div>Project ID: {run.projectId}</div>
+                    <div>Run Name: {run.runName}</div>
+                    <div>Started: {run.startTime}</div>
                   </div>
                   <div className="grid grid-cols-3 gap-4 text-sm">
                     <div>
@@ -408,7 +431,8 @@ export const DQProjects = ({ userInfo, onLogout }: DQProjectsProps) => {
                     </Button>
                   </div>
                 </div>
-              ))}
+                );
+              })}
             </CardContent>
           </Card>
         </div>
