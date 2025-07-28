@@ -24,7 +24,7 @@ export const ResultsDashboard = ({ results, onBack }: ResultsDashboardProps) => 
         </div>
         <Button variant="outline" onClick={onBack} className="flex items-center space-x-2">
           <ArrowLeft className="w-4 h-4" />
-          <span>Back to Configuration</span>
+          <span>Back to Projects Dashboard</span>
         </Button>
       </div>
 

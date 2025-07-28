@@ -1,6 +1,6 @@
 
 import { useState, useEffect } from "react";
-import { useLocation } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import { DataSourceSelection } from "@/components/DataSourceSelection";
 import { ResultsDashboard } from "@/components/ResultsDashboard";
 import { Header } from "@/components/Header";
@@ -23,6 +23,7 @@ interface DQEngineProps {
 
 export const DQEngine = ({ userInfo, onLogout }: DQEngineProps) => {
   const location = useLocation();
+  const navigate = useNavigate();
   const [currentStep, setCurrentStep] = useState<"selection" | "results">("selection");
   const [assessmentResults, setAssessmentResults] = useState<any>(null);
   const [selectedProject, setSelectedProject] = useState<any>(null);
@@ -154,9 +155,8 @@ export const DQEngine = ({ userInfo, onLogout }: DQEngineProps) => {
   }, [location.state]);
 
 
-  const handleBackToSelection = () => {
-    setCurrentStep("selection");
-    setAssessmentResults(null);
+  const handleBackToProjects = () => {
+    navigate("/");
   };
 
   const handleUpdateDataConfig = () => {
@@ -206,7 +206,7 @@ export const DQEngine = ({ userInfo, onLogout }: DQEngineProps) => {
             </div>
             <ResultsDashboard 
               results={assessmentResults} 
-              onBack={handleBackToSelection} 
+              onBack={handleBackToProjects} 
             />
           </div>
         )}
