@@ -4,7 +4,7 @@ import { Header } from "@/components/Header";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Play, Pause, Trash2, Plus, RotateCcw, TrendingUp, X, CheckCircle, XCircle, Clock, AlertTriangle, FileText } from "lucide-react";
+import { Play, Pause, Trash2, Plus, RotateCcw, TrendingUp, X, CheckCircle, XCircle, Clock, AlertTriangle, FileText, Edit, Eye, Activity } from "lucide-react";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -209,6 +209,40 @@ export const DQProjects = ({ userInfo, onLogout }: DQProjectsProps) => {
     setRuns(runs.filter(r => r.id !== runId));
   };
 
+  const handleEditProject = (project: DQProject) => {
+    setSelectedProject(project);
+    setNewProject({ 
+      name: project.name, 
+      description: project.description || '' 
+    });
+    setIsEditDialogOpen(true);
+  };
+
+  const handleUpdateProject = () => {
+    if (selectedProject) {
+      setProjects(projects.map(p => 
+        p.id === selectedProject.id 
+          ? { ...p, name: newProject.name, description: newProject.description }
+          : p
+      ));
+      setNewProject({ name: '', description: '' });
+      setSelectedProject(null);
+      setIsEditDialogOpen(false);
+    }
+  };
+
+  const handleViewLogs = (projectId: string) => {
+    // Navigate to logs view for the project
+    console.log('Viewing logs for project:', projectId);
+  };
+
+  const getProjectRunStats = (projectId: string) => {
+    const projectRuns = runs.filter(r => r.projectId === projectId);
+    const latestRun = projectRuns.sort((a, b) => new Date(b.startTime).getTime() - new Date(a.startTime).getTime())[0];
+    const successCount = projectRuns.filter(r => r.status === 'success').length;
+    return { latestRun, successCount, totalRuns: projectRuns.length };
+  };
+
   const getStatusIcon = (status: string) => {
     switch (status) {
       case 'success': return <CheckCircle className="h-4 w-4 text-green-500" />;
@@ -294,60 +328,169 @@ export const DQProjects = ({ userInfo, onLogout }: DQProjectsProps) => {
                   </DialogFooter>
                 </DialogContent>
               </Dialog>
+
+              {/* Edit Project Dialog */}
+              <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
+                <DialogContent>
+                  <DialogHeader>
+                    <DialogTitle>Edit DQ Project</DialogTitle>
+                    <DialogDescription>
+                      Update the project details.
+                    </DialogDescription>
+                  </DialogHeader>
+                  <div className="grid gap-4 py-4">
+                    <div className="grid gap-2">
+                      <Label htmlFor="edit-name">Project Name</Label>
+                      <Input
+                        id="edit-name"
+                        value={newProject.name}
+                        onChange={(e) => setNewProject({ ...newProject, name: e.target.value })}
+                        placeholder="Enter project name"
+                      />
+                    </div>
+                    <div className="grid gap-2">
+                      <Label htmlFor="edit-description">Description (Optional)</Label>
+                      <Textarea
+                        id="edit-description"
+                        value={newProject.description}
+                        onChange={(e) => setNewProject({ ...newProject, description: e.target.value })}
+                        placeholder="Enter project description"
+                      />
+                    </div>
+                  </div>
+                  <DialogFooter>
+                    <Button variant="outline" onClick={() => setIsEditDialogOpen(false)}>
+                      Cancel
+                    </Button>
+                    <Button 
+                      onClick={handleUpdateProject}
+                      disabled={!newProject.name}
+                      className="bg-purple-600 hover:bg-purple-700"
+                    >
+                      Update Project
+                    </Button>
+                  </DialogFooter>
+                </DialogContent>
+              </Dialog>
             </CardHeader>
             <CardContent className="space-y-4">
-              {projects.map((project) => (
-                <div key={project.id} className="border rounded-lg p-4 space-y-3">
-                  <div className="flex items-center justify-between">
-                    <h3 className="font-semibold">{project.name}</h3>
-                    <Badge variant={project.status === 'active' ? 'default' : 'secondary'} className="bg-purple-600 text-white">
-                      {project.status}
-                    </Badge>
+              {projects.map((project) => {
+                const { latestRun, successCount, totalRuns } = getProjectRunStats(project.id);
+                const isPaused = project.status === 'paused';
+                
+                return (
+                  <div 
+                    key={project.id} 
+                    className={`border rounded-lg p-4 space-y-3 transition-all duration-200 hover:shadow-md ${
+                      isPaused ? 'opacity-60 bg-gray-50 dark:bg-gray-900/50' : 'hover:border-purple-200'
+                    }`}
+                  >
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-3">
+                        <h3 className={`font-semibold ${isPaused ? 'text-gray-500' : ''}`}>
+                          {project.name}
+                        </h3>
+                        {/* Run-level indicator */}
+                        <div className="flex items-center gap-1 px-2 py-1 bg-gray-100 dark:bg-gray-800 rounded-full text-xs">
+                          <Activity className="h-3 w-3" />
+                          <span>{successCount}/{totalRuns}</span>
+                        </div>
+                        {latestRun && (
+                          <div className="flex items-center gap-1">
+                            {getStatusIcon(latestRun.status)}
+                          </div>
+                        )}
+                      </div>
+                      <Badge 
+                        variant={project.status === 'active' ? 'default' : 'secondary'} 
+                        className={`${project.status === 'active' ? 'bg-green-600 text-white' : 'bg-gray-500 text-white'}`}
+                      >
+                        {project.status}
+                      </Badge>
+                    </div>
+                    <div className="text-sm text-muted-foreground">
+                      <div>Source: {project.source}</div>
+                      <div>Last run: {project.lastRun}</div>
+                      {project.description && (
+                        <div className="text-xs mt-1 text-gray-600 dark:text-gray-400">
+                          {project.description}
+                        </div>
+                      )}
+                    </div>
+                    <div className="flex gap-2 flex-wrap">
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        onClick={() => handleReadProject(project.id)}
+                        className="flex items-center gap-1 text-blue-600 hover:text-blue-700 hover:bg-blue-50 transition-colors"
+                        disabled={isPaused}
+                      >
+                        <FileText className="h-3 w-3" />
+                        Open
+                      </Button>
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        onClick={() => handleRunProject(project.id)}
+                        className="flex items-center gap-1 hover:bg-green-50 hover:text-green-700 transition-colors"
+                        disabled={isPaused}
+                      >
+                        <Play className="h-3 w-3" />
+                        Run
+                      </Button>
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        onClick={() => handleToggleProjectStatus(project.id)}
+                        className={`flex items-center gap-1 transition-colors ${
+                          isPaused 
+                            ? 'hover:bg-green-50 hover:text-green-700' 
+                            : 'hover:bg-yellow-50 hover:text-yellow-700'
+                        }`}
+                      >
+                        {isPaused ? (
+                          <>
+                            <Play className="h-3 w-3" />
+                            Resume
+                          </>
+                        ) : (
+                          <>
+                            <Pause className="h-3 w-3" />
+                            Pause
+                          </>
+                        )}
+                      </Button>
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        onClick={() => handleEditProject(project)}
+                        className="flex items-center gap-1 hover:bg-purple-50 hover:text-purple-700 transition-colors"
+                      >
+                        <Edit className="h-3 w-3" />
+                        Edit
+                      </Button>
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        onClick={() => handleViewLogs(project.id)}
+                        className="flex items-center gap-1 hover:bg-gray-50 hover:text-gray-700 transition-colors"
+                      >
+                        <Eye className="h-3 w-3" />
+                        View Logs
+                      </Button>
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        onClick={() => handleDeleteProject(project.id)}
+                        className="flex items-center gap-1 text-red-600 hover:text-red-700 hover:bg-red-50 transition-colors"
+                      >
+                        <Trash2 className="h-3 w-3" />
+                        Delete
+                      </Button>
+                    </div>
                   </div>
-                  <div className="text-sm text-muted-foreground">
-                    <div>Source: {project.source}</div>
-                    <div>Last run: {project.lastRun}</div>
-                  </div>
-                  <div className="flex gap-2">
-                    <Button
-                      size="sm"
-                      variant="outline"
-                      onClick={() => handleReadProject(project.id)}
-                      className="flex items-center gap-1 text-blue-600 hover:text-blue-700"
-                    >
-                      <FileText className="h-3 w-3" />
-                      Open
-                    </Button>
-                    <Button
-                      size="sm"
-                      variant="outline"
-                      onClick={() => handleRunProject(project.id)}
-                      className="flex items-center gap-1"
-                    >
-                      <Play className="h-3 w-3" />
-                      Run
-                    </Button>
-                    <Button
-                      size="sm"
-                      variant="outline"
-                      onClick={() => handleToggleProjectStatus(project.id)}
-                      className="flex items-center gap-1"
-                    >
-                      <Pause className="h-3 w-3" />
-                      Pause
-                    </Button>
-                    <Button
-                      size="sm"
-                      variant="outline"
-                      onClick={() => handleDeleteProject(project.id)}
-                      className="flex items-center gap-1 text-red-600 hover:text-red-700"
-                    >
-                      <Trash2 className="h-3 w-3" />
-                      Delete
-                    </Button>
-                  </div>
-                </div>
-              ))}
+                );
+              })}
             </CardContent>
           </Card>
 
@@ -364,73 +507,82 @@ export const DQProjects = ({ userInfo, onLogout }: DQProjectsProps) => {
                 </div>
               </div>
             </CardHeader>
-            <CardContent className="space-y-4">
+            <CardContent className="space-y-3">
               {runs.map((run) => {
                 const project = projects.find(p => p.id === run.projectId);
                 return (
-                <div key={run.id} className="border rounded-lg p-4 space-y-3">
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-2">
-                      {getStatusIcon(run.status)}
-                      <div>
-                        <h3 className="font-semibold">Run {run.runId}</h3>
-                        <p className="text-sm text-muted-foreground">Project: {project?.name || 'Unknown'}</p>
+                  <div 
+                    key={run.id} 
+                    className="border rounded-lg p-3 space-y-2 hover:shadow-sm hover:border-purple-200 transition-all duration-200"
+                  >
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-2">
+                        {getStatusIcon(run.status)}
+                        <div>
+                          <h4 className="font-medium text-sm">{run.runName}</h4>
+                          <p className="text-xs text-muted-foreground">
+                            {project?.name || 'Unknown Project'} • {run.runId}
+                          </p>
+                        </div>
+                      </div>
+                      <Badge 
+                        variant={getStatusBadgeVariant(run.status)} 
+                        className={`text-xs ${
+                          run.status === 'success' ? 'bg-green-600 text-white' :
+                          run.status === 'failed' ? 'bg-red-600 text-white' :
+                          run.status === 'running' ? 'bg-blue-600 text-white' :
+                          'bg-yellow-600 text-white'
+                        }`}
+                      >
+                        {run.status}
+                      </Badge>
+                    </div>
+                    
+                    <div className="grid grid-cols-3 gap-3 text-xs">
+                      <div className="text-center">
+                        <div className="text-muted-foreground">Duration</div>
+                        <div className="font-medium">{run.duration}</div>
+                      </div>
+                      <div className="text-center">
+                        <div className="text-muted-foreground">Records</div>
+                        <div className="font-medium">{run.records.toLocaleString()}</div>
+                      </div>
+                      <div className="text-center">
+                        <div className="text-muted-foreground">Errors</div>
+                        <div className={`font-medium ${run.errors > 0 ? 'text-red-600' : 'text-green-600'}`}>
+                          {run.errors}
+                        </div>
                       </div>
                     </div>
-                    <Badge variant={getStatusBadgeVariant(run.status)} className="bg-purple-600 text-white">
-                      {run.status}
-                    </Badge>
-                  </div>
-                  <div className="text-sm text-muted-foreground space-y-1">
-                    <div>Run ID: {run.runId}</div>
-                    <div>Project ID: {run.projectId}</div>
-                    <div>Run Name: {run.runName}</div>
-                    <div>Started: {run.startTime}</div>
-                  </div>
-                  <div className="grid grid-cols-3 gap-4 text-sm">
-                    <div>
-                      <div className="text-muted-foreground">Duration:</div>
-                      <div className="font-medium">{run.duration}</div>
+                    
+                    <div className="flex gap-1 pt-1">
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        className="flex items-center gap-1 text-xs h-7 px-2 hover:bg-blue-50 hover:text-blue-700 transition-colors"
+                      >
+                        <RotateCcw className="h-3 w-3" />
+                        Rerun
+                      </Button>
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        className="flex items-center gap-1 text-xs h-7 px-2 hover:bg-green-50 hover:text-green-700 transition-colors"
+                      >
+                        <TrendingUp className="h-3 w-3" />
+                        Performance
+                      </Button>
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        onClick={() => handleRemoveRun(run.id)}
+                        className="flex items-center gap-1 text-xs h-7 px-2 text-red-600 hover:text-red-700 hover:bg-red-50 transition-colors"
+                      >
+                        <X className="h-3 w-3" />
+                        Remove
+                      </Button>
                     </div>
-                    <div>
-                      <div className="text-muted-foreground">Records:</div>
-                      <div className="font-medium">{run.records.toLocaleString()}</div>
-                    </div>
-                    <div>
-                      <div className="text-muted-foreground">Errors:</div>
-                      <div className={`font-medium ${run.errors > 0 ? 'text-red-600' : 'text-green-600'}`}>
-                        {run.errors}
-                      </div>
-                    </div>
                   </div>
-                  <div className="flex gap-2">
-                    <Button
-                      size="sm"
-                      variant="outline"
-                      className="flex items-center gap-1"
-                    >
-                      <RotateCcw className="h-3 w-3" />
-                      Rerun
-                    </Button>
-                    <Button
-                      size="sm"
-                      variant="outline"
-                      className="flex items-center gap-1"
-                    >
-                      <TrendingUp className="h-3 w-3" />
-                      Performance
-                    </Button>
-                    <Button
-                      size="sm"
-                      variant="outline"
-                      onClick={() => handleRemoveRun(run.id)}
-                      className="flex items-center gap-1 text-red-600 hover:text-red-700"
-                    >
-                      <X className="h-3 w-3" />
-                      Remove
-                    </Button>
-                  </div>
-                </div>
                 );
               })}
             </CardContent>
