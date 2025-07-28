@@ -35,16 +35,51 @@ export const DQEngine = ({ userInfo, onLogout }: DQEngineProps) => {
   useEffect(() => {
     // Check if a project was selected from DQ Projects page
     if (location.state?.selectedProjectId) {
-      // Mock project data - in real app this would come from API
-      const projectData = {
+      console.log('DQ Engine received project ID:', location.state.selectedProjectId);
+      console.log('Location state:', location.state);
+      
+      // Get actual project data based on the project ID received
+      const projectMapping: { [key: string]: any } = {
+        '1': {
+          id: '1',
+          name: 'Customer Data Validation',
+          source: 'Oracle DB',
+          query: 'SELECT * FROM customer_data WHERE created_date >= DATE_SUB(NOW(), INTERVAL 1 MONTH)',
+          description: 'Validates customer data integrity and completeness',
+          configFile: null,
+          aiApproach: 'isolation-forest'
+        },
+        '2': {
+          id: '2',
+          name: 'Transaction Anomaly Detection',
+          source: 'PostgreSQL',
+          query: 'SELECT * FROM transactions WHERE amount > 10000 OR merchant_category_unusual = true',
+          description: 'Detects unusual transaction patterns and potential fraud',
+          configFile: null,
+          aiApproach: 'clustering'
+        },
+        '3': {
+          id: '3',
+          name: 'Product Inventory Analysis',
+          source: 'CSV Upload',
+          query: '',
+          description: 'Analyzes product inventory data for quality issues',
+          configFile: null,
+          aiApproach: 'statistical-outlier'
+        }
+      };
+      
+      const projectData = projectMapping[location.state.selectedProjectId] || {
         id: location.state.selectedProjectId,
-        name: 'Customer Data Validation',
+        name: 'Default Project',
         source: 'Oracle DB',
-        query: 'SELECT * FROM customer_data WHERE created_date >= DATE_SUB(NOW(), INTERVAL 1 MONTH)',
-        description: 'Validates customer data integrity and completeness',
+        query: 'SELECT * FROM default_data',
+        description: 'Default project configuration',
         configFile: null,
         aiApproach: 'isolation-forest'
       };
+      
+      console.log('Setting project data:', projectData);
       setSelectedProject(projectData);
       
       // If data source is already configured and no data config needed, skip to results
