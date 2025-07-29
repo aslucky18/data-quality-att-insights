@@ -217,62 +217,7 @@ export const DQEngine = ({ userInfo, onLogout }: DQEngineProps) => {
               onBack={handleBackToProjects} 
             />
             
-            {/* Run History Section */}
-            <div className="mt-8">
-              <h3 className="text-2xl font-bold text-gray-900 mb-4">Complete Run History</h3>
-              <div className="grid gap-4">
-                {runHistory.length === 0 ? (
-                  <div className="text-center py-8 bg-gray-50 rounded-lg">
-                    <p className="text-gray-500">No run history available</p>
-                  </div>
-                ) : (
-                  runHistory.map((run: any) => {
-                    const getStatusIcon = (status: string) => {
-                      switch (status) {
-                        case 'success': return <div className="w-2 h-2 bg-green-500 rounded-full" />;
-                        case 'failed': return <div className="w-2 h-2 bg-red-500 rounded-full" />;
-                        case 'running': return <div className="w-2 h-2 bg-blue-500 rounded-full animate-pulse" />;
-                        case 'paused': return <div className="w-2 h-2 bg-yellow-500 rounded-full" />;
-                        default: return null;
-                      }
-                    };
-
-                    return (
-                      <div 
-                        key={run.id}
-                        className="border rounded-lg p-4 bg-white hover:shadow-md transition-shadow"
-                      >
-                        <div className="flex items-center justify-between">
-                          <div className="flex items-center gap-3">
-                            {getStatusIcon(run.status)}
-                            <div>
-                              <h4 className="font-medium">{run.runName}</h4>
-                              <p className="text-sm text-gray-600">
-                                {run.runId} • {run.startTime} • {run.duration}
-                              </p>
-                            </div>
-                          </div>
-                          <div className="flex items-center gap-4 text-sm">
-                            <span>Records: {run.records?.toLocaleString() || 0}</span>
-                            <span className={run.errors > 0 ? 'text-red-600' : 'text-green-600'}>
-                              Errors: {run.errors || 0}
-                            </span>
-                            <span className={`px-2 py-1 rounded text-xs ${
-                              run.status === 'success' ? 'bg-green-100 text-green-800' :
-                              run.status === 'failed' ? 'bg-red-100 text-red-800' :
-                              run.status === 'running' ? 'bg-blue-100 text-blue-800' :
-                              'bg-yellow-100 text-yellow-800'
-                            }`}>
-                              {run.status}
-                            </span>
-                          </div>
-                        </div>
-                      </div>
-                    );
-                  })
-                )}
-              </div>
-            </div>
+            
           </div>
         )}
       </main>
