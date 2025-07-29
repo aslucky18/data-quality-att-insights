@@ -171,14 +171,8 @@ export const DQProjects = ({ userInfo, onLogout }: DQProjectsProps) => {
     ));
   };
 
-  const handleReadProject = (projectId: string) => {
-    const project = projects.find(p => p.id === projectId);
-    // If data source is configured, go directly to DQ Engine, otherwise start with data source selection
-    if (project && project.source !== 'Not Configured') {
-      navigate('/dq-engine', { state: { selectedProjectId: projectId } });
-    } else {
-      navigate('/dq-engine', { state: { selectedProjectId: projectId, needsDataConfig: true } });
-    }
+  const handleOpenProject = (projectId: string) => {
+    navigate(`/project-runs/${projectId}`);
   };
 
   const handleRunProject = (projectId: string) => {
@@ -263,13 +257,81 @@ export const DQProjects = ({ userInfo, onLogout }: DQProjectsProps) => {
     }
   };
 
+  // Handle empty state
+  if (projects.length === 0) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-blue-50 to-white">
+        <Header userInfo={userInfo} onLogout={onLogout} />
+        <div className="min-h-[80vh] flex items-center justify-center">
+          <div className="text-center space-y-6">
+            <div className="w-24 h-24 bg-purple-100 rounded-full flex items-center justify-center mx-auto">
+              <span className="text-4xl">📋</span>
+            </div>
+            <div>
+              <h1 className="text-3xl font-bold text-gray-900 mb-2">No Projects Yet</h1>
+              <p className="text-gray-600 mb-6">Get started by creating your first data quality project</p>
+            </div>
+            <Dialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>
+              <DialogTrigger asChild>
+                <Button size="lg" className="bg-purple-600 hover:bg-purple-700 text-white">
+                  <Plus className="h-5 w-5 mr-2" />
+                  Create Your First Project
+                </Button>
+              </DialogTrigger>
+              <DialogContent>
+                <DialogHeader>
+                  <DialogTitle>Create New DQ Project</DialogTitle>
+                  <DialogDescription>
+                    Add a new data quality project to monitor and validate your data.
+                  </DialogDescription>
+                </DialogHeader>
+                <div className="grid gap-4 py-4">
+                  <div className="grid gap-2">
+                    <Label htmlFor="name">Project Name</Label>
+                    <Input
+                      id="name"
+                      value={newProject.name}
+                      onChange={(e) => setNewProject({ ...newProject, name: e.target.value })}
+                      placeholder="Enter project name"
+                    />
+                  </div>
+                  <div className="grid gap-2">
+                    <Label htmlFor="description">Description (Optional)</Label>
+                    <Textarea
+                      id="description"
+                      value={newProject.description}
+                      onChange={(e) => setNewProject({ ...newProject, description: e.target.value })}
+                      placeholder="Enter project description"
+                    />
+                  </div>
+                </div>
+                <DialogFooter>
+                  <Button variant="outline" onClick={() => setIsCreateDialogOpen(false)}>
+                    Cancel
+                  </Button>
+                  <Button 
+                    onClick={handleCreateProject}
+                    disabled={!newProject.name}
+                    className="bg-purple-600 hover:bg-purple-700"
+                  >
+                    Create Project
+                  </Button>
+                </DialogFooter>
+              </DialogContent>
+            </Dialog>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-white">
       <Header userInfo={userInfo} onLogout={onLogout} />
-      <div className="container mx-auto max-w-7xl p-6">
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <div className="container mx-auto max-w-4xl p-6">
+        <div className="flex justify-center">
           {/* DQ Projects Section */}
-          <Card className="h-fit">
+          <Card className="w-full max-w-4xl">
             <CardHeader className="flex flex-row items-center justify-between">
               <div className="flex items-center gap-2">
                 <div className="p-2 bg-orange-100 rounded-lg">
@@ -421,7 +483,7 @@ export const DQProjects = ({ userInfo, onLogout }: DQProjectsProps) => {
                       <Button
                         size="sm"
                         variant="outline"
-                        onClick={() => handleReadProject(project.id)}
+                        onClick={() => handleOpenProject(project.id)}
                         className="flex items-center gap-1 text-blue-600 hover:text-blue-700 hover:bg-blue-50 transition-colors"
                         disabled={isPaused}
                       >
@@ -463,123 +525,11 @@ export const DQProjects = ({ userInfo, onLogout }: DQProjectsProps) => {
                       <Button
                         size="sm"
                         variant="outline"
-                        onClick={() => handleEditProject(project)}
-                        className="flex items-center gap-1 hover:bg-purple-50 hover:text-purple-700 transition-colors"
-                      >
-                        <Edit className="h-3 w-3" />
-                        Edit
-                      </Button>
-                      <Button
-                        size="sm"
-                        variant="outline"
-                        onClick={() => handleViewLogs(project.id)}
-                        className="flex items-center gap-1 hover:bg-gray-50 hover:text-gray-700 transition-colors"
-                      >
-                        <Eye className="h-3 w-3" />
-                        View Logs
-                      </Button>
-                      <Button
-                        size="sm"
-                        variant="outline"
                         onClick={() => handleDeleteProject(project.id)}
                         className="flex items-center gap-1 text-red-600 hover:text-red-700 hover:bg-red-50 transition-colors"
                       >
                         <Trash2 className="h-3 w-3" />
                         Delete
-                      </Button>
-                    </div>
-                  </div>
-                );
-              })}
-            </CardContent>
-          </Card>
-
-          {/* DQ Run Level Items Section */}
-          <Card className="h-fit">
-            <CardHeader>
-              <div className="flex items-center gap-2">
-                <div className="p-2 bg-orange-100 rounded-lg">
-                  <span className="text-2xl">⚡</span>
-                </div>
-                <div>
-                  <CardTitle className="text-xl">DQ Run Level Items</CardTitle>
-                  <CardDescription>Job execution status and performance metrics</CardDescription>
-                </div>
-              </div>
-            </CardHeader>
-            <CardContent className="space-y-3">
-              {runs.map((run) => {
-                const project = projects.find(p => p.id === run.projectId);
-                return (
-                  <div 
-                    key={run.id} 
-                    className="border rounded-lg p-3 space-y-2 hover:shadow-sm hover:border-purple-200 transition-all duration-200"
-                  >
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-2">
-                        {getStatusIcon(run.status)}
-                        <div>
-                          <h4 className="font-medium text-sm">{run.runName}</h4>
-                          <p className="text-xs text-muted-foreground">
-                            {project?.name || 'Unknown Project'} • {run.runId}
-                          </p>
-                        </div>
-                      </div>
-                      <Badge 
-                        variant={getStatusBadgeVariant(run.status)} 
-                        className={`text-xs ${
-                          run.status === 'success' ? 'bg-green-600 text-white' :
-                          run.status === 'failed' ? 'bg-red-600 text-white' :
-                          run.status === 'running' ? 'bg-blue-600 text-white' :
-                          'bg-yellow-600 text-white'
-                        }`}
-                      >
-                        {run.status}
-                      </Badge>
-                    </div>
-                    
-                    <div className="grid grid-cols-3 gap-3 text-xs">
-                      <div className="text-center">
-                        <div className="text-muted-foreground">Duration</div>
-                        <div className="font-medium">{run.duration}</div>
-                      </div>
-                      <div className="text-center">
-                        <div className="text-muted-foreground">Records</div>
-                        <div className="font-medium">{run.records.toLocaleString()}</div>
-                      </div>
-                      <div className="text-center">
-                        <div className="text-muted-foreground">Errors</div>
-                        <div className={`font-medium ${run.errors > 0 ? 'text-red-600' : 'text-green-600'}`}>
-                          {run.errors}
-                        </div>
-                      </div>
-                    </div>
-                    
-                    <div className="flex gap-1 pt-1">
-                      <Button
-                        size="sm"
-                        variant="outline"
-                        className="flex items-center gap-1 text-xs h-7 px-2 hover:bg-blue-50 hover:text-blue-700 transition-colors"
-                      >
-                        <RotateCcw className="h-3 w-3" />
-                        Rerun
-                      </Button>
-                      <Button
-                        size="sm"
-                        variant="outline"
-                        className="flex items-center gap-1 text-xs h-7 px-2 hover:bg-green-50 hover:text-green-700 transition-colors"
-                      >
-                        <TrendingUp className="h-3 w-3" />
-                        Performance
-                      </Button>
-                      <Button
-                        size="sm"
-                        variant="outline"
-                        onClick={() => handleRemoveRun(run.id)}
-                        className="flex items-center gap-1 text-xs h-7 px-2 text-red-600 hover:text-red-700 hover:bg-red-50 transition-colors"
-                      >
-                        <X className="h-3 w-3" />
-                        Remove
                       </Button>
                     </div>
                   </div>

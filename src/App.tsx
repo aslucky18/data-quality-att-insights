@@ -7,6 +7,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { LoginPage } from "@/components/LoginPage";
 import { DQProjects } from "./pages/DQProjects";
 import { DQEngine } from "./pages/DQEngine";
+import { DQProjectRuns } from "./pages/DQProjectRuns";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -38,6 +39,7 @@ const App = () => {
               <Routes>
                 <Route path="/" element={<DQProjects userInfo={userInfo} onLogout={handleLogout} />} />
                 <Route path="/dq-engine" element={<DQEngine userInfo={userInfo} onLogout={handleLogout} />} />
+                <Route path="/project-runs/:projectId" element={<DQProjectRuns userInfo={userInfo} onLogout={handleLogout} />} />
                 {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
                 <Route path="*" element={<NotFound />} />
               </Routes>
