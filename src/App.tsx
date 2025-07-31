@@ -8,6 +8,7 @@ import { LoginPage } from "@/components/LoginPage";
 import { DQProjects } from "./pages/DQProjects";
 import { DQEngine } from "./pages/DQEngine";
 import { DQProjectConfiguration } from "./pages/DQProjectConfiguration";
+import { DQProjectRuns } from "./pages/DQProjectRuns";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -41,6 +42,7 @@ const App = () => {
                 <Route path="/dq-engine" element={<DQEngine userInfo={userInfo} onLogout={handleLogout} />} />
                 <Route path="/project-configuration" element={<DQProjectConfiguration userInfo={userInfo} onLogout={handleLogout} />} />
                 <Route path="/project-configuration/:projectId" element={<DQProjectConfiguration userInfo={userInfo} onLogout={handleLogout} />} />
+                <Route path="/project-runs/:projectId" element={<DQProjectRuns userInfo={userInfo} onLogout={handleLogout} />} />
                 {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
                 <Route path="*" element={<NotFound />} />
               </Routes>

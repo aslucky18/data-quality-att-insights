@@ -150,7 +150,7 @@ export const DQProjects = ({ userInfo, onLogout }: DQProjectsProps) => {
   };
 
   const handleOpenProject = (projectId: string) => {
-    navigate(`/dq-engine`, { state: { selectedProjectId: projectId } });
+    navigate(`/project-runs/${projectId}`);
   };
 
   const handleRunProject = (projectId: string) => {
