@@ -23,8 +23,7 @@ export const ResultsDashboard = ({ results, onBack }: ResultsDashboardProps) => 
           <p className="text-gray-600">Data Quality Assessment completed successfully</p>
         </div>
         <Button variant="outline" onClick={onBack} className="flex items-center space-x-2">
-          <ArrowLeft className="w-4 h-4" />
-          <span>Back to Projects Dashboard</span>
+          <ArrowLeft className="w-4 h-4" />          
         </Button>
       </div>
 

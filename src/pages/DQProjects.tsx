@@ -259,7 +259,7 @@ export const DQProjects = ({ userInfo, onLogout }: DQProjectsProps) => {
                   <span className="text-2xl">📋</span>
                 </div>
                 <div>
-                  <CardTitle className="text-xl">DQ Projects</CardTitle>
+                  <CardTitle className="text-xl">Data Quality Projects</CardTitle>
                   <CardDescription>Data Quality project management</CardDescription>
                 </div>
               </div>

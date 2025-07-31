@@ -203,14 +203,7 @@ export const DQEngine = ({ userInfo, onLogout }: DQEngineProps) => {
           <div className="space-y-6">
             <div className="flex items-center justify-between">
               <h2 className="text-3xl font-bold text-gray-900">Quality Assessment Results</h2>
-              <Button
-                onClick={handleUpdateDataConfig}
-                variant="outline"
-                className="flex items-center gap-2"
-              >
-                <Settings className="h-4 w-4" />
-                Update Data Configuration
-              </Button>
+              
             </div>
             <ResultsDashboard 
               results={assessmentResults} 
