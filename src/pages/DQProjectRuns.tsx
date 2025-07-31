@@ -158,11 +158,11 @@ export const DQProjectRuns = ({ userInfo, onLogout }: DQProjectRunsProps) => {
           <div className="flex items-center gap-4">
             <Button
               variant="outline"
-              onClick={handleBackToProjects}
-              className="flex items-center gap-2"
+              onClick={() => window.history.back()}
+              size="icon"
+              className="h-auto p-2"
             >
               <ArrowLeft className="h-4 w-4" />
-              Back to Projects
             </Button>
             <div>
               <h1 className="text-3xl font-bold text-gray-900">
@@ -245,10 +245,10 @@ export const DQProjectRuns = ({ userInfo, onLogout }: DQProjectRunsProps) => {
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-3">
                       {getStatusIcon(run.status)}
-                      <div>
-                        <h3 className="font-semibold">{run.runName}</h3>
+                       <div>
+                        <h3 className="font-semibold">Run ID: {run.runId}</h3>
                         <p className="text-sm text-gray-600">
-                          Run ID: {run.runId} • Started: {run.startTime}
+                          {project.name} • {run.startTime}
                         </p>
                       </div>
                     </div>
@@ -283,13 +283,13 @@ export const DQProjectRuns = ({ userInfo, onLogout }: DQProjectRunsProps) => {
                   </div>
                   
                   <div className="flex gap-2 pt-2">
-                    <Button
+                     <Button
                       size="sm"
                       onClick={() => handleViewRun(run.id)}
                       className="flex items-center gap-1 bg-blue-600 hover:bg-blue-700 text-white"
                     >
                       <Eye className="h-3 w-3" />
-                      View Results in DQ Engine
+                      View
                     </Button>
                     <Button
                       size="sm"
