@@ -22,7 +22,7 @@ export const ResultsDashboard = ({ results, onBack }: ResultsDashboardProps) => 
           <h2 className="text-3xl font-bold text-gray-900 mb-2">Assessment Results</h2>
           <p className="text-gray-600">Data Quality Assessment completed successfully</p>
         </div>
-        <Button variant="outline" onClick={onBack} className="flex items-center space-x-2">
+        <Button variant="outline" onClick={() => window.history.back()} size="icon" className="h-auto p-2">
           <ArrowLeft className="w-4 h-4" />          
         </Button>
       </div>

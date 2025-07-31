@@ -231,11 +231,11 @@ export const DQProjectConfiguration = ({ userInfo, onLogout }: DQProjectConfigur
           <div className="flex items-center gap-4">
             <Button
               variant="outline"
-              onClick={handleBackToProjects}
-              className="flex items-center gap-2"
+              onClick={() => window.history.back()}
+              size="icon"
+              className="h-auto p-2"
             >
               <ArrowLeft className="h-4 w-4" />
-              
             </Button>
             <div>
               <h1 className="text-3xl font-bold text-gray-900">

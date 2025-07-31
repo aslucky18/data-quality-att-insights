@@ -177,22 +177,6 @@ export const DQEngine = ({ userInfo, onLogout }: DQEngineProps) => {
       <Header userInfo={userInfo} onLogout={onLogout} />
       
       <main className="container mx-auto px-4 py-8">
-        {/* Breadcrumb */}
-        <div className="mb-6">
-          <Breadcrumb>
-            <BreadcrumbList>
-              <BreadcrumbItem>
-                <BreadcrumbLink href="/">Projects</BreadcrumbLink>
-              </BreadcrumbItem>
-              <BreadcrumbSeparator />
-              <BreadcrumbItem>
-                <BreadcrumbPage>
-                  {currentStep === "selection" ? "Data Configuration" : "Quality Assessment"}
-                </BreadcrumbPage>
-              </BreadcrumbItem>
-            </BreadcrumbList>
-          </Breadcrumb>
-        </div>
 
         {currentStep === "selection" ? (
           <DataSourceSelection 
@@ -200,18 +184,10 @@ export const DQEngine = ({ userInfo, onLogout }: DQEngineProps) => {
             preselectedProject={selectedProject}
           />
         ) : (
-          <div className="space-y-6">
-            <div className="flex items-center justify-between">
-              <h2 className="text-3xl font-bold text-gray-900">Quality Assessment Results</h2>
-              
-            </div>
-            <ResultsDashboard 
-              results={assessmentResults} 
-              onBack={handleBackToProjects} 
-            />
-            
-            
-          </div>
+          <ResultsDashboard 
+            results={assessmentResults} 
+            onBack={handleBackToProjects} 
+          />
         )}
       </main>
     </div>
