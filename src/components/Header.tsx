@@ -4,7 +4,7 @@ import { LogOut, User, Building2, Database } from "lucide-react";
 import { Link } from "react-router-dom";
 
 interface HeaderProps {
-  userInfo: { attuid: string } | null;
+  userInfo: { userid: string } | null;
   onLogout: () => void;
 }
 
@@ -17,15 +17,15 @@ export const Header = ({ userInfo, onLogout }: HeaderProps) => {
             <Building2 className="w-5 h-5 text-white" />
           </div>
           <div>
-            <h1 className="text-xl font-bold text-gray-900">AT&T Data Quality Framework</h1>
-            <p className="text-sm text-gray-600">Enterprise Data Assessment Platform</p>
+            <h1 className="text-xl font-bold text-gray-900">Enterprise Data Quality Framework</h1>
+            <p className="text-sm text-gray-600">Advanced Data Assessment Platform</p>
           </div>
         </div>
         
         <div className="flex items-center space-x-4">
           <div className="flex items-center space-x-2 text-gray-600">
             <User className="w-4 h-4" />
-            <span className="text-sm font-medium">{userInfo?.attuid}</span>
+            <span className="text-sm font-medium">{userInfo?.userid}</span>
           </div>
           <Button
             variant="ghost"

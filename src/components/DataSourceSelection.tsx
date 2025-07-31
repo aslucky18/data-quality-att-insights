@@ -99,7 +99,8 @@ export const DataSourceSelection = ({ onAssessmentComplete, preselectedProject }
             { name: 'Float64', value: 1, color: '#f59e0b' }
           ],
           constantDistribution: [
-            { name: 'false', value: 100, color: '#3b82f6' }
+            { name: 'Non-constant', value: 95, color: '#3b82f6' },
+            { name: 'Constant', value: 5, color: '#ef4444' }
           ]
         },
         stage2: {
@@ -253,7 +254,7 @@ export const DataSourceSelection = ({ onAssessmentComplete, preselectedProject }
               null_percentage: 0,
               unique_count: 23,
               unique_percentage: 2.3,
-              is_constant: 0,
+              is_constant: 1,
               zero_count: 0,
               zero_percentage: 0,
               negative_count: 0
@@ -339,7 +340,7 @@ export const DataSourceSelection = ({ onAssessmentComplete, preselectedProject }
   return (
     <div className="max-w-4xl mx-auto space-y-6">
       <div className="text-center mb-8">
-        <h2 className="text-3xl font-bold text-gray-900 mb-2">Data Configuration</h2>
+        <h2 className="text-3xl font-bold text-gray-900 mb-2">Project Configuration</h2>
         <p className="text-gray-600">Configure your data source and assessment parameters</p>
       </div>
 

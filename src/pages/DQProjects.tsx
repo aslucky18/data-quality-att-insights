@@ -4,12 +4,7 @@ import { Header } from "@/components/Header";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Play, Pause, Trash2, Plus, RotateCcw, TrendingUp, X, CheckCircle, XCircle, Clock, AlertTriangle, FileText, Edit, Eye, Activity } from "lucide-react";
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Textarea } from "@/components/ui/textarea";
+import { Play, Pause, Trash2, Plus, CheckCircle, XCircle, Clock, AlertTriangle, FileText, Activity } from "lucide-react";
 
 interface DQProject {
   id: string;
@@ -107,7 +102,7 @@ const initialRuns: DQRun[] = [
 ];
 
 interface DQProjectsProps {
-  userInfo: { attuid: string } | null;
+  userInfo: { userid: string } | null;
   onLogout: () => void;
 }
 
@@ -125,9 +120,6 @@ export const DQProjects = ({ userInfo, onLogout }: DQProjectsProps) => {
     return savedRuns ? JSON.parse(savedRuns) : initialRuns;
   });
   
-  const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
-  const [selectedProject, setSelectedProject] = useState<DQProject | null>(null);
-  const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
 
   // Save data to localStorage whenever projects or runs change
   useEffect(() => {
@@ -138,24 +130,10 @@ export const DQProjects = ({ userInfo, onLogout }: DQProjectsProps) => {
     localStorage.setItem('dq-runs', JSON.stringify(runs));
   }, [runs]);
 
-  const [newProject, setNewProject] = useState({
-    name: '',
-    description: ''
-  });
 
   const handleCreateProject = () => {
-    const project: DQProject = {
-      id: Date.now().toString(),
-      name: newProject.name,
-      source: 'Not Configured',
-      status: 'active',
-      lastRun: new Date().toLocaleString('sv-SE').replace('T', ' ').slice(0, 16),
-      description: newProject.description
-    };
-    
-    setProjects([...projects, project]);
-    setNewProject({ name: '', description: '' });
-    setIsCreateDialogOpen(false);
+    // Redirect to project configuration page
+    navigate('/project-configuration');
   };
 
   const handleDeleteProject = (id: string) => {
@@ -172,7 +150,7 @@ export const DQProjects = ({ userInfo, onLogout }: DQProjectsProps) => {
   };
 
   const handleOpenProject = (projectId: string) => {
-    navigate(`/project-runs/${projectId}`);
+    navigate(`/dq-engine`, { state: { selectedProjectId: projectId } });
   };
 
   const handleRunProject = (projectId: string) => {
@@ -204,26 +182,9 @@ export const DQProjects = ({ userInfo, onLogout }: DQProjectsProps) => {
   };
 
   const handleEditProject = (project: DQProject) => {
-    setSelectedProject(project);
-    setNewProject({ 
-      name: project.name, 
-      description: project.description || '' 
-    });
-    setIsEditDialogOpen(true);
+    navigate(`/project-configuration/${project.id}`);
   };
 
-  const handleUpdateProject = () => {
-    if (selectedProject) {
-      setProjects(projects.map(p => 
-        p.id === selectedProject.id 
-          ? { ...p, name: newProject.name, description: newProject.description }
-          : p
-      ));
-      setNewProject({ name: '', description: '' });
-      setSelectedProject(null);
-      setIsEditDialogOpen(false);
-    }
-  };
 
   const handleViewLogs = (projectId: string) => {
     // Navigate to logs view for the project
@@ -271,54 +232,14 @@ export const DQProjects = ({ userInfo, onLogout }: DQProjectsProps) => {
               <h1 className="text-3xl font-bold text-gray-900 mb-2">No Projects Yet</h1>
               <p className="text-gray-600 mb-6">Get started by creating your first data quality project</p>
             </div>
-            <Dialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>
-              <DialogTrigger asChild>
-                <Button size="lg" className="bg-purple-600 hover:bg-purple-700 text-white">
-                  <Plus className="h-5 w-5 mr-2" />
-                  Create Your First Project
-                </Button>
-              </DialogTrigger>
-              <DialogContent>
-                <DialogHeader>
-                  <DialogTitle>Create New DQ Project</DialogTitle>
-                  <DialogDescription>
-                    Add a new data quality project to monitor and validate your data.
-                  </DialogDescription>
-                </DialogHeader>
-                <div className="grid gap-4 py-4">
-                  <div className="grid gap-2">
-                    <Label htmlFor="name">Project Name</Label>
-                    <Input
-                      id="name"
-                      value={newProject.name}
-                      onChange={(e) => setNewProject({ ...newProject, name: e.target.value })}
-                      placeholder="Enter project name"
-                    />
-                  </div>
-                  <div className="grid gap-2">
-                    <Label htmlFor="description">Description (Optional)</Label>
-                    <Textarea
-                      id="description"
-                      value={newProject.description}
-                      onChange={(e) => setNewProject({ ...newProject, description: e.target.value })}
-                      placeholder="Enter project description"
-                    />
-                  </div>
-                </div>
-                <DialogFooter>
-                  <Button variant="outline" onClick={() => setIsCreateDialogOpen(false)}>
-                    Cancel
-                  </Button>
-                  <Button 
-                    onClick={handleCreateProject}
-                    disabled={!newProject.name}
-                    className="bg-purple-600 hover:bg-purple-700"
-                  >
-                    Create Project
-                  </Button>
-                </DialogFooter>
-              </DialogContent>
-            </Dialog>
+              <Button 
+                size="lg" 
+                className="bg-purple-600 hover:bg-purple-700 text-white"
+                onClick={handleCreateProject}
+              >
+                <Plus className="h-5 w-5 mr-2" />
+                Create Your First Project
+              </Button>
           </div>
         </div>
       </div>
@@ -342,98 +263,13 @@ export const DQProjects = ({ userInfo, onLogout }: DQProjectsProps) => {
                   <CardDescription>Data Quality project management</CardDescription>
                 </div>
               </div>
-              <Dialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>
-                <DialogTrigger asChild>
-                  <Button className="bg-purple-600 hover:bg-purple-700 text-white">
-                    <Plus className="h-4 w-4 mr-2" />
-                    Create New
-                  </Button>
-                </DialogTrigger>
-                <DialogContent>
-                  <DialogHeader>
-                    <DialogTitle>Create New DQ Project</DialogTitle>
-                    <DialogDescription>
-                      Add a new data quality project to monitor and validate your data.
-                    </DialogDescription>
-                  </DialogHeader>
-                  <div className="grid gap-4 py-4">
-                    <div className="grid gap-2">
-                      <Label htmlFor="name">Project Name</Label>
-                      <Input
-                        id="name"
-                        value={newProject.name}
-                        onChange={(e) => setNewProject({ ...newProject, name: e.target.value })}
-                        placeholder="Enter project name"
-                      />
-                    </div>
-                    <div className="grid gap-2">
-                      <Label htmlFor="description">Description (Optional)</Label>
-                      <Textarea
-                        id="description"
-                        value={newProject.description}
-                        onChange={(e) => setNewProject({ ...newProject, description: e.target.value })}
-                        placeholder="Enter project description"
-                      />
-                    </div>
-                  </div>
-                  <DialogFooter>
-                    <Button variant="outline" onClick={() => setIsCreateDialogOpen(false)}>
-                      Cancel
-                    </Button>
-                    <Button 
-                      onClick={handleCreateProject}
-                      disabled={!newProject.name}
-                      className="bg-purple-600 hover:bg-purple-700"
-                    >
-                      Create Project
-                    </Button>
-                  </DialogFooter>
-                </DialogContent>
-              </Dialog>
-
-              {/* Edit Project Dialog */}
-              <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
-                <DialogContent>
-                  <DialogHeader>
-                    <DialogTitle>Edit DQ Project</DialogTitle>
-                    <DialogDescription>
-                      Update the project details.
-                    </DialogDescription>
-                  </DialogHeader>
-                  <div className="grid gap-4 py-4">
-                    <div className="grid gap-2">
-                      <Label htmlFor="edit-name">Project Name</Label>
-                      <Input
-                        id="edit-name"
-                        value={newProject.name}
-                        onChange={(e) => setNewProject({ ...newProject, name: e.target.value })}
-                        placeholder="Enter project name"
-                      />
-                    </div>
-                    <div className="grid gap-2">
-                      <Label htmlFor="edit-description">Description (Optional)</Label>
-                      <Textarea
-                        id="edit-description"
-                        value={newProject.description}
-                        onChange={(e) => setNewProject({ ...newProject, description: e.target.value })}
-                        placeholder="Enter project description"
-                      />
-                    </div>
-                  </div>
-                  <DialogFooter>
-                    <Button variant="outline" onClick={() => setIsEditDialogOpen(false)}>
-                      Cancel
-                    </Button>
-                    <Button 
-                      onClick={handleUpdateProject}
-                      disabled={!newProject.name}
-                      className="bg-purple-600 hover:bg-purple-700"
-                    >
-                      Update Project
-                    </Button>
-                  </DialogFooter>
-                </DialogContent>
-              </Dialog>
+              <Button 
+                className="bg-purple-600 hover:bg-purple-700 text-white"
+                onClick={handleCreateProject}
+              >
+                <Plus className="h-4 w-4 mr-2" />
+                Create New
+              </Button>
             </CardHeader>
             <CardContent className="space-y-4">
               {projects.map((project) => {

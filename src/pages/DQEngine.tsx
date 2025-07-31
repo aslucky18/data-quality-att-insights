@@ -17,7 +17,7 @@ import {
 } from "@/components/ui/breadcrumb";
 
 interface DQEngineProps {
-  userInfo: { attuid: string } | null;
+  userInfo: { userid: string } | null;
   onLogout: () => void;
 }
 

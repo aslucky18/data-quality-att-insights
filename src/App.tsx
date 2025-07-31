@@ -7,18 +7,18 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { LoginPage } from "@/components/LoginPage";
 import { DQProjects } from "./pages/DQProjects";
 import { DQEngine } from "./pages/DQEngine";
-import { DQProjectRuns } from "./pages/DQProjectRuns";
+import { DQProjectConfiguration } from "./pages/DQProjectConfiguration";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
 
 const App = () => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [userInfo, setUserInfo] = useState<{ attuid: string } | null>(null);
+  const [userInfo, setUserInfo] = useState<{ userid: string } | null>(null);
 
-  const handleLogin = (attuid: string) => {
+  const handleLogin = (userid: string) => {
     setIsAuthenticated(true);
-    setUserInfo({ attuid });
+    setUserInfo({ userid });
   };
 
   const handleLogout = () => {
@@ -39,7 +39,8 @@ const App = () => {
               <Routes>
                 <Route path="/" element={<DQProjects userInfo={userInfo} onLogout={handleLogout} />} />
                 <Route path="/dq-engine" element={<DQEngine userInfo={userInfo} onLogout={handleLogout} />} />
-                <Route path="/project-runs/:projectId" element={<DQProjectRuns userInfo={userInfo} onLogout={handleLogout} />} />
+                <Route path="/project-configuration" element={<DQProjectConfiguration userInfo={userInfo} onLogout={handleLogout} />} />
+                <Route path="/project-configuration/:projectId" element={<DQProjectConfiguration userInfo={userInfo} onLogout={handleLogout} />} />
                 {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
                 <Route path="*" element={<NotFound />} />
               </Routes>

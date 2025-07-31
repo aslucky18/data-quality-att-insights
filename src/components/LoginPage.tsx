@@ -8,21 +8,21 @@ import { Building2 } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
 
 interface LoginPageProps {
-  onLogin: (attuid: string) => void;
+  onLogin: (userid: string) => void;
 }
 
 export const LoginPage = ({ onLogin }: LoginPageProps) => {
-  const [attuid, setAttuid] = useState("");
+  const [userid, setUserid] = useState("");
   const [password, setPassword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!attuid || !password) {
+    if (!userid || !password) {
       toast({
         variant: "destructive",
         title: "Error",
-        description: "Please enter both ATT UID and password",
+        description: "Please enter both User ID and password",
       });
       return;
     }
@@ -33,9 +33,9 @@ export const LoginPage = ({ onLogin }: LoginPageProps) => {
       await new Promise(resolve => setTimeout(resolve, 1000));
       toast({
         title: "Login Successful",
-        description: `Welcome to Data Quality Framework, ${attuid}`,
+        description: `Welcome to Data Quality Framework, ${userid}`,
       });
-      onLogin(attuid);
+      onLogin(userid);
     } catch (error) {
       toast({
         variant: "destructive",
@@ -57,24 +57,24 @@ export const LoginPage = ({ onLogin }: LoginPageProps) => {
             </div>
           </div>
           <CardTitle className="text-2xl font-bold text-gray-900">
-            AT&T Data Quality Framework
+            Enterprise Data Quality Framework
           </CardTitle>
           <CardDescription className="text-gray-600">
-            Sign in with your AT&T credentials to access the dashboard
+            Sign in with your credentials to access the dashboard
           </CardDescription>
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit} className="space-y-4">
             <div className="space-y-2">
-              <Label htmlFor="attuid" className="text-sm font-medium text-gray-700">
-                ATT UID
+              <Label htmlFor="userid" className="text-sm font-medium text-gray-700">
+                User ID
               </Label>
               <Input
-                id="attuid"
+                id="userid"
                 type="text"
-                placeholder="Enter your ATT UID"
-                value={attuid}
-                onChange={(e) => setAttuid(e.target.value)}
+                placeholder="Enter your User ID"
+                value={userid}
+                onChange={(e) => setUserid(e.target.value)}
                 className="w-full"
                 disabled={isLoading}
               />

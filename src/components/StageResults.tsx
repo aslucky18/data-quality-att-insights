@@ -161,7 +161,7 @@ export const StageResults = ({ title, description, data, stageNumber }: StageRes
                 <ResponsiveContainer width="100%" height={200}>
                   <PieChart>
                     <Pie
-                      data={data.constantDistribution}
+                      data={data.constantDistribution || [{ name: 'false', value: 100, color: '#3b82f6' }]}
                       cx="50%"
                       cy="50%"
                       outerRadius={80}
