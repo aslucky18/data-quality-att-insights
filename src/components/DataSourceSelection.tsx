@@ -379,9 +379,11 @@ export const DataSourceSelection = ({ onAssessmentComplete, preselectedProject }
                 <SelectValue placeholder="Select a data source" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="mongodb">MongoDB</SelectItem>
-                <SelectItem value="sql">SQL Database</SelectItem>
-                <SelectItem value="oracle">Oracle Database</SelectItem>
+                <SelectItem value="mysql">MySQL</SelectItem>
+                <SelectItem value="oracle">Oracle</SelectItem>
+                <SelectItem value="mongodb">Mongo DB</SelectItem>
+                <SelectItem value="trino">Trino</SelectItem>
+                <SelectItem value="azure_blob">Azure Blob</SelectItem>
                 <SelectItem value="xlsx">Excel File (.xlsx)</SelectItem>
                 <SelectItem value="csv">CSV File (.csv)</SelectItem>
                 <SelectItem value="json">JSON File (.json)</SelectItem>
