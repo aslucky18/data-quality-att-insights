@@ -137,6 +137,15 @@ export const DQProjectConfiguration = ({ userInfo, onLogout }: DQProjectConfigur
   };
 
   const handleSaveConnection = async () => {
+    if (!connectionVerified) {
+      toast({
+        variant: "destructive",
+        title: "Verification Required",
+        description: "Please verify the connection before saving",
+      });
+      return;
+    }
+    
     setIsSavingConnection(true);
     
     // Simulate saving connection
@@ -461,7 +470,7 @@ export const DQProjectConfiguration = ({ userInfo, onLogout }: DQProjectConfigur
                       type="button"
                       variant="outline"
                       onClick={handleSaveConnection}
-                      disabled={isSavingConnection}
+                      disabled={isSavingConnection || !connectionVerified}
                       className="flex items-center gap-2"
                     >
                       <Save className="h-4 w-4" />
@@ -564,7 +573,7 @@ export const DQProjectConfiguration = ({ userInfo, onLogout }: DQProjectConfigur
                       type="button"
                       variant="outline"
                       onClick={handleSaveConnection}
-                      disabled={isSavingConnection}
+                      disabled={isSavingConnection || !connectionVerified}
                       className="flex items-center gap-2"
                     >
                       <Save className="h-4 w-4" />
@@ -619,7 +628,7 @@ export const DQProjectConfiguration = ({ userInfo, onLogout }: DQProjectConfigur
                       type="button"
                       variant="outline"
                       onClick={handleSaveConnection}
-                      disabled={isSavingConnection}
+                      disabled={isSavingConnection || !connectionVerified}
                       className="flex items-center gap-2"
                     >
                       <Save className="h-4 w-4" />
@@ -722,7 +731,7 @@ export const DQProjectConfiguration = ({ userInfo, onLogout }: DQProjectConfigur
                       type="button"
                       variant="outline"
                       onClick={handleSaveConnection}
-                      disabled={isSavingConnection}
+                      disabled={isSavingConnection || !connectionVerified}
                       className="flex items-center gap-2"
                     >
                       <Save className="h-4 w-4" />
@@ -798,7 +807,7 @@ export const DQProjectConfiguration = ({ userInfo, onLogout }: DQProjectConfigur
                       type="button"
                       variant="outline"
                       onClick={handleSaveConnection}
-                      disabled={isSavingConnection}
+                      disabled={isSavingConnection || !connectionVerified}
                       className="flex items-center gap-2"
                     >
                       <Save className="h-4 w-4" />
