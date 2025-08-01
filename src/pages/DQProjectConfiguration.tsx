@@ -323,12 +323,15 @@ export const DQProjectConfiguration = ({ userInfo, onLogout }: DQProjectConfigur
                     <SelectValue placeholder="Select a data source" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="mongodb">MongoDB</SelectItem>
-                    <SelectItem value="sql">PostgreSQL</SelectItem>
-                    <SelectItem value="oracle">Oracle Database</SelectItem>
-                    <SelectItem value="xlsx">Excel File (.xlsx)</SelectItem>
-                    <SelectItem value="csv">CSV File (.csv)</SelectItem>
-                    <SelectItem value="json">JSON File (.json)</SelectItem>
+                    
+                <SelectItem value="mysql">MySQL</SelectItem>
+                <SelectItem value="oracle">Oracle</SelectItem>
+                <SelectItem value="mongodb">Mongo DB</SelectItem>
+                <SelectItem value="trino">Trino</SelectItem>
+                <SelectItem value="azure_blob">Azure Blob</SelectItem>
+                <SelectItem value="xlsx">Excel File (.xlsx)</SelectItem>
+                <SelectItem value="csv">CSV File (.csv)</SelectItem>
+                <SelectItem value="json">JSON File (.json)</SelectItem>
                   </SelectContent>
                 </Select>
                 {validationErrors.dataSource && (
