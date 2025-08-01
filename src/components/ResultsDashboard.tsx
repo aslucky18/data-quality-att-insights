@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -6,14 +5,27 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ArrowLeft, BarChart3, AlertTriangle, CheckCircle } from "lucide-react";
 import { StageResults } from "./StageResults";
 import { AlertManagement } from "./AlertManagement";
+import { useNavigate, useLocation } from "react-router-dom";
 
 interface ResultsDashboardProps {
   results: any;
-  onBack: () => void;
 }
 
-export const ResultsDashboard = ({ results, onBack }: ResultsDashboardProps) => {
+export const ResultsDashboard = ({ results }: ResultsDashboardProps) => {
   const [activeTab, setActiveTab] = useState("stage1");
+  const navigate = useNavigate();
+  const location = useLocation();
+
+  // Try to get projectId from location.state or results
+  const projectId = location.state?.selectedProjectId || results?.projectId;
+
+  const handleBack = () => {
+    if (projectId) {
+      navigate('/results-dashboard', { state: { selectedProjectId: projectId } });
+    } else {
+      navigate("/");
+    }
+  };
 
   return (
     <div className="max-w-7xl mx-auto space-y-6">
@@ -22,7 +34,7 @@ export const ResultsDashboard = ({ results, onBack }: ResultsDashboardProps) => 
           <h2 className="text-3xl font-bold text-gray-900 mb-2">Assessment Results</h2>
           <p className="text-gray-600">Data Quality Assessment completed successfully</p>
         </div>
-        <Button variant="outline" onClick={() => window.history.back()} size="icon" className="h-auto p-2">
+        <Button variant="outline" onClick={handleBack} size="icon" className="h-auto p-2">
           <ArrowLeft className="w-4 h-4" />          
         </Button>
       </div>
