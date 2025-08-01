@@ -52,6 +52,41 @@ export const DQProjectConfiguration = ({ userInfo, onLogout }: DQProjectConfigur
   const [aiApproaches, setAiApproaches] = useState<string[]>([]);
   const [connectionVerified, setConnectionVerified] = useState(false);
   const [isVerifying, setIsVerifying] = useState(false);
+  const [isSavingConnection, setIsSavingConnection] = useState(false);
+  
+  // Connection fields for different data sources
+  const [connectionFields, setConnectionFields] = useState({
+    // MySQL fields
+    mysql_host: '',
+    mysql_port: '3306',
+    mysql_username: '',
+    mysql_password: '',
+    mysql_database: '',
+    
+    // Oracle fields
+    oracle_host: '',
+    oracle_port: '1521',
+    oracle_sid: '',
+    oracle_username: '',
+    oracle_password: '',
+    oracle_database: '',
+    
+    // MongoDB fields
+    mongodb_connection_string: '',
+    
+    // Trino fields
+    trino_host: '',
+    trino_port: '8080',
+    trino_username: '',
+    trino_password: '',
+    trino_catalog: '',
+    trino_schema: '',
+    
+    // Azure Blob fields
+    azure_account_name: '',
+    azure_container_name: '',
+    azure_sas_token: ''
+  });
   const [validationErrors, setValidationErrors] = useState({
     name: '',
     description: '',
@@ -80,7 +115,7 @@ export const DQProjectConfiguration = ({ userInfo, onLogout }: DQProjectConfigur
     }
   }, [isEdit, projectId]);
 
-  const databaseSources = ["mongodb", "sql", "oracle"];
+  const databaseSources = ["mysql", "oracle", "mongodb", "trino", "azure_blob"];
   const fileSources = ["xlsx", "csv", "json"];
 
   const validateField = (field: string, value: string) => {
@@ -99,6 +134,24 @@ export const DQProjectConfiguration = ({ userInfo, onLogout }: DQProjectConfigur
   const handleFieldBlur = (field: string, value: string) => {
     const error = validateField(field, value);
     setValidationErrors(prev => ({ ...prev, [field]: error }));
+  };
+
+  const handleSaveConnection = async () => {
+    setIsSavingConnection(true);
+    
+    // Simulate saving connection
+    await new Promise(resolve => setTimeout(resolve, 1500));
+    
+    // Save connection to localStorage for the project
+    const connectionKey = `connection-${dataSource}-${project.name || 'new'}`;
+    localStorage.setItem(connectionKey, JSON.stringify(connectionFields));
+    
+    setIsSavingConnection(false);
+    
+    toast({
+      title: "Connection Saved",
+      description: "Connection configuration has been saved successfully",
+    });
   };
 
   const handleVerifyConnection = async () => {
@@ -156,9 +209,11 @@ export const DQProjectConfiguration = ({ userInfo, onLogout }: DQProjectConfigur
     const projects: DQProject[] = savedProjects ? JSON.parse(savedProjects) : [];
     
     const sourceMap = {
+      'mysql': 'MySQL',
+      'oracle': 'Oracle',
       'mongodb': 'MongoDB',
-      'sql': 'PostgreSQL', 
-      'oracle': 'Oracle DB',
+      'trino': 'Trino',
+      'azure_blob': 'Azure Blob',
       'xlsx': 'Excel File',
       'csv': 'CSV File',
       'json': 'JSON File'
@@ -339,13 +394,63 @@ export const DQProjectConfiguration = ({ userInfo, onLogout }: DQProjectConfigur
                 )}
               </div>
 
-              {databaseSources.includes(dataSource) && (
-                <>
-                  <div className="space-y-2">
+              {/* MySQL Connection Fields */}
+              {dataSource === 'mysql' && (
+                <div className="space-y-4 border rounded-lg p-4 bg-gray-50">
+                  <h4 className="font-medium text-gray-900">MySQL Connection Details</h4>
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <Label htmlFor="mysql_host">Host</Label>
+                      <Input
+                        id="mysql_host"
+                        value={connectionFields.mysql_host}
+                        onChange={(e) => setConnectionFields({...connectionFields, mysql_host: e.target.value})}
+                        placeholder="localhost"
+                      />
+                    </div>
+                    <div>
+                      <Label htmlFor="mysql_port">Port</Label>
+                      <Input
+                        id="mysql_port"
+                        value={connectionFields.mysql_port}
+                        onChange={(e) => setConnectionFields({...connectionFields, mysql_port: e.target.value})}
+                        placeholder="3306"
+                      />
+                    </div>
+                    <div>
+                      <Label htmlFor="mysql_username">Username</Label>
+                      <Input
+                        id="mysql_username"
+                        value={connectionFields.mysql_username}
+                        onChange={(e) => setConnectionFields({...connectionFields, mysql_username: e.target.value})}
+                        placeholder="root"
+                      />
+                    </div>
+                    <div>
+                      <Label htmlFor="mysql_password">Password</Label>
+                      <Input
+                        id="mysql_password"
+                        type="password"
+                        value={connectionFields.mysql_password}
+                        onChange={(e) => setConnectionFields({...connectionFields, mysql_password: e.target.value})}
+                        placeholder="Password"
+                      />
+                    </div>
+                  </div>
+                  <div>
+                    <Label htmlFor="mysql_database">Database</Label>
+                    <Input
+                      id="mysql_database"
+                      value={connectionFields.mysql_database}
+                      onChange={(e) => setConnectionFields({...connectionFields, mysql_database: e.target.value})}
+                      placeholder="Database name"
+                    />
+                  </div>
+                  <div>
                     <Label htmlFor="query">Database Query</Label>
                     <Textarea
                       id="query"
-                      placeholder="Enter your SQL/MongoDB query here..."
+                      placeholder="SELECT * FROM table_name WHERE condition"
                       value={query}
                       onChange={(e) => setQuery(e.target.value)}
                       rows={4}
@@ -355,8 +460,18 @@ export const DQProjectConfiguration = ({ userInfo, onLogout }: DQProjectConfigur
                     <Button
                       type="button"
                       variant="outline"
+                      onClick={handleSaveConnection}
+                      disabled={isSavingConnection}
+                      className="flex items-center gap-2"
+                    >
+                      <Save className="h-4 w-4" />
+                      {isSavingConnection ? 'Saving...' : 'Save Connection'}
+                    </Button>
+                    <Button
+                      type="button"
+                      variant="outline"
                       onClick={handleVerifyConnection}
-                      disabled={isVerifying || !query.trim()}
+                      disabled={isVerifying}
                       className="flex items-center gap-2"
                     >
                       {connectionVerified ? (
@@ -370,7 +485,344 @@ export const DQProjectConfiguration = ({ userInfo, onLogout }: DQProjectConfigur
                       <span className="text-sm text-green-600">✓ Connection verified successfully</span>
                     )}
                   </div>
-                </>
+                </div>
+              )}
+
+              {/* Oracle Connection Fields */}
+              {dataSource === 'oracle' && (
+                <div className="space-y-4 border rounded-lg p-4 bg-gray-50">
+                  <h4 className="font-medium text-gray-900">Oracle Connection Details</h4>
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <Label htmlFor="oracle_host">Host</Label>
+                      <Input
+                        id="oracle_host"
+                        value={connectionFields.oracle_host}
+                        onChange={(e) => setConnectionFields({...connectionFields, oracle_host: e.target.value})}
+                        placeholder="localhost"
+                      />
+                    </div>
+                    <div>
+                      <Label htmlFor="oracle_port">Port</Label>
+                      <Input
+                        id="oracle_port"
+                        value={connectionFields.oracle_port}
+                        onChange={(e) => setConnectionFields({...connectionFields, oracle_port: e.target.value})}
+                        placeholder="1521"
+                      />
+                    </div>
+                    <div>
+                      <Label htmlFor="oracle_sid">SID</Label>
+                      <Input
+                        id="oracle_sid"
+                        value={connectionFields.oracle_sid}
+                        onChange={(e) => setConnectionFields({...connectionFields, oracle_sid: e.target.value})}
+                        placeholder="xe"
+                      />
+                    </div>
+                    <div>
+                      <Label htmlFor="oracle_username">Username</Label>
+                      <Input
+                        id="oracle_username"
+                        value={connectionFields.oracle_username}
+                        onChange={(e) => setConnectionFields({...connectionFields, oracle_username: e.target.value})}
+                        placeholder="system"
+                      />
+                    </div>
+                    <div>
+                      <Label htmlFor="oracle_password">Password</Label>
+                      <Input
+                        id="oracle_password"
+                        type="password"
+                        value={connectionFields.oracle_password}
+                        onChange={(e) => setConnectionFields({...connectionFields, oracle_password: e.target.value})}
+                        placeholder="Password"
+                      />
+                    </div>
+                    <div>
+                      <Label htmlFor="oracle_database">Database</Label>
+                      <Input
+                        id="oracle_database"
+                        value={connectionFields.oracle_database}
+                        onChange={(e) => setConnectionFields({...connectionFields, oracle_database: e.target.value})}
+                        placeholder="Database name"
+                      />
+                    </div>
+                  </div>
+                  <div>
+                    <Label htmlFor="query">Database Query</Label>
+                    <Textarea
+                      id="query"
+                      placeholder="SELECT * FROM table_name WHERE condition"
+                      value={query}
+                      onChange={(e) => setQuery(e.target.value)}
+                      rows={4}
+                    />
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <Button
+                      type="button"
+                      variant="outline"
+                      onClick={handleSaveConnection}
+                      disabled={isSavingConnection}
+                      className="flex items-center gap-2"
+                    >
+                      <Save className="h-4 w-4" />
+                      {isSavingConnection ? 'Saving...' : 'Save Connection'}
+                    </Button>
+                    <Button
+                      type="button"
+                      variant="outline"
+                      onClick={handleVerifyConnection}
+                      disabled={isVerifying}
+                      className="flex items-center gap-2"
+                    >
+                      {connectionVerified ? (
+                        <CheckCircle className="h-4 w-4 text-green-600" />
+                      ) : (
+                        <Database className="h-4 w-4" />
+                      )}
+                      {isVerifying ? 'Verifying...' : connectionVerified ? 'Connection Verified' : 'Verify Connection'}
+                    </Button>
+                    {connectionVerified && (
+                      <span className="text-sm text-green-600">✓ Connection verified successfully</span>
+                    )}
+                  </div>
+                </div>
+              )}
+
+              {/* MongoDB Connection Fields */}
+              {dataSource === 'mongodb' && (
+                <div className="space-y-4 border rounded-lg p-4 bg-gray-50">
+                  <h4 className="font-medium text-gray-900">MongoDB Connection Details</h4>
+                  <div>
+                    <Label htmlFor="mongodb_connection_string">Connection String</Label>
+                    <Input
+                      id="mongodb_connection_string"
+                      value={connectionFields.mongodb_connection_string}
+                      onChange={(e) => setConnectionFields({...connectionFields, mongodb_connection_string: e.target.value})}
+                      placeholder="mongodb://username:password@host:port/database"
+                    />
+                  </div>
+                  <div>
+                    <Label htmlFor="query">Database Query</Label>
+                    <Textarea
+                      id="query"
+                      placeholder='{"field": {"$gt": 100}}'
+                      value={query}
+                      onChange={(e) => setQuery(e.target.value)}
+                      rows={4}
+                    />
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <Button
+                      type="button"
+                      variant="outline"
+                      onClick={handleSaveConnection}
+                      disabled={isSavingConnection}
+                      className="flex items-center gap-2"
+                    >
+                      <Save className="h-4 w-4" />
+                      {isSavingConnection ? 'Saving...' : 'Save Connection'}
+                    </Button>
+                    <Button
+                      type="button"
+                      variant="outline"
+                      onClick={handleVerifyConnection}
+                      disabled={isVerifying}
+                      className="flex items-center gap-2"
+                    >
+                      {connectionVerified ? (
+                        <CheckCircle className="h-4 w-4 text-green-600" />
+                      ) : (
+                        <Database className="h-4 w-4" />
+                      )}
+                      {isVerifying ? 'Verifying...' : connectionVerified ? 'Connection Verified' : 'Verify Connection'}
+                    </Button>
+                    {connectionVerified && (
+                      <span className="text-sm text-green-600">✓ Connection verified successfully</span>
+                    )}
+                  </div>
+                </div>
+              )}
+
+              {/* Trino Connection Fields */}
+              {dataSource === 'trino' && (
+                <div className="space-y-4 border rounded-lg p-4 bg-gray-50">
+                  <h4 className="font-medium text-gray-900">Trino Connection Details</h4>
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <Label htmlFor="trino_host">Host</Label>
+                      <Input
+                        id="trino_host"
+                        value={connectionFields.trino_host}
+                        onChange={(e) => setConnectionFields({...connectionFields, trino_host: e.target.value})}
+                        placeholder="localhost"
+                      />
+                    </div>
+                    <div>
+                      <Label htmlFor="trino_port">Port</Label>
+                      <Input
+                        id="trino_port"
+                        value={connectionFields.trino_port}
+                        onChange={(e) => setConnectionFields({...connectionFields, trino_port: e.target.value})}
+                        placeholder="8080"
+                      />
+                    </div>
+                    <div>
+                      <Label htmlFor="trino_username">Username</Label>
+                      <Input
+                        id="trino_username"
+                        value={connectionFields.trino_username}
+                        onChange={(e) => setConnectionFields({...connectionFields, trino_username: e.target.value})}
+                        placeholder="admin"
+                      />
+                    </div>
+                    <div>
+                      <Label htmlFor="trino_password">Password</Label>
+                      <Input
+                        id="trino_password"
+                        type="password"
+                        value={connectionFields.trino_password}
+                        onChange={(e) => setConnectionFields({...connectionFields, trino_password: e.target.value})}
+                        placeholder="Password"
+                      />
+                    </div>
+                    <div>
+                      <Label htmlFor="trino_catalog">Catalog</Label>
+                      <Input
+                        id="trino_catalog"
+                        value={connectionFields.trino_catalog}
+                        onChange={(e) => setConnectionFields({...connectionFields, trino_catalog: e.target.value})}
+                        placeholder="hive"
+                      />
+                    </div>
+                    <div>
+                      <Label htmlFor="trino_schema">Schema</Label>
+                      <Input
+                        id="trino_schema"
+                        value={connectionFields.trino_schema}
+                        onChange={(e) => setConnectionFields({...connectionFields, trino_schema: e.target.value})}
+                        placeholder="default"
+                      />
+                    </div>
+                  </div>
+                  <div>
+                    <Label htmlFor="query">Database Query</Label>
+                    <Textarea
+                      id="query"
+                      placeholder="SELECT * FROM catalog.schema.table_name WHERE condition"
+                      value={query}
+                      onChange={(e) => setQuery(e.target.value)}
+                      rows={4}
+                    />
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <Button
+                      type="button"
+                      variant="outline"
+                      onClick={handleSaveConnection}
+                      disabled={isSavingConnection}
+                      className="flex items-center gap-2"
+                    >
+                      <Save className="h-4 w-4" />
+                      {isSavingConnection ? 'Saving...' : 'Save Connection'}
+                    </Button>
+                    <Button
+                      type="button"
+                      variant="outline"
+                      onClick={handleVerifyConnection}
+                      disabled={isVerifying}
+                      className="flex items-center gap-2"
+                    >
+                      {connectionVerified ? (
+                        <CheckCircle className="h-4 w-4 text-green-600" />
+                      ) : (
+                        <Database className="h-4 w-4" />
+                      )}
+                      {isVerifying ? 'Verifying...' : connectionVerified ? 'Connection Verified' : 'Verify Connection'}
+                    </Button>
+                    {connectionVerified && (
+                      <span className="text-sm text-green-600">✓ Connection verified successfully</span>
+                    )}
+                  </div>
+                </div>
+              )}
+
+              {/* Azure Blob Connection Fields */}
+              {dataSource === 'azure_blob' && (
+                <div className="space-y-4 border rounded-lg p-4 bg-gray-50">
+                  <h4 className="font-medium text-gray-900">Azure Blob Storage Connection Details</h4>
+                  <div className="space-y-4">
+                    <div>
+                      <Label htmlFor="azure_account_name">Account Name</Label>
+                      <Input
+                        id="azure_account_name"
+                        value={connectionFields.azure_account_name}
+                        onChange={(e) => setConnectionFields({...connectionFields, azure_account_name: e.target.value})}
+                        placeholder="mystorageaccount"
+                      />
+                    </div>
+                    <div>
+                      <Label htmlFor="azure_container_name">Container Name</Label>
+                      <Input
+                        id="azure_container_name"
+                        value={connectionFields.azure_container_name}
+                        onChange={(e) => setConnectionFields({...connectionFields, azure_container_name: e.target.value})}
+                        placeholder="mycontainer"
+                      />
+                    </div>
+                    <div>
+                      <Label htmlFor="azure_sas_token">SAS Token</Label>
+                      <Input
+                        id="azure_sas_token"
+                        type="password"
+                        value={connectionFields.azure_sas_token}
+                        onChange={(e) => setConnectionFields({...connectionFields, azure_sas_token: e.target.value})}
+                        placeholder="?sv=2022-11-02&ss=b&srt=..."
+                      />
+                    </div>
+                    <div>
+                      <Label htmlFor="query">Query (File Path/Pattern)</Label>
+                      <Textarea
+                        id="query"
+                        placeholder="data/*.csv or specific file path"
+                        value={query}
+                        onChange={(e) => setQuery(e.target.value)}
+                        rows={2}
+                      />
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <Button
+                      type="button"
+                      variant="outline"
+                      onClick={handleSaveConnection}
+                      disabled={isSavingConnection}
+                      className="flex items-center gap-2"
+                    >
+                      <Save className="h-4 w-4" />
+                      {isSavingConnection ? 'Saving...' : 'Save Connection'}
+                    </Button>
+                    <Button
+                      type="button"
+                      variant="outline"
+                      onClick={handleVerifyConnection}
+                      disabled={isVerifying}
+                      className="flex items-center gap-2"
+                    >
+                      {connectionVerified ? (
+                        <CheckCircle className="h-4 w-4 text-green-600" />
+                      ) : (
+                        <Database className="h-4 w-4" />
+                      )}
+                      {isVerifying ? 'Verifying...' : connectionVerified ? 'Connection Verified' : 'Verify Connection'}
+                    </Button>
+                    {connectionVerified && (
+                      <span className="text-sm text-green-600">✓ Connection verified successfully</span>
+                    )}
+                  </div>
+                </div>
               )}
 
               {fileSources.includes(dataSource) && (
