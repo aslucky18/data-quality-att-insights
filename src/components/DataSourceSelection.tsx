@@ -6,7 +6,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-import { Database, Upload, FileText, Settings, Brain, Play } from "lucide-react";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Database, Upload, FileText, Settings, Brain, Play, Save, Lock } from "lucide-react";
 import { FileUpload } from "./FileUpload";
 import { toast } from "@/hooks/use-toast";
 
@@ -22,6 +23,31 @@ export const DataSourceSelection = ({ onAssessmentComplete, preselectedProject }
   const [configFile, setConfigFile] = useState<File | null>(null);
   const [aiApproach, setAiApproach] = useState("");
   const [isRunning, setIsRunning] = useState(false);
+  const [isDataSourceUploaded, setIsDataSourceUploaded] = useState(false);
+  const [isConnectionLocked, setIsConnectionLocked] = useState(false);
+  const [isSaved, setIsSaved] = useState(false);
+  
+  // Mock columns data for demonstration
+  const [mockColumns] = useState([
+    { name: 'accountdetails.isaMobile', type: 'Int64' },
+    { name: 'accountdetails.ban', type: 'Int64' },
+    { name: 'linedetails.sellerId', type: 'String' },
+    { name: 'services.productCode', type: 'String' },
+    { name: 'orderdetails.actionDate', type: 'Date' },
+    { name: 'services.prepaidFundedDate', type: 'Date' },
+    { name: 'services.prepaidRatePlan', type: 'String' },
+    { name: 'services.airlineAmount', type: 'Float64' },
+    { name: 'lineitems.enrollmentDate', type: 'Date' }
+  ]);
+
+  // Column selections for different check types
+  const [selectedColumns, setSelectedColumns] = useState({
+    completeness: [] as string[],
+    uniqueness: [] as string[],
+    validity: [] as string[],
+    consistency: [] as string[],
+    staleness: [] as string[]
+  });
 
   // Pre-populate form if project is selected
   useEffect(() => {
@@ -36,6 +62,64 @@ export const DataSourceSelection = ({ onAssessmentComplete, preselectedProject }
 
   const databaseSources = ["mongodb", "sql", "oracle"];
   const fileSources = ["xlsx", "csv", "json"];
+
+  // Handle file upload for data sources
+  const handleDataSourceFileUpload = (files: File[]) => {
+    setUploadedFiles(files);
+    if (files.length > 0 && fileSources.includes(dataSource)) {
+      setIsDataSourceUploaded(true);
+      setIsConnectionLocked(true);
+      setIsSaved(false);
+    }
+  };
+
+  // Handle data source change
+  const handleDataSourceChange = (value: string) => {
+    if (!isConnectionLocked) {
+      setDataSource(value);
+      setIsDataSourceUploaded(false);
+      setUploadedFiles([]);
+      setIsSaved(false);
+    }
+  };
+
+  // Handle save configuration
+  const handleSaveConfiguration = async () => {
+    if (!isDataSourceUploaded && fileSources.includes(dataSource)) {
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: "Please upload a data source file first",
+      });
+      return;
+    }
+
+    try {
+      // Simulate saving
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      setIsSaved(true);
+      toast({
+        title: "Configuration Saved",
+        description: "Your project configuration has been saved successfully",
+      });
+    } catch (error) {
+      toast({
+        variant: "destructive",
+        title: "Save Failed",
+        description: "Failed to save configuration",
+      });
+    }
+  };
+
+  // Handle column selection for different check types
+  const handleColumnSelection = (checkType: keyof typeof selectedColumns, column: string, checked: boolean) => {
+    setSelectedColumns(prev => ({
+      ...prev,
+      [checkType]: checked 
+        ? [...prev[checkType], column]
+        : prev[checkType].filter(col => col !== column)
+    }));
+  };
 
   const handleRunAssessment = async () => {
     if (!dataSource) {
@@ -373,9 +457,14 @@ export const DataSourceSelection = ({ onAssessmentComplete, preselectedProject }
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="space-y-2">
-            <Label htmlFor="datasource">Data Source Type</Label>
-            <Select value={dataSource} onValueChange={setDataSource}>
-              <SelectTrigger>
+            <Label htmlFor="datasource" className="flex items-center space-x-2">
+              <span>Data Source Type</span>
+              {isConnectionLocked && (
+                <Lock className="w-4 h-4 text-amber-500" />
+              )}
+            </Label>
+            <Select value={dataSource} onValueChange={handleDataSourceChange} disabled={isConnectionLocked}>
+              <SelectTrigger className={isConnectionLocked ? "opacity-60 cursor-not-allowed" : ""}>
                 <SelectValue placeholder="Select a data source" />
               </SelectTrigger>
               <SelectContent>
@@ -408,7 +497,7 @@ export const DataSourceSelection = ({ onAssessmentComplete, preselectedProject }
             <div className="space-y-2">
               <Label>File Upload</Label>
               <FileUpload
-                onFilesChange={setUploadedFiles}
+                onFilesChange={handleDataSourceFileUpload}
                 acceptedTypes={dataSource === "xlsx" ? ".xlsx" : dataSource === "csv" ? ".csv" : ".json"}
                 multiple={false}
               />
@@ -428,12 +517,137 @@ export const DataSourceSelection = ({ onAssessmentComplete, preselectedProject }
             Upload a JSON configuration file to customize the assessment parameters
           </CardDescription>
         </CardHeader>
-        <CardContent>
+        <CardContent className="space-y-6">
           <FileUpload
             onFilesChange={(files) => setConfigFile(files[0] || null)}
             acceptedTypes=".json"
             multiple={false}
           />
+
+          {/* Data Configuration Suggestions */}
+          {isDataSourceUploaded && (
+            <div className="border-t pt-6">
+              <h4 className="text-lg font-semibold text-gray-800 mb-4 flex items-center space-x-2">
+                <Settings className="w-5 h-5 text-indigo-600" />
+                <span>Data Configuration Suggestions</span>
+              </h4>
+              <p className="text-sm text-gray-600 mb-6">
+                Select columns for specific data quality checks based on your uploaded dataset
+              </p>
+
+              <div className="space-y-6">
+                {/* Completeness Checks */}
+                <div className="space-y-3">
+                  <h5 className="font-medium text-gray-700">Completeness Checks</h5>
+                  <p className="text-sm text-gray-500">Select columns to check for null/missing values</p>
+                  <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
+                    {mockColumns.map((column) => (
+                      <div key={`completeness-${column.name}`} className="flex items-center space-x-2">
+                        <Checkbox
+                          id={`completeness-${column.name}`}
+                          checked={selectedColumns.completeness.includes(column.name)}
+                          onCheckedChange={(checked) => 
+                            handleColumnSelection('completeness', column.name, checked as boolean)
+                          }
+                        />
+                        <Label htmlFor={`completeness-${column.name}`} className="text-sm">
+                          {column.name} <span className="text-gray-400">({column.type})</span>
+                        </Label>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Uniqueness Checks */}
+                <div className="space-y-3">
+                  <h5 className="font-medium text-gray-700">Uniqueness Checks</h5>
+                  <p className="text-sm text-gray-500">Select columns to check for duplicate values</p>
+                  <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
+                    {mockColumns.map((column) => (
+                      <div key={`uniqueness-${column.name}`} className="flex items-center space-x-2">
+                        <Checkbox
+                          id={`uniqueness-${column.name}`}
+                          checked={selectedColumns.uniqueness.includes(column.name)}
+                          onCheckedChange={(checked) => 
+                            handleColumnSelection('uniqueness', column.name, checked as boolean)
+                          }
+                        />
+                        <Label htmlFor={`uniqueness-${column.name}`} className="text-sm">
+                          {column.name} <span className="text-gray-400">({column.type})</span>
+                        </Label>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Validity and Range Checks */}
+                <div className="space-y-3">
+                  <h5 className="font-medium text-gray-700">Validity and Range Checks</h5>
+                  <p className="text-sm text-gray-500">Select columns to validate data formats and ranges</p>
+                  <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
+                    {mockColumns.map((column) => (
+                      <div key={`validity-${column.name}`} className="flex items-center space-x-2">
+                        <Checkbox
+                          id={`validity-${column.name}`}
+                          checked={selectedColumns.validity.includes(column.name)}
+                          onCheckedChange={(checked) => 
+                            handleColumnSelection('validity', column.name, checked as boolean)
+                          }
+                        />
+                        <Label htmlFor={`validity-${column.name}`} className="text-sm">
+                          {column.name} <span className="text-gray-400">({column.type})</span>
+                        </Label>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Consistency Checks */}
+                <div className="space-y-3">
+                  <h5 className="font-medium text-gray-700">Consistency Checks</h5>
+                  <p className="text-sm text-gray-500">Select columns for cross-field validation</p>
+                  <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
+                    {mockColumns.map((column) => (
+                      <div key={`consistency-${column.name}`} className="flex items-center space-x-2">
+                        <Checkbox
+                          id={`consistency-${column.name}`}
+                          checked={selectedColumns.consistency.includes(column.name)}
+                          onCheckedChange={(checked) => 
+                            handleColumnSelection('consistency', column.name, checked as boolean)
+                          }
+                        />
+                        <Label htmlFor={`consistency-${column.name}`} className="text-sm">
+                          {column.name} <span className="text-gray-400">({column.type})</span>
+                        </Label>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Staleness Checks */}
+                <div className="space-y-3">
+                  <h5 className="font-medium text-gray-700">Staleness Checks</h5>
+                  <p className="text-sm text-gray-500">Select date columns to check for data freshness</p>
+                  <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
+                    {mockColumns.filter(col => col.type === 'Date').map((column) => (
+                      <div key={`staleness-${column.name}`} className="flex items-center space-x-2">
+                        <Checkbox
+                          id={`staleness-${column.name}`}
+                          checked={selectedColumns.staleness.includes(column.name)}
+                          onCheckedChange={(checked) => 
+                            handleColumnSelection('staleness', column.name, checked as boolean)
+                          }
+                        />
+                        <Label htmlFor={`staleness-${column.name}`} className="text-sm">
+                          {column.name} <span className="text-gray-400">({column.type})</span>
+                        </Label>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
         </CardContent>
       </Card>
 
@@ -462,8 +676,28 @@ export const DataSourceSelection = ({ onAssessmentComplete, preselectedProject }
         </CardContent>
       </Card>
 
-      {/* Run Assessment Button */}
-      <div className="flex justify-center pt-6">
+      {/* Action Buttons */}
+      <div className="flex justify-center space-x-4 pt-6">
+        <Button
+          onClick={handleSaveConfiguration}
+          disabled={(!isDataSourceUploaded && fileSources.includes(dataSource)) || isSaved}
+          variant="outline"
+          size="lg"
+          className="px-8 py-3"
+        >
+          {isSaved ? (
+            <>
+              <Save className="w-5 h-5 mr-2 text-green-600" />
+              Configuration Saved
+            </>
+          ) : (
+            <>
+              <Save className="w-5 h-5 mr-2" />
+              Save Configuration
+            </>
+          )}
+        </Button>
+        
         <Button
           onClick={handleRunAssessment}
           disabled={isRunning}
