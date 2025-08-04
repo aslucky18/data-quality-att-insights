@@ -186,7 +186,6 @@ export const DQEngine = ({ userInfo, onLogout }: DQEngineProps) => {
         ) : (
           <ResultsDashboard 
             results={assessmentResults} 
-            onBack={handleBackToProjects} 
           />
         )}
       </main>

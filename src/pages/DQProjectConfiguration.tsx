@@ -184,7 +184,8 @@ export const DQProjectConfiguration = ({ userInfo, onLogout }: DQProjectConfigur
     const nameValid = project.name.trim() !== '';
     const descriptionValid = project.description?.trim() !== '';
     const dataSourceValid = dataSource !== '';
-    const connectionValid = databaseSources.includes(dataSource) ? connectionVerified : true;
+    const connectionValid = databaseSources.includes(dataSource) ? connectionVerified : 
+                          fileSources.includes(dataSource) ? uploadedFiles.length > 0 : true;
     
     return nameValid && descriptionValid && dataSourceValid && connectionValid;
   };
@@ -835,13 +836,59 @@ export const DQProjectConfiguration = ({ userInfo, onLogout }: DQProjectConfigur
               )}
 
               {fileSources.includes(dataSource) && (
-                <div className="space-y-2">
-                  <Label>File Upload</Label>
-                  <FileUpload
-                    onFilesChange={setUploadedFiles}
-                    acceptedTypes={dataSource === "xlsx" ? ".xlsx" : dataSource === "csv" ? ".csv" : ".json"}
-                    multiple={true}
-                  />
+                <div className="space-y-4 border rounded-lg p-4 bg-gray-50">
+                  <h4 className="font-medium text-gray-900">File Upload Configuration</h4>
+                  <div className="space-y-2">
+                    <Label>File Upload</Label>
+                    <FileUpload
+                      onFilesChange={setUploadedFiles}
+                      acceptedTypes={dataSource === "xlsx" ? ".xlsx" : dataSource === "csv" ? ".csv" : ".json"}
+                      multiple={true}
+                    />
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <Button
+                      type="button"
+                      variant="outline"
+                      onClick={handleSaveConnection}
+                      disabled={isSavingConnection || uploadedFiles.length === 0}
+                      className="flex items-center gap-2"
+                    >
+                      <Save className="h-4 w-4" />
+                      {isSavingConnection ? 'Saving...' : 'Save Configuration'}
+                    </Button>
+                    <Button
+                      type="button"
+                      variant="outline"
+                      onClick={() => {
+                        setConnectionVerified(uploadedFiles.length > 0);
+                        if (uploadedFiles.length > 0) {
+                          toast({
+                            title: "Source Verified",
+                            description: "File source has been successfully verified",
+                          });
+                        } else {
+                          toast({
+                            variant: "destructive",
+                            title: "No Files",
+                            description: "Please upload files before verifying",
+                          });
+                        }
+                      }}
+                      disabled={uploadedFiles.length === 0}
+                      className="flex items-center gap-2"
+                    >
+                      {connectionVerified && uploadedFiles.length > 0 ? (
+                        <CheckCircle className="h-4 w-4 text-green-600" />
+                      ) : (
+                        <FileText className="h-4 w-4" />
+                      )}
+                      {connectionVerified && uploadedFiles.length > 0 ? 'Source Verified' : 'Verify Source'}
+                    </Button>
+                    {connectionVerified && uploadedFiles.length > 0 && (
+                      <span className="text-sm text-green-600">✓ Source verified successfully</span>
+                    )}
+                  </div>
                 </div>
               )}
             </CardContent>
