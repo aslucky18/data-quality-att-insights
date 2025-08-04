@@ -24,29 +24,37 @@ export const DataSourceSelection = ({ onAssessmentComplete, preselectedProject }
   const [aiApproach, setAiApproach] = useState("");
   const [isRunning, setIsRunning] = useState(false);
   const [isDataSourceUploaded, setIsDataSourceUploaded] = useState(false);
+  const [isDataVerified, setIsDataVerified] = useState(false);
   const [isConnectionLocked, setIsConnectionLocked] = useState(false);
   const [isSaved, setIsSaved] = useState(false);
+  const [isVerifying, setIsVerifying] = useState(false);
   
-  // Mock columns data for demonstration
+  // Mock columns data for demonstration - expanded dataset
   const [mockColumns] = useState([
-    { name: 'accountdetails.isaMobile', type: 'Int64' },
-    { name: 'accountdetails.ban', type: 'Int64' },
-    { name: 'linedetails.sellerId', type: 'String' },
-    { name: 'services.productCode', type: 'String' },
-    { name: 'orderdetails.actionDate', type: 'Date' },
-    { name: 'services.prepaidFundedDate', type: 'Date' },
-    { name: 'services.prepaidRatePlan', type: 'String' },
-    { name: 'services.airlineAmount', type: 'Float64' },
-    { name: 'lineitems.enrollmentDate', type: 'Date' }
+    { name: 'customer_id', type: 'Int64', description: 'Unique customer identifier' },
+    { name: 'account_number', type: 'String', description: 'Customer account number' },
+    { name: 'first_name', type: 'String', description: 'Customer first name' },
+    { name: 'last_name', type: 'String', description: 'Customer last name' },
+    { name: 'email_address', type: 'String', description: 'Customer email' },
+    { name: 'phone_number', type: 'String', description: 'Customer phone number' },
+    { name: 'date_of_birth', type: 'Date', description: 'Customer birth date' },
+    { name: 'registration_date', type: 'Date', description: 'Account registration date' },
+    { name: 'last_login_date', type: 'Date', description: 'Last login timestamp' },
+    { name: 'account_balance', type: 'Float64', description: 'Current account balance' },
+    { name: 'credit_limit', type: 'Float64', description: 'Customer credit limit' },
+    { name: 'account_status', type: 'String', description: 'Active/Inactive/Suspended' },
+    { name: 'country_code', type: 'String', description: 'Country ISO code' },
+    { name: 'postal_code', type: 'String', description: 'Customer postal code' },
+    { name: 'transaction_count', type: 'Int64', description: 'Number of transactions' }
   ]);
 
-  // Column selections for different check types
+  // Column selections for different check types with mock pre-selections
   const [selectedColumns, setSelectedColumns] = useState({
-    completeness: [] as string[],
-    uniqueness: [] as string[],
-    validity: [] as string[],
-    consistency: [] as string[],
-    staleness: [] as string[]
+    completeness: ['customer_id', 'account_number', 'email_address'] as string[],
+    uniqueness: ['customer_id', 'account_number', 'email_address'] as string[],
+    validity: ['email_address', 'phone_number', 'country_code', 'postal_code'] as string[],
+    consistency: ['account_balance', 'credit_limit', 'registration_date', 'last_login_date'] as string[],
+    staleness: ['registration_date', 'last_login_date'] as string[]
   });
 
   // Pre-populate form if project is selected
@@ -70,6 +78,40 @@ export const DataSourceSelection = ({ onAssessmentComplete, preselectedProject }
       setIsDataSourceUploaded(true);
       setIsConnectionLocked(true);
       setIsSaved(false);
+      setIsDataVerified(false); // Reset verification when new file is uploaded
+    }
+  };
+
+  // Handle data verification
+  const handleVerifyData = async () => {
+    if (!isDataSourceUploaded && fileSources.includes(dataSource)) {
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: "Please upload a data source file first",
+      });
+      return;
+    }
+
+    setIsVerifying(true);
+    
+    try {
+      // Simulate data verification process
+      await new Promise(resolve => setTimeout(resolve, 2000));
+      
+      setIsDataVerified(true);
+      toast({
+        title: "Data Verified Successfully",
+        description: "Your data has been validated and column suggestions are now available",
+      });
+    } catch (error) {
+      toast({
+        variant: "destructive",
+        title: "Verification Failed",
+        description: "Failed to verify data source",
+      });
+    } finally {
+      setIsVerifying(false);
     }
   };
 
@@ -78,6 +120,7 @@ export const DataSourceSelection = ({ onAssessmentComplete, preselectedProject }
     if (!isConnectionLocked) {
       setDataSource(value);
       setIsDataSourceUploaded(false);
+      setIsDataVerified(false);
       setUploadedFiles([]);
       setIsSaved(false);
     }
@@ -545,8 +588,32 @@ export const DataSourceSelection = ({ onAssessmentComplete, preselectedProject }
             multiple={false}
           />
 
+          {/* Verify Data Button */}
+          {isDataSourceUploaded && !isDataVerified && (
+            <div className="flex justify-center pt-4">
+              <Button
+                onClick={handleVerifyData}
+                disabled={isVerifying}
+                variant="outline"
+                className="px-6 py-2"
+              >
+                {isVerifying ? (
+                  <>
+                    <Settings className="w-4 h-4 mr-2 animate-spin" />
+                    Verifying Data...
+                  </>
+                ) : (
+                  <>
+                    <Settings className="w-4 h-4 mr-2" />
+                    Verify Data Source
+                  </>
+                )}
+              </Button>
+            </div>
+          )}
+
           {/* Data Configuration Suggestions */}
-          {isDataSourceUploaded && (
+          {isDataVerified && (
             <div className="border-t pt-6">
               <h4 className="text-lg font-semibold text-gray-800 mb-4 flex items-center space-x-2">
                 <Settings className="w-5 h-5 text-indigo-600" />
@@ -561,21 +628,26 @@ export const DataSourceSelection = ({ onAssessmentComplete, preselectedProject }
                 <div className="space-y-3">
                   <h5 className="font-medium text-gray-700">Completeness Checks</h5>
                   <p className="text-sm text-gray-500">Select columns to check for null/missing values</p>
-                  <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
-                    {mockColumns.map((column) => (
-                      <div key={`completeness-${column.name}`} className="flex items-center space-x-2">
-                        <Checkbox
-                          id={`completeness-${column.name}`}
-                          checked={selectedColumns.completeness.includes(column.name)}
-                          onCheckedChange={(checked) => 
-                            handleColumnSelection('completeness', column.name, checked as boolean)
-                          }
-                        />
-                        <Label htmlFor={`completeness-${column.name}`} className="text-sm">
-                          {column.name} <span className="text-gray-400">({column.type})</span>
-                        </Label>
-                      </div>
-                    ))}
+                   <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                     {mockColumns.map((column) => (
+                       <div key={`completeness-${column.name}`} className="flex items-start space-x-3 p-2 rounded-lg border bg-gray-50">
+                         <Checkbox
+                           id={`completeness-${column.name}`}
+                           checked={selectedColumns.completeness.includes(column.name)}
+                           onCheckedChange={(checked) => 
+                             handleColumnSelection('completeness', column.name, checked as boolean)
+                           }
+                           className="mt-1"
+                         />
+                         <div className="flex-1">
+                           <Label htmlFor={`completeness-${column.name}`} className="text-sm font-medium cursor-pointer">
+                             {column.name}
+                           </Label>
+                           <p className="text-xs text-gray-500 mt-1">{column.description}</p>
+                           <span className="text-xs text-blue-600 font-mono">({column.type})</span>
+                         </div>
+                       </div>
+                     ))}
                   </div>
                 </div>
 
@@ -583,21 +655,26 @@ export const DataSourceSelection = ({ onAssessmentComplete, preselectedProject }
                 <div className="space-y-3">
                   <h5 className="font-medium text-gray-700">Uniqueness Checks</h5>
                   <p className="text-sm text-gray-500">Select columns to check for duplicate values</p>
-                  <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
-                    {mockColumns.map((column) => (
-                      <div key={`uniqueness-${column.name}`} className="flex items-center space-x-2">
-                        <Checkbox
-                          id={`uniqueness-${column.name}`}
-                          checked={selectedColumns.uniqueness.includes(column.name)}
-                          onCheckedChange={(checked) => 
-                            handleColumnSelection('uniqueness', column.name, checked as boolean)
-                          }
-                        />
-                        <Label htmlFor={`uniqueness-${column.name}`} className="text-sm">
-                          {column.name} <span className="text-gray-400">({column.type})</span>
-                        </Label>
-                      </div>
-                    ))}
+                   <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                     {mockColumns.map((column) => (
+                       <div key={`uniqueness-${column.name}`} className="flex items-start space-x-3 p-2 rounded-lg border bg-gray-50">
+                         <Checkbox
+                           id={`uniqueness-${column.name}`}
+                           checked={selectedColumns.uniqueness.includes(column.name)}
+                           onCheckedChange={(checked) => 
+                             handleColumnSelection('uniqueness', column.name, checked as boolean)
+                           }
+                           className="mt-1"
+                         />
+                         <div className="flex-1">
+                           <Label htmlFor={`uniqueness-${column.name}`} className="text-sm font-medium cursor-pointer">
+                             {column.name}
+                           </Label>
+                           <p className="text-xs text-gray-500 mt-1">{column.description}</p>
+                           <span className="text-xs text-blue-600 font-mono">({column.type})</span>
+                         </div>
+                       </div>
+                     ))}
                   </div>
                 </div>
 
@@ -605,21 +682,26 @@ export const DataSourceSelection = ({ onAssessmentComplete, preselectedProject }
                 <div className="space-y-3">
                   <h5 className="font-medium text-gray-700">Validity and Range Checks</h5>
                   <p className="text-sm text-gray-500">Select columns to validate data formats and ranges</p>
-                  <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
-                    {mockColumns.map((column) => (
-                      <div key={`validity-${column.name}`} className="flex items-center space-x-2">
-                        <Checkbox
-                          id={`validity-${column.name}`}
-                          checked={selectedColumns.validity.includes(column.name)}
-                          onCheckedChange={(checked) => 
-                            handleColumnSelection('validity', column.name, checked as boolean)
-                          }
-                        />
-                        <Label htmlFor={`validity-${column.name}`} className="text-sm">
-                          {column.name} <span className="text-gray-400">({column.type})</span>
-                        </Label>
-                      </div>
-                    ))}
+                   <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                     {mockColumns.map((column) => (
+                       <div key={`validity-${column.name}`} className="flex items-start space-x-3 p-2 rounded-lg border bg-gray-50">
+                         <Checkbox
+                           id={`validity-${column.name}`}
+                           checked={selectedColumns.validity.includes(column.name)}
+                           onCheckedChange={(checked) => 
+                             handleColumnSelection('validity', column.name, checked as boolean)
+                           }
+                           className="mt-1"
+                         />
+                         <div className="flex-1">
+                           <Label htmlFor={`validity-${column.name}`} className="text-sm font-medium cursor-pointer">
+                             {column.name}
+                           </Label>
+                           <p className="text-xs text-gray-500 mt-1">{column.description}</p>
+                           <span className="text-xs text-blue-600 font-mono">({column.type})</span>
+                         </div>
+                       </div>
+                     ))}
                   </div>
                 </div>
 
@@ -627,21 +709,26 @@ export const DataSourceSelection = ({ onAssessmentComplete, preselectedProject }
                 <div className="space-y-3">
                   <h5 className="font-medium text-gray-700">Consistency Checks</h5>
                   <p className="text-sm text-gray-500">Select columns for cross-field validation</p>
-                  <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
-                    {mockColumns.map((column) => (
-                      <div key={`consistency-${column.name}`} className="flex items-center space-x-2">
-                        <Checkbox
-                          id={`consistency-${column.name}`}
-                          checked={selectedColumns.consistency.includes(column.name)}
-                          onCheckedChange={(checked) => 
-                            handleColumnSelection('consistency', column.name, checked as boolean)
-                          }
-                        />
-                        <Label htmlFor={`consistency-${column.name}`} className="text-sm">
-                          {column.name} <span className="text-gray-400">({column.type})</span>
-                        </Label>
-                      </div>
-                    ))}
+                   <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                     {mockColumns.map((column) => (
+                       <div key={`consistency-${column.name}`} className="flex items-start space-x-3 p-2 rounded-lg border bg-gray-50">
+                         <Checkbox
+                           id={`consistency-${column.name}`}
+                           checked={selectedColumns.consistency.includes(column.name)}
+                           onCheckedChange={(checked) => 
+                             handleColumnSelection('consistency', column.name, checked as boolean)
+                           }
+                           className="mt-1"
+                         />
+                         <div className="flex-1">
+                           <Label htmlFor={`consistency-${column.name}`} className="text-sm font-medium cursor-pointer">
+                             {column.name}
+                           </Label>
+                           <p className="text-xs text-gray-500 mt-1">{column.description}</p>
+                           <span className="text-xs text-blue-600 font-mono">({column.type})</span>
+                         </div>
+                       </div>
+                     ))}
                   </div>
                 </div>
 
@@ -649,21 +736,26 @@ export const DataSourceSelection = ({ onAssessmentComplete, preselectedProject }
                 <div className="space-y-3">
                   <h5 className="font-medium text-gray-700">Staleness Checks</h5>
                   <p className="text-sm text-gray-500">Select date columns to check for data freshness</p>
-                  <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
-                    {mockColumns.filter(col => col.type === 'Date').map((column) => (
-                      <div key={`staleness-${column.name}`} className="flex items-center space-x-2">
-                        <Checkbox
-                          id={`staleness-${column.name}`}
-                          checked={selectedColumns.staleness.includes(column.name)}
-                          onCheckedChange={(checked) => 
-                            handleColumnSelection('staleness', column.name, checked as boolean)
-                          }
-                        />
-                        <Label htmlFor={`staleness-${column.name}`} className="text-sm">
-                          {column.name} <span className="text-gray-400">({column.type})</span>
-                        </Label>
-                      </div>
-                    ))}
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                     {mockColumns.filter(col => col.type === 'Date').map((column) => (
+                       <div key={`staleness-${column.name}`} className="flex items-start space-x-3 p-2 rounded-lg border bg-gray-50">
+                         <Checkbox
+                           id={`staleness-${column.name}`}
+                           checked={selectedColumns.staleness.includes(column.name)}
+                           onCheckedChange={(checked) => 
+                             handleColumnSelection('staleness', column.name, checked as boolean)
+                           }
+                           className="mt-1"
+                         />
+                         <div className="flex-1">
+                           <Label htmlFor={`staleness-${column.name}`} className="text-sm font-medium cursor-pointer">
+                             {column.name}
+                           </Label>
+                           <p className="text-xs text-gray-500 mt-1">{column.description}</p>
+                           <span className="text-xs text-blue-600 font-mono">({column.type})</span>
+                         </div>
+                       </div>
+                     ))}
                   </div>
                 </div>
               </div>
