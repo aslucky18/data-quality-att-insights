@@ -85,11 +85,32 @@ export const DataSourceSelection = ({ onAssessmentComplete, preselectedProject }
 
   // Handle save configuration
   const handleSaveConfiguration = async () => {
-    if (!isDataSourceUploaded && fileSources.includes(dataSource)) {
+    // For file sources, require upload
+    if (fileSources.includes(dataSource) && !isDataSourceUploaded) {
       toast({
         variant: "destructive",
         title: "Error",
         description: "Please upload a data source file first",
+      });
+      return;
+    }
+    
+    // For database sources, require query
+    if (databaseSources.includes(dataSource) && !query.trim()) {
+      toast({
+        variant: "destructive",
+        title: "Error", 
+        description: "Please enter a database query",
+      });
+      return;
+    }
+
+    // Basic validation - require data source selection
+    if (!dataSource) {
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: "Please select a data source",
       });
       return;
     }
@@ -680,7 +701,12 @@ export const DataSourceSelection = ({ onAssessmentComplete, preselectedProject }
       <div className="flex justify-center space-x-4 pt-6">
         <Button
           onClick={handleSaveConfiguration}
-          disabled={(!isDataSourceUploaded && fileSources.includes(dataSource)) || isSaved}
+          disabled={
+            !dataSource || 
+            (fileSources.includes(dataSource) && !isDataSourceUploaded) ||
+            (databaseSources.includes(dataSource) && !query.trim()) ||
+            isSaved
+          }
           variant="outline"
           size="lg"
           className="px-8 py-3"
