@@ -8,7 +8,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
-import { ArrowLeft, Save, Database, FileText, Brain, Trash2, CheckCircle } from "lucide-react";
+import { ArrowLeft, Save, Database, FileText, Brain, Trash2, CheckCircle, Settings } from "lucide-react";
 import { FileUpload } from "@/components/FileUpload";
 import { toast } from "@/hooks/use-toast";
 
@@ -54,6 +54,32 @@ export const DQProjectConfiguration = ({ userInfo, onLogout }: DQProjectConfigur
   const [isVerifying, setIsVerifying] = useState(false);
   const [isSavingConnection, setIsSavingConnection] = useState(false);
   const [connectionSaved, setConnectionSaved] = useState(false);
+  const [isDataVerified, setIsDataVerified] = useState(false);
+  const [mockColumns] = useState([
+    { name: 'customer_id', type: 'Int64', description: 'Unique customer identifier' },
+    { name: 'account_number', type: 'String', description: 'Customer account number' },
+    { name: 'first_name', type: 'String', description: 'Customer first name' },
+    { name: 'last_name', type: 'String', description: 'Customer last name' },
+    { name: 'email_address', type: 'String', description: 'Customer email' },
+    { name: 'phone_number', type: 'String', description: 'Customer phone number' },
+    { name: 'date_of_birth', type: 'Date', description: 'Customer birth date' },
+    { name: 'registration_date', type: 'Date', description: 'Account registration date' },
+    { name: 'last_login_date', type: 'Date', description: 'Last login timestamp' },
+    { name: 'account_balance', type: 'Float64', description: 'Current account balance' },
+    { name: 'credit_limit', type: 'Float64', description: 'Customer credit limit' },
+    { name: 'account_status', type: 'String', description: 'Active/Inactive/Suspended' },
+    { name: 'country_code', type: 'String', description: 'Country ISO code' },
+    { name: 'postal_code', type: 'String', description: 'Customer postal code' },
+    { name: 'transaction_count', type: 'Int64', description: 'Number of transactions' }
+  ]);
+  const [selectedColumns, setSelectedColumns] = useState({
+    completeness: ['customer_id', 'account_number', 'email_address'] as string[],
+    uniqueness: ['customer_id', 'account_number', 'email_address'] as string[],
+    validity: ['email_address', 'phone_number', 'country_code', 'postal_code'] as string[],
+    consistency: ['account_balance', 'credit_limit', 'registration_date', 'last_login_date'] as string[],
+    staleness: ['registration_date', 'last_login_date'] as string[]
+  });
+  const [searchTerm, setSearchTerm] = useState("");
   
   // Connection fields for different data sources
   const [connectionFields, setConnectionFields] = useState({
@@ -175,6 +201,59 @@ export const DQProjectConfiguration = ({ userInfo, onLogout }: DQProjectConfigur
     });
   };
 
+  const handleVerifyData = async () => {
+    if (fileSources.includes(dataSource) && uploadedFiles.length === 0) {
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: "Please upload a data source file first",
+      });
+      return;
+    }
+
+    setIsVerifying(true);
+    
+    try {
+      // Simulate data verification process
+      await new Promise(resolve => setTimeout(resolve, 2000));
+      
+      setIsDataVerified(true);
+      toast({
+        title: "Data Verified Successfully",
+        description: "Your data has been validated and column suggestions are now available",
+      });
+    } catch (error) {
+      toast({
+        variant: "destructive",
+        title: "Verification Failed",
+        description: "Failed to verify data source",
+      });
+    } finally {
+      setIsVerifying(false);
+    }
+  };
+
+  const handleColumnSelection = (checkType: keyof typeof selectedColumns, column: string, checked: boolean) => {
+    setSelectedColumns(prev => ({
+      ...prev,
+      [checkType]: checked 
+        ? [...prev[checkType], column]
+        : prev[checkType].filter(col => col !== column)
+    }));
+  };
+
+  const filteredAiOptions = [
+    { value: 'isolation-forest', label: 'Isolation Forest Anomaly Detection' },
+    { value: 'kmeans', label: 'K-means Clustering Anomaly Detection' },
+    { value: 'z-score', label: 'Z-Score Statistical Anomaly Detection' },
+    { value: 'local-outlier', label: 'Local Outlier Factor Detection' },
+    { value: 'ensemble', label: 'Ensemble Methods (Combined Approach)' },
+    { value: 'autoencoder', label: 'Neural Network Autoencoder' },
+    { value: 'svm', label: 'One-Class Support Vector Machine' }
+  ].filter(option => 
+    option.label.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+
   const isFormValid = () => {
     const nameValid = project.name.trim() !== '';
     const descriptionValid = project.description?.trim() !== '';
@@ -183,6 +262,14 @@ export const DQProjectConfiguration = ({ userInfo, onLogout }: DQProjectConfigur
                           fileSources.includes(dataSource) ? uploadedFiles.length > 0 : true;
     
     return nameValid && descriptionValid && dataSourceValid && connectionValid;
+  };
+
+  const handleDataSourceFileUpload = (files: File[]) => {
+    setUploadedFiles(files);
+    if (files.length > 0 && fileSources.includes(dataSource)) {
+      // Lock the connection type dropdown after upload for file types
+      setConnectionVerified(true);
+    }
   };
 
   const handleSaveProject = () => {
@@ -232,6 +319,16 @@ export const DQProjectConfiguration = ({ userInfo, onLogout }: DQProjectConfigur
       query,
       aiApproach: aiApproaches.join(',')
     };
+
+    // Save column selections to localStorage
+    const configKey = `project-config-${projectData.id}`;
+    const configData = {
+      selectedColumns,
+      searchTerm,
+      isDataVerified,
+      uploadedFiles: uploadedFiles.map(f => f.name)
+    };
+    localStorage.setItem(configKey, JSON.stringify(configData));
 
     if (isEdit) {
       const updatedProjects = projects.map(p => p.id === projectId ? projectData : p);
@@ -374,15 +471,21 @@ export const DQProjectConfiguration = ({ userInfo, onLogout }: DQProjectConfigur
             <CardContent className="space-y-4">
               <div className="space-y-2">
                 <Label htmlFor="datasource">Data Source Type</Label>
-                <Select value={dataSource} onValueChange={(value) => { 
-                  setDataSource(value);
-                  setConnectionVerified(false);
-                  setConnectionSaved(false);
-                  handleFieldBlur('dataSource', value);
-                }}>
-                  <SelectTrigger className={validationErrors.dataSource ? 'border-red-500' : ''}>
-                    <SelectValue placeholder="Select a data source" />
-                  </SelectTrigger>
+                 <Select 
+                   value={dataSource} 
+                   onValueChange={(value) => { 
+                     setDataSource(value);
+                     setConnectionVerified(false);
+                     setConnectionSaved(false);
+                     setIsDataVerified(false);
+                     setUploadedFiles([]);
+                     handleFieldBlur('dataSource', value);
+                   }}
+                   disabled={uploadedFiles.length > 0 && fileSources.includes(dataSource)}
+                 >
+                   <SelectTrigger className={validationErrors.dataSource ? 'border-red-500' : ''}>
+                     <SelectValue placeholder="Select a data source" />
+                   </SelectTrigger>
                   <SelectContent>
                     
                 <SelectItem value="mysql">MySQL</SelectItem>
@@ -856,33 +959,207 @@ export const DQProjectConfiguration = ({ userInfo, onLogout }: DQProjectConfigur
                   <h4 className="font-medium text-gray-900">File Upload Configuration</h4>
                   <div className="space-y-2">
                     <Label>File Upload</Label>
-                    <FileUpload
-                      onFilesChange={setUploadedFiles}
-                      acceptedTypes={dataSource === "xlsx" ? ".xlsx" : dataSource === "csv" ? ".csv" : ".json"}
-                      multiple={true}
-                    />
+                     <FileUpload
+                       onFilesChange={handleDataSourceFileUpload}
+                       acceptedTypes={dataSource === "xlsx" ? ".xlsx" : dataSource === "csv" ? ".csv" : ".json"}
+                       multiple={true}
+                     />
                   </div>
                   <div className="flex items-center gap-2">
-                    <Button
-                      type="button"
-                      variant="outline"
-                      onClick={handleSaveConnection}
-                      
-                      className="flex items-center gap-2"
-                    >
-                      {connectionSaved ? (
-                        <CheckCircle className="h-4 w-4 text-green-600" />
-                      ) : (
-                        <Save className="h-4 w-4" />
-                      )}
-                      {isSavingConnection ? 'Saving...' : connectionSaved ? 'Saved' : 'Save'}
-                    </Button>
-                    
-                  </div>
+                     <Button
+                       type="button"
+                       variant="outline"
+                       onClick={handleSaveConnection}
+                       disabled={uploadedFiles.length === 0 || isSavingConnection}
+                       className="flex items-center gap-2"
+                     >
+                       {connectionSaved ? (
+                         <CheckCircle className="h-4 w-4 text-green-600" />
+                       ) : (
+                         <Save className="h-4 w-4" />
+                       )}
+                       {isSavingConnection ? 'Saving...' : connectionSaved ? 'Saved' : 'Save'}
+                     </Button>
+                     <Button
+                       type="button"
+                       variant="outline"
+                       onClick={handleVerifyData}
+                       disabled={uploadedFiles.length === 0 || isVerifying}
+                       className="flex items-center gap-2"
+                     >
+                       {isDataVerified ? (
+                         <CheckCircle className="h-4 w-4 text-green-600" />
+                       ) : (
+                         <Database className="h-4 w-4" />
+                       )}
+                       {isVerifying ? 'Verifying...' : isDataVerified ? 'Data Verified' : 'Verify Data Source'}
+                     </Button>
+                   </div>
                 </div>
               )}
             </CardContent>
           </Card>
+
+          {/* Configuration File and AI ML Approach Suggestions */}
+          {(isDataVerified || (databaseSources.includes(dataSource) && connectionVerified)) && (
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center space-x-2">
+                  <Settings className="w-5 h-5 text-blue-600" />
+                  <span>Configuration File and AI ML Approach Suggestions</span>
+                </CardTitle>
+                <CardDescription>
+                  Select columns for data quality checks and choose AI/ML approaches for anomaly detection
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-6">
+                {/* Column Selection for Data Quality Checks */}
+                <div className="space-y-4">
+                  <h4 className="font-medium text-gray-900">Column Selection for Data Quality Checks</h4>
+                  
+                  {/* Completeness Checks */}
+                  <div className="space-y-3">
+                    <h5 className="font-medium text-sm text-blue-700">Completeness Checks</h5>
+                    <div className="grid grid-cols-2 gap-2">
+                      {mockColumns.map((column) => (
+                        <div key={`completeness-${column.name}`} className="flex items-center space-x-2">
+                          <Checkbox
+                            id={`completeness-${column.name}`}
+                            checked={selectedColumns.completeness.includes(column.name)}
+                            onCheckedChange={(checked) => 
+                              handleColumnSelection('completeness', column.name, checked as boolean)
+                            }
+                          />
+                          <Label htmlFor={`completeness-${column.name}`} className="text-sm">
+                            <span className="font-medium">{column.name}</span>
+                            <span className="text-gray-500 ml-1">({column.type})</span>
+                          </Label>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Uniqueness Checks */}
+                  <div className="space-y-3">
+                    <h5 className="font-medium text-sm text-green-700">Uniqueness Checks</h5>
+                    <div className="grid grid-cols-2 gap-2">
+                      {mockColumns.map((column) => (
+                        <div key={`uniqueness-${column.name}`} className="flex items-center space-x-2">
+                          <Checkbox
+                            id={`uniqueness-${column.name}`}
+                            checked={selectedColumns.uniqueness.includes(column.name)}
+                            onCheckedChange={(checked) => 
+                              handleColumnSelection('uniqueness', column.name, checked as boolean)
+                            }
+                          />
+                          <Label htmlFor={`uniqueness-${column.name}`} className="text-sm">
+                            <span className="font-medium">{column.name}</span>
+                            <span className="text-gray-500 ml-1">({column.type})</span>
+                          </Label>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Validity and Range Checks */}
+                  <div className="space-y-3">
+                    <h5 className="font-medium text-sm text-orange-700">Validity and Range Checks</h5>
+                    <div className="grid grid-cols-2 gap-2">
+                      {mockColumns.map((column) => (
+                        <div key={`validity-${column.name}`} className="flex items-center space-x-2">
+                          <Checkbox
+                            id={`validity-${column.name}`}
+                            checked={selectedColumns.validity.includes(column.name)}
+                            onCheckedChange={(checked) => 
+                              handleColumnSelection('validity', column.name, checked as boolean)
+                            }
+                          />
+                          <Label htmlFor={`validity-${column.name}`} className="text-sm">
+                            <span className="font-medium">{column.name}</span>
+                            <span className="text-gray-500 ml-1">({column.type})</span>
+                          </Label>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Consistency Checks */}
+                  <div className="space-y-3">
+                    <h5 className="font-medium text-sm text-purple-700">Consistency Checks</h5>
+                    <div className="grid grid-cols-2 gap-2">
+                      {mockColumns.map((column) => (
+                        <div key={`consistency-${column.name}`} className="flex items-center space-x-2">
+                          <Checkbox
+                            id={`consistency-${column.name}`}
+                            checked={selectedColumns.consistency.includes(column.name)}
+                            onCheckedChange={(checked) => 
+                              handleColumnSelection('consistency', column.name, checked as boolean)
+                            }
+                          />
+                          <Label htmlFor={`consistency-${column.name}`} className="text-sm">
+                            <span className="font-medium">{column.name}</span>
+                            <span className="text-gray-500 ml-1">({column.type})</span>
+                          </Label>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Staleness Checks */}
+                  <div className="space-y-3">
+                    <h5 className="font-medium text-sm text-red-700">Staleness Checks</h5>
+                    <div className="grid grid-cols-2 gap-2">
+                      {mockColumns.map((column) => (
+                        <div key={`staleness-${column.name}`} className="flex items-center space-x-2">
+                          <Checkbox
+                            id={`staleness-${column.name}`}
+                            checked={selectedColumns.staleness.includes(column.name)}
+                            onCheckedChange={(checked) => 
+                              handleColumnSelection('staleness', column.name, checked as boolean)
+                            }
+                          />
+                          <Label htmlFor={`staleness-${column.name}`} className="text-sm">
+                            <span className="font-medium">{column.name}</span>
+                            <span className="text-gray-500 ml-1">({column.type})</span>
+                          </Label>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+
+                {/* AI/ML Approach Search Selection */}
+                <div className="space-y-4">
+                  <h4 className="font-medium text-gray-900">AI/ML Approach Selection</h4>
+                  <div className="space-y-2">
+                    <Label htmlFor="ai-search">Search AI/ML Approaches</Label>
+                    <Input
+                      id="ai-search"
+                      placeholder="Search for AI/ML approaches..."
+                      value={searchTerm}
+                      onChange={(e) => setSearchTerm(e.target.value)}
+                      className="mb-2"
+                    />
+                    <Select 
+                      value={aiApproaches[0] || ""} 
+                      onValueChange={(value) => setAiApproaches([value])}
+                    >
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select an AI/ML approach" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {filteredAiOptions.map((option) => (
+                          <SelectItem key={option.value} value={option.value}>
+                            {option.label}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          )}
 
           {/* Configuration File Upload */}
           <Card>
