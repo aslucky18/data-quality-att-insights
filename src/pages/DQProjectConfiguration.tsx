@@ -53,6 +53,7 @@ export const DQProjectConfiguration = ({ userInfo, onLogout }: DQProjectConfigur
   const [connectionVerified, setConnectionVerified] = useState(false);
   const [isVerifying, setIsVerifying] = useState(false);
   const [isSavingConnection, setIsSavingConnection] = useState(false);
+  const [connectionSaved, setConnectionSaved] = useState(false);
   
   // Connection fields for different data sources
   const [connectionFields, setConnectionFields] = useState({
@@ -156,6 +157,7 @@ export const DQProjectConfiguration = ({ userInfo, onLogout }: DQProjectConfigur
     localStorage.setItem(connectionKey, JSON.stringify(connectionFields));
     
     setIsSavingConnection(false);
+    setConnectionSaved(true);
     
     toast({
       title: "Connection Saved",
@@ -382,6 +384,7 @@ export const DQProjectConfiguration = ({ userInfo, onLogout }: DQProjectConfigur
                 <Select value={dataSource} onValueChange={(value) => { 
                   setDataSource(value);
                   setConnectionVerified(false);
+                  setConnectionSaved(false);
                   handleFieldBlur('dataSource', value);
                 }}>
                   <SelectTrigger className={validationErrors.dataSource ? 'border-red-500' : ''}>
@@ -474,8 +477,12 @@ export const DQProjectConfiguration = ({ userInfo, onLogout }: DQProjectConfigur
                       disabled={isSavingConnection || !connectionVerified}
                       className="flex items-center gap-2"
                     >
-                      <Save className="h-4 w-4" />
-                      {isSavingConnection ? 'Saving...' : 'Save Connection'}
+                      {connectionSaved ? (
+                        <CheckCircle className="h-4 w-4 text-green-600" />
+                      ) : (
+                        <Save className="h-4 w-4" />
+                      )}
+                      {isSavingConnection ? 'Saving...' : connectionSaved ? 'Configuration Saved' : 'Save Connection'}
                     </Button>
                     <Button
                       type="button"
@@ -577,8 +584,12 @@ export const DQProjectConfiguration = ({ userInfo, onLogout }: DQProjectConfigur
                       disabled={isSavingConnection || !connectionVerified}
                       className="flex items-center gap-2"
                     >
-                      <Save className="h-4 w-4" />
-                      {isSavingConnection ? 'Saving...' : 'Save Connection'}
+                      {connectionSaved ? (
+                        <CheckCircle className="h-4 w-4 text-green-600" />
+                      ) : (
+                        <Save className="h-4 w-4" />
+                      )}
+                      {isSavingConnection ? 'Saving...' : connectionSaved ? 'Configuration Saved' : 'Save Connection'}
                     </Button>
                     <Button
                       type="button"
@@ -632,8 +643,12 @@ export const DQProjectConfiguration = ({ userInfo, onLogout }: DQProjectConfigur
                       disabled={isSavingConnection || !connectionVerified}
                       className="flex items-center gap-2"
                     >
-                      <Save className="h-4 w-4" />
-                      {isSavingConnection ? 'Saving...' : 'Save Connection'}
+                      {connectionSaved ? (
+                        <CheckCircle className="h-4 w-4 text-green-600" />
+                      ) : (
+                        <Save className="h-4 w-4" />
+                      )}
+                      {isSavingConnection ? 'Saving...' : connectionSaved ? 'Configuration Saved' : 'Save Connection'}
                     </Button>
                     <Button
                       type="button"
@@ -735,8 +750,12 @@ export const DQProjectConfiguration = ({ userInfo, onLogout }: DQProjectConfigur
                       disabled={isSavingConnection || !connectionVerified}
                       className="flex items-center gap-2"
                     >
-                      <Save className="h-4 w-4" />
-                      {isSavingConnection ? 'Saving...' : 'Save Connection'}
+                      {connectionSaved ? (
+                        <CheckCircle className="h-4 w-4 text-green-600" />
+                      ) : (
+                        <Save className="h-4 w-4" />
+                      )}
+                      {isSavingConnection ? 'Saving...' : connectionSaved ? 'Configuration Saved' : 'Save Connection'}
                     </Button>
                     <Button
                       type="button"
@@ -811,8 +830,12 @@ export const DQProjectConfiguration = ({ userInfo, onLogout }: DQProjectConfigur
                       disabled={isSavingConnection || !connectionVerified}
                       className="flex items-center gap-2"
                     >
-                      <Save className="h-4 w-4" />
-                      {isSavingConnection ? 'Saving...' : 'Save Connection'}
+                      {connectionSaved ? (
+                        <CheckCircle className="h-4 w-4 text-green-600" />
+                      ) : (
+                        <Save className="h-4 w-4" />
+                      )}
+                      {isSavingConnection ? 'Saving...' : connectionSaved ? 'Configuration Saved' : 'Save Connection'}
                     </Button>
                     <Button
                       type="button"
@@ -854,8 +877,12 @@ export const DQProjectConfiguration = ({ userInfo, onLogout }: DQProjectConfigur
                       disabled={isSavingConnection || !connectionVerified || uploadedFiles.length === 0}
                       className="flex items-center gap-2"
                     >
-                      <Save className="h-4 w-4" />
-                      {isSavingConnection ? 'Saving...' : 'Save Configuration'}
+                      {connectionSaved ? (
+                        <CheckCircle className="h-4 w-4 text-green-600" />
+                      ) : (
+                        <Save className="h-4 w-4" />
+                      )}
+                      {isSavingConnection ? 'Saving...' : connectionSaved ? 'Configuration Saved' : 'Save Configuration'}
                     </Button>
                     <Button
                       type="button"
