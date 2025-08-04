@@ -59,14 +59,14 @@ export const DQProjectConfiguration = ({ userInfo, onLogout }: DQProjectConfigur
   const [connectionFields, setConnectionFields] = useState({
     // MySQL fields
     mysql_host: '',
-    mysql_port: '3306',
+    mysql_port: '',
     mysql_username: '',
     mysql_password: '',
     mysql_database: '',
     
     // Oracle fields
     oracle_host: '',
-    oracle_port: '1521',
+    oracle_port: '',
     oracle_sid: '',
     oracle_username: '',
     oracle_password: '',
@@ -77,7 +77,7 @@ export const DQProjectConfiguration = ({ userInfo, onLogout }: DQProjectConfigur
     
     // Trino fields
     trino_host: '',
-    trino_port: '8080',
+    trino_port: '',
     trino_username: '',
     trino_password: '',
     trino_catalog: '',
@@ -116,6 +116,7 @@ export const DQProjectConfiguration = ({ userInfo, onLogout }: DQProjectConfigur
     }
   }, [isEdit, projectId]);
 
+  //Data Source Types 
   const databaseSources = ["mysql", "oracle", "mongodb", "trino", "azure_blob"];
   const fileSources = ["xlsx", "csv", "json"];
 
@@ -138,14 +139,6 @@ export const DQProjectConfiguration = ({ userInfo, onLogout }: DQProjectConfigur
   };
 
   const handleSaveConnection = async () => {
-    if (!connectionVerified) {
-      toast({
-        variant: "destructive",
-        title: "Verification Required",
-        description: "Please verify the connection before saving",
-      });
-      return;
-    }
     
     setIsSavingConnection(true);
     
@@ -874,7 +867,7 @@ export const DQProjectConfiguration = ({ userInfo, onLogout }: DQProjectConfigur
                       type="button"
                       variant="outline"
                       onClick={handleSaveConnection}
-                      disabled={isSavingConnection || !connectionVerified || uploadedFiles.length === 0}
+                      
                       className="flex items-center gap-2"
                     >
                       {connectionSaved ? (
@@ -882,39 +875,9 @@ export const DQProjectConfiguration = ({ userInfo, onLogout }: DQProjectConfigur
                       ) : (
                         <Save className="h-4 w-4" />
                       )}
-                      {isSavingConnection ? 'Saving...' : connectionSaved ? 'Configuration Saved' : 'Save Configuration'}
+                      {isSavingConnection ? 'Saving...' : connectionSaved ? 'Saved' : 'Save'}
                     </Button>
-                    <Button
-                      type="button"
-                      variant="outline"
-                      onClick={() => {
-                        setConnectionVerified(uploadedFiles.length > 0);
-                        if (uploadedFiles.length > 0) {
-                          toast({
-                            title: "Source Verified",
-                            description: "File source has been successfully verified",
-                          });
-                        } else {
-                          toast({
-                            variant: "destructive",
-                            title: "No Files",
-                            description: "Please upload files before verifying",
-                          });
-                        }
-                      }}
-                      disabled={uploadedFiles.length === 0}
-                      className="flex items-center gap-2"
-                    >
-                      {connectionVerified && uploadedFiles.length > 0 ? (
-                        <CheckCircle className="h-4 w-4 text-green-600" />
-                      ) : (
-                        <FileText className="h-4 w-4" />
-                      )}
-                      {connectionVerified && uploadedFiles.length > 0 ? 'Source Verified' : 'Verify Source'}
-                    </Button>
-                    {connectionVerified && uploadedFiles.length > 0 && (
-                      <span className="text-sm text-green-600">✓ Source verified successfully</span>
-                    )}
+                    
                   </div>
                 </div>
               )}

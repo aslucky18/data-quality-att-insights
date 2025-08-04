@@ -410,7 +410,7 @@ export const DataSourceSelection = ({ onAssessmentComplete, preselectedProject }
               <FileUpload
                 onFilesChange={setUploadedFiles}
                 acceptedTypes={dataSource === "xlsx" ? ".xlsx" : dataSource === "csv" ? ".csv" : ".json"}
-                multiple={true}
+                multiple={false}
               />
             </div>
           )}
