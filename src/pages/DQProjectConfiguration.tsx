@@ -851,7 +851,7 @@ export const DQProjectConfiguration = ({ userInfo, onLogout }: DQProjectConfigur
                       type="button"
                       variant="outline"
                       onClick={handleSaveConnection}
-                      disabled={isSavingConnection || uploadedFiles.length === 0}
+                      disabled={isSavingConnection || !connectionVerified || uploadedFiles.length === 0}
                       className="flex items-center gap-2"
                     >
                       <Save className="h-4 w-4" />
