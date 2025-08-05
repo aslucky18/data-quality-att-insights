@@ -37,10 +37,12 @@ export const MultiSelectSearch = ({
   const dropdownRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
-  const filteredOptions = options.filter(option =>
-    option.label.toLowerCase().includes(searchValue.toLowerCase()) ||
-    option.value.toLowerCase().includes(searchValue.toLowerCase())
-  );
+  const filteredOptions = searchValue.length >= 2 
+    ? options.filter(option =>
+        option.label.toLowerCase().includes(searchValue.toLowerCase()) ||
+        option.value.toLowerCase().includes(searchValue.toLowerCase())
+      ).slice(0, 4)
+    : [];
 
   const selectedOptions = options.filter(option => 
     selectedValues.includes(option.value)
@@ -139,11 +141,15 @@ export const MultiSelectSearch = ({
         {/* Dropdown Content */}
         {isOpen && (
           <div 
-            className="absolute top-full left-0 right-0 z-50 mt-1 rounded-md border bg-popover shadow-lg"
+            className="absolute top-full left-0 right-0 z-50 mt-1 rounded-md border bg-popover shadow-lg overflow-hidden"
             style={{ maxHeight }}
           >
-            <div className="max-h-full overflow-auto p-1">
-              {filteredOptions.length === 0 ? (
+            <div className="max-h-full overflow-y-auto p-1">
+              {searchValue.length < 2 ? (
+                <div className="px-3 py-2 text-sm text-muted-foreground">
+                  Type to search
+                </div>
+              ) : filteredOptions.length === 0 ? (
                 <div className="px-3 py-2 text-sm text-muted-foreground">
                   No options found
                 </div>
