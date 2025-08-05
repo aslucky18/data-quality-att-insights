@@ -10,6 +10,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Checkbox } from "@/components/ui/checkbox";
 import { ArrowLeft, Save, Database, FileText, Brain, Trash2, CheckCircle, Settings } from "lucide-react";
 import { FileUpload } from "@/components/FileUpload";
+import { MultiSelectSearch } from "@/components/MultiSelectSearch";
 import { toast } from "@/hooks/use-toast";
 
 interface DQProject {
@@ -79,7 +80,18 @@ export const DQProjectConfiguration = ({ userInfo, onLogout }: DQProjectConfigur
     consistency: ['account_balance', 'credit_limit', 'registration_date', 'last_login_date'] as string[],
     staleness: ['registration_date', 'last_login_date'] as string[]
   });
-  const [searchTerm, setSearchTerm] = useState("");
+
+  // AI/ML approach options
+  const aiApproachOptions = [
+    { value: 'isolation-forest', label: 'Isolation Forest Anomaly Detection', description: 'Tree-based anomaly detection algorithm' },
+    { value: 'kmeans', label: 'K-means Clustering Anomaly Detection', description: 'Clustering-based outlier detection' },
+    { value: 'z-score', label: 'Z-Score Statistical Anomaly Detection', description: 'Statistical outlier detection using z-scores' },
+    { value: 'local-outlier', label: 'Local Outlier Factor Detection', description: 'Density-based outlier detection' },
+    { value: 'ensemble', label: 'Ensemble Methods (Combined Approach)', description: 'Multiple algorithms combined' },
+    { value: 'autoencoder', label: 'Neural Network Autoencoder', description: 'Deep learning based anomaly detection' },
+    { value: 'svm', label: 'One-Class Support Vector Machine', description: 'SVM-based outlier detection' }
+  ];
+  
   
   // Connection fields for different data sources
   const [connectionFields, setConnectionFields] = useState({
@@ -233,26 +245,69 @@ export const DQProjectConfiguration = ({ userInfo, onLogout }: DQProjectConfigur
     }
   };
 
-  const handleColumnSelection = (checkType: keyof typeof selectedColumns, column: string, checked: boolean) => {
+  const handleColumnSelection = (checkType: keyof typeof selectedColumns, values: string[]) => {
     setSelectedColumns(prev => ({
       ...prev,
-      [checkType]: checked 
-        ? [...prev[checkType], column]
-        : prev[checkType].filter(col => col !== column)
+      [checkType]: values
     }));
   };
 
-  const filteredAiOptions = [
-    { value: 'isolation-forest', label: 'Isolation Forest Anomaly Detection' },
-    { value: 'kmeans', label: 'K-means Clustering Anomaly Detection' },
-    { value: 'z-score', label: 'Z-Score Statistical Anomaly Detection' },
-    { value: 'local-outlier', label: 'Local Outlier Factor Detection' },
-    { value: 'ensemble', label: 'Ensemble Methods (Combined Approach)' },
-    { value: 'autoencoder', label: 'Neural Network Autoencoder' },
-    { value: 'svm', label: 'One-Class Support Vector Machine' }
-  ].filter(option => 
-    option.label.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  // Helper function to get appropriate columns for each check type
+  const getAppropriateColumns = (checkType: keyof typeof selectedColumns) => {
+    switch (checkType) {
+      case 'completeness':
+        // All columns can be checked for completeness
+        return mockColumns.map(col => ({
+          value: col.name,
+          label: col.name,
+          type: col.type,
+          description: col.description
+        }));
+      case 'uniqueness':
+        // Typically ID fields and unique identifiers
+        return mockColumns
+          .filter(col => col.name.includes('id') || col.name.includes('number') || col.name.includes('email'))
+          .map(col => ({
+            value: col.name,
+            label: col.name,
+            type: col.type,
+            description: col.description
+          }));
+      case 'validity':
+        // String fields that need format validation
+        return mockColumns
+          .filter(col => col.type === 'String' || col.name.includes('email') || col.name.includes('phone') || col.name.includes('code'))
+          .map(col => ({
+            value: col.name,
+            label: col.name,
+            type: col.type,
+            description: col.description
+          }));
+      case 'consistency':
+        // Numeric and date fields for range/relationship checks
+        return mockColumns
+          .filter(col => col.type === 'Float64' || col.type === 'Int64' || col.type === 'Date')
+          .map(col => ({
+            value: col.name,
+            label: col.name,
+            type: col.type,
+            description: col.description
+          }));
+      case 'staleness':
+        // Only date fields for staleness checks
+        return mockColumns
+          .filter(col => col.type === 'Date')
+          .map(col => ({
+            value: col.name,
+            label: col.name,
+            type: col.type,
+            description: col.description
+          }));
+      default:
+        return [];
+    }
+  };
+
 
   const isFormValid = () => {
     const nameValid = project.name.trim() !== '';
@@ -324,7 +379,6 @@ export const DQProjectConfiguration = ({ userInfo, onLogout }: DQProjectConfigur
     const configKey = `project-config-${projectData.id}`;
     const configData = {
       selectedColumns,
-      searchTerm,
       isDataVerified,
       uploadedFiles: uploadedFiles.map(f => f.name)
     };
@@ -1014,148 +1068,86 @@ export const DQProjectConfiguration = ({ userInfo, onLogout }: DQProjectConfigur
               </CardHeader>
               <CardContent className="space-y-6">
                 {/* Column Selection for Data Quality Checks */}
-                <div className="space-y-4">
+                <div className="space-y-6">
                   <h4 className="font-medium text-gray-900">Column Selection for Data Quality Checks</h4>
                   
                   {/* Completeness Checks */}
                   <div className="space-y-3">
                     <h5 className="font-medium text-sm text-blue-700">Completeness Checks</h5>
-                    <div className="grid grid-cols-2 gap-2">
-                      {mockColumns.map((column) => (
-                        <div key={`completeness-${column.name}`} className="flex items-center space-x-2">
-                          <Checkbox
-                            id={`completeness-${column.name}`}
-                            checked={selectedColumns.completeness.includes(column.name)}
-                            onCheckedChange={(checked) => 
-                              handleColumnSelection('completeness', column.name, checked as boolean)
-                            }
-                          />
-                          <Label htmlFor={`completeness-${column.name}`} className="text-sm">
-                            <span className="font-medium">{column.name}</span>
-                            <span className="text-gray-500 ml-1">({column.type})</span>
-                          </Label>
-                        </div>
-                      ))}
-                    </div>
+                    <p className="text-xs text-gray-600">Select columns to check for missing or null values</p>
+                    <MultiSelectSearch
+                      options={getAppropriateColumns('completeness')}
+                      selectedValues={selectedColumns.completeness}
+                      onSelectionChange={(values) => handleColumnSelection('completeness', values)}
+                      placeholder="Search and select columns for completeness checks..."
+                      maxHeight="160px"
+                    />
                   </div>
 
                   {/* Uniqueness Checks */}
                   <div className="space-y-3">
                     <h5 className="font-medium text-sm text-green-700">Uniqueness Checks</h5>
-                    <div className="grid grid-cols-2 gap-2">
-                      {mockColumns.map((column) => (
-                        <div key={`uniqueness-${column.name}`} className="flex items-center space-x-2">
-                          <Checkbox
-                            id={`uniqueness-${column.name}`}
-                            checked={selectedColumns.uniqueness.includes(column.name)}
-                            onCheckedChange={(checked) => 
-                              handleColumnSelection('uniqueness', column.name, checked as boolean)
-                            }
-                          />
-                          <Label htmlFor={`uniqueness-${column.name}`} className="text-sm">
-                            <span className="font-medium">{column.name}</span>
-                            <span className="text-gray-500 ml-1">({column.type})</span>
-                          </Label>
-                        </div>
-                      ))}
-                    </div>
+                    <p className="text-xs text-gray-600">Select columns to check for duplicate values (typically IDs and unique identifiers)</p>
+                    <MultiSelectSearch
+                      options={getAppropriateColumns('uniqueness')}
+                      selectedValues={selectedColumns.uniqueness}
+                      onSelectionChange={(values) => handleColumnSelection('uniqueness', values)}
+                      placeholder="Search and select columns for uniqueness checks..."
+                      maxHeight="160px"
+                    />
                   </div>
 
                   {/* Validity and Range Checks */}
                   <div className="space-y-3">
                     <h5 className="font-medium text-sm text-orange-700">Validity and Range Checks</h5>
-                    <div className="grid grid-cols-2 gap-2">
-                      {mockColumns.map((column) => (
-                        <div key={`validity-${column.name}`} className="flex items-center space-x-2">
-                          <Checkbox
-                            id={`validity-${column.name}`}
-                            checked={selectedColumns.validity.includes(column.name)}
-                            onCheckedChange={(checked) => 
-                              handleColumnSelection('validity', column.name, checked as boolean)
-                            }
-                          />
-                          <Label htmlFor={`validity-${column.name}`} className="text-sm">
-                            <span className="font-medium">{column.name}</span>
-                            <span className="text-gray-500 ml-1">({column.type})</span>
-                          </Label>
-                        </div>
-                      ))}
-                    </div>
+                    <p className="text-xs text-gray-600">Select columns to validate formats and value ranges (emails, phone numbers, codes)</p>
+                    <MultiSelectSearch
+                      options={getAppropriateColumns('validity')}
+                      selectedValues={selectedColumns.validity}
+                      onSelectionChange={(values) => handleColumnSelection('validity', values)}
+                      placeholder="Search and select columns for validity checks..."
+                      maxHeight="160px"
+                    />
                   </div>
 
                   {/* Consistency Checks */}
                   <div className="space-y-3">
                     <h5 className="font-medium text-sm text-purple-700">Consistency Checks</h5>
-                    <div className="grid grid-cols-2 gap-2">
-                      {mockColumns.map((column) => (
-                        <div key={`consistency-${column.name}`} className="flex items-center space-x-2">
-                          <Checkbox
-                            id={`consistency-${column.name}`}
-                            checked={selectedColumns.consistency.includes(column.name)}
-                            onCheckedChange={(checked) => 
-                              handleColumnSelection('consistency', column.name, checked as boolean)
-                            }
-                          />
-                          <Label htmlFor={`consistency-${column.name}`} className="text-sm">
-                            <span className="font-medium">{column.name}</span>
-                            <span className="text-gray-500 ml-1">({column.type})</span>
-                          </Label>
-                        </div>
-                      ))}
-                    </div>
+                    <p className="text-xs text-gray-600">Select numeric and date columns to check for logical consistency and relationships</p>
+                    <MultiSelectSearch
+                      options={getAppropriateColumns('consistency')}
+                      selectedValues={selectedColumns.consistency}
+                      onSelectionChange={(values) => handleColumnSelection('consistency', values)}
+                      placeholder="Search and select columns for consistency checks..."
+                      maxHeight="160px"
+                    />
                   </div>
 
                   {/* Staleness Checks */}
                   <div className="space-y-3">
                     <h5 className="font-medium text-sm text-red-700">Staleness Checks</h5>
-                    <div className="grid grid-cols-2 gap-2">
-                      {mockColumns.map((column) => (
-                        <div key={`staleness-${column.name}`} className="flex items-center space-x-2">
-                          <Checkbox
-                            id={`staleness-${column.name}`}
-                            checked={selectedColumns.staleness.includes(column.name)}
-                            onCheckedChange={(checked) => 
-                              handleColumnSelection('staleness', column.name, checked as boolean)
-                            }
-                          />
-                          <Label htmlFor={`staleness-${column.name}`} className="text-sm">
-                            <span className="font-medium">{column.name}</span>
-                            <span className="text-gray-500 ml-1">({column.type})</span>
-                          </Label>
-                        </div>
-                      ))}
-                    </div>
+                    <p className="text-xs text-gray-600">Select date columns to check for outdated or stale data</p>
+                    <MultiSelectSearch
+                      options={getAppropriateColumns('staleness')}
+                      selectedValues={selectedColumns.staleness}
+                      onSelectionChange={(values) => handleColumnSelection('staleness', values)}
+                      placeholder="Search and select date columns for staleness checks..."
+                      maxHeight="160px"
+                    />
                   </div>
                 </div>
 
-                {/* AI/ML Approach Search Selection */}
+                {/* AI/ML Approach Selection */}
                 <div className="space-y-4">
                   <h4 className="font-medium text-gray-900">AI/ML Approach Selection</h4>
-                  <div className="space-y-2">
-                    <Label htmlFor="ai-search">Search AI/ML Approaches</Label>
-                    <Input
-                      id="ai-search"
-                      placeholder="Search for AI/ML approaches..."
-                      value={searchTerm}
-                      onChange={(e) => setSearchTerm(e.target.value)}
-                      className="mb-2"
-                    />
-                    <Select 
-                      value={aiApproaches[0] || ""} 
-                      onValueChange={(value) => setAiApproaches([value])}
-                    >
-                      <SelectTrigger>
-                        <SelectValue placeholder="Select an AI/ML approach" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {filteredAiOptions.map((option) => (
-                          <SelectItem key={option.value} value={option.value}>
-                            {option.label}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </div>
+                  <p className="text-sm text-gray-600">Choose multiple AI/ML approaches for advanced anomaly detection and data quality assessment</p>
+                  <MultiSelectSearch
+                    options={aiApproachOptions}
+                    selectedValues={aiApproaches}
+                    onSelectionChange={setAiApproaches}
+                    placeholder="Search and select AI/ML approaches..."
+                    maxHeight="200px"
+                  />
                 </div>
               </CardContent>
             </Card>
@@ -1181,78 +1173,6 @@ export const DQProjectConfiguration = ({ userInfo, onLogout }: DQProjectConfigur
             </CardContent>
           </Card>
 
-          {/* AI/ML Approach Selection */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center space-x-2">
-                <Brain className="w-5 h-5 text-purple-600" />
-                <span>AI/ML Approach (Optional)</span>
-              </CardTitle>
-              <CardDescription>
-                Select an AI/ML approach for advanced anomaly detection
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-3">
-                <div className="flex items-center space-x-2">
-                  <Checkbox 
-                    id="isolation-forest"
-                    checked={aiApproaches.includes('isolation-forest')}
-                    onCheckedChange={(checked) => {
-                      if (checked) {
-                        setAiApproaches([...aiApproaches, 'isolation-forest']);
-                      } else {
-                        setAiApproaches(aiApproaches.filter(a => a !== 'isolation-forest'));
-                      }
-                    }}
-                  />
-                  <Label htmlFor="isolation-forest">Anomaly Detection using Isolation Forest</Label>
-                </div>
-                <div className="flex items-center space-x-2">
-                  <Checkbox 
-                    id="kmeans"
-                    checked={aiApproaches.includes('kmeans')}
-                    onCheckedChange={(checked) => {
-                      if (checked) {
-                        setAiApproaches([...aiApproaches, 'kmeans']);
-                      } else {
-                        setAiApproaches(aiApproaches.filter(a => a !== 'kmeans'));
-                      }
-                    }}
-                  />
-                  <Label htmlFor="kmeans">Anomaly Detection using K-means Clustering</Label>
-                </div>
-                <div className="flex items-center space-x-2">
-                  <Checkbox 
-                    id="z-score"
-                    checked={aiApproaches.includes('z-score')}
-                    onCheckedChange={(checked) => {
-                      if (checked) {
-                        setAiApproaches([...aiApproaches, 'z-score']);
-                      } else {
-                        setAiApproaches(aiApproaches.filter(a => a !== 'z-score'));
-                      }
-                    }}
-                  />
-                  <Label htmlFor="z-score">Anomaly Detection using Z-Score</Label>
-                </div>
-                <div className="flex items-center space-x-2">
-                  <Checkbox 
-                    id="local-outlier"
-                    checked={aiApproaches.includes('local-outlier')}
-                    onCheckedChange={(checked) => {
-                      if (checked) {
-                        setAiApproaches([...aiApproaches, 'local-outlier']);
-                      } else {
-                        setAiApproaches(aiApproaches.filter(a => a !== 'local-outlier'));
-                      }
-                    }}
-                  />
-                  <Label htmlFor="local-outlier">Anomaly Detection using Local Outlier Factor</Label>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
 
           {/* Save Button */}
           <div className="flex justify-end pt-4">
