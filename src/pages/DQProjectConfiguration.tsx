@@ -1196,25 +1196,6 @@ export const DQProjectConfiguration = ({ userInfo, onLogout }: DQProjectConfigur
             </Card>
           )}
 
-          {/* Configuration File Upload */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center space-x-2">
-                <FileText className="w-5 h-5 text-green-600" />
-                <span>Configuration File (Optional)</span>
-              </CardTitle>
-              <CardDescription>
-                Upload a JSON configuration file to customize the assessment parameters
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <FileUpload
-                onFilesChange={(files) => setConfigFile(files[0] || null)}
-                acceptedTypes=".json"
-                multiple={false}
-              />
-            </CardContent>
-          </Card>
 
 
           {/* Save Button */}
