@@ -8,7 +8,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
-import { ArrowLeft, Save, Database, FileText, Brain, Trash2, CheckCircle, Settings } from "lucide-react";
+import { ArrowLeft, Save, Database, FileText, Brain, Trash2, CheckCircle, Settings, Upload } from "lucide-react";
 import { FileUpload } from "@/components/FileUpload";
 import { MultiSelectSearch } from "@/components/MultiSelectSearch";
 import { toast } from "@/hooks/use-toast";
@@ -252,57 +252,42 @@ export const DQProjectConfiguration = ({ userInfo, onLogout }: DQProjectConfigur
     }));
   };
 
-  // Helper function to get appropriate columns for each check type
+  // Helper function to get all columns for each check type with suggestions
   const getAppropriateColumns = (checkType: keyof typeof selectedColumns) => {
+    // Return all columns for every check type as requested
+    const allColumns = mockColumns.map(col => ({
+      value: col.name,
+      label: col.name,
+      type: col.type,
+      description: col.description
+    }));
+    
+    return allColumns;
+  };
+
+  // Get suggested columns for automated suggestions display
+  const getSuggestedColumns = (checkType: keyof typeof selectedColumns) => {
     switch (checkType) {
       case 'completeness':
-        // All columns can be checked for completeness
-        return mockColumns.map(col => ({
-          value: col.name,
-          label: col.name,
-          type: col.type,
-          description: col.description
-        }));
+        return mockColumns
+          .filter(col => col.name.includes('id') || col.name.includes('email') || col.name.includes('name'))
+          .map(col => col.name);
       case 'uniqueness':
-        // Typically ID fields and unique identifiers
         return mockColumns
           .filter(col => col.name.includes('id') || col.name.includes('number') || col.name.includes('email'))
-          .map(col => ({
-            value: col.name,
-            label: col.name,
-            type: col.type,
-            description: col.description
-          }));
+          .map(col => col.name);
       case 'validity':
-        // String fields that need format validation
         return mockColumns
           .filter(col => col.type === 'String' || col.name.includes('email') || col.name.includes('phone') || col.name.includes('code'))
-          .map(col => ({
-            value: col.name,
-            label: col.name,
-            type: col.type,
-            description: col.description
-          }));
+          .map(col => col.name);
       case 'consistency':
-        // Numeric and date fields for range/relationship checks
         return mockColumns
           .filter(col => col.type === 'Float64' || col.type === 'Int64' || col.type === 'Date')
-          .map(col => ({
-            value: col.name,
-            label: col.name,
-            type: col.type,
-            description: col.description
-          }));
+          .map(col => col.name);
       case 'staleness':
-        // Only date fields for staleness checks
         return mockColumns
           .filter(col => col.type === 'Date')
-          .map(col => ({
-            value: col.name,
-            label: col.name,
-            type: col.type,
-            description: col.description
-          }));
+          .map(col => col.name);
       default:
         return [];
     }
@@ -1057,98 +1042,156 @@ export const DQProjectConfiguration = ({ userInfo, onLogout }: DQProjectConfigur
           {/* Configuration File and AI ML Approach Suggestions */}
           {(isDataVerified || (databaseSources.includes(dataSource) && connectionVerified)) && (
             <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center space-x-2">
-                  <Settings className="w-5 h-5 text-blue-600" />
-                  <span>Configuration File and AI ML Approach Suggestions</span>
-                </CardTitle>
-                <CardDescription>
-                  Select columns for data quality checks and choose AI/ML approaches for anomaly detection
-                </CardDescription>
-              </CardHeader>
+               <CardHeader>
+                 <CardTitle className="flex items-center justify-between">
+                   <div className="flex items-center space-x-2">
+                     <Settings className="w-5 h-5 text-blue-600" />
+                     <span>Configuration File and AI ML Approach Suggestions</span>
+                   </div>
+                   <Button
+                     type="button"
+                     variant="outline"
+                     size="sm"
+                     onClick={() => document.getElementById('custom-config-upload')?.click()}
+                     className="flex items-center gap-2"
+                   >
+                     <Upload className="h-4 w-4" />
+                     Upload Custom Config
+                   </Button>
+                   <input
+                     id="custom-config-upload"
+                     type="file"
+                     accept=".json,.yaml,.yml"
+                     className="hidden"
+                     onChange={(e) => {
+                       const file = e.target.files?.[0];
+                       if (file) {
+                         setConfigFile(file);
+                         toast({
+                           title: "Config File Uploaded",
+                           description: `${file.name} has been uploaded successfully`,
+                         });
+                       }
+                     }}
+                   />
+                 </CardTitle>
+                 <CardDescription>
+                   Select columns for data quality checks and choose AI/ML approaches for anomaly detection. All data source features are available for selection.
+                 </CardDescription>
+               </CardHeader>
               <CardContent className="space-y-6">
                 {/* Column Selection for Data Quality Checks */}
                 <div className="space-y-6">
                   <h4 className="font-medium text-gray-900">Column Selection for Data Quality Checks</h4>
                   
-                  {/* Completeness Checks */}
-                  <div className="space-y-3">
-                    <h5 className="font-medium text-sm text-blue-700">Completeness Checks</h5>
-                    <p className="text-xs text-gray-600">Select columns to check for missing or null values</p>
-                    <MultiSelectSearch
-                      options={getAppropriateColumns('completeness')}
-                      selectedValues={selectedColumns.completeness}
-                      onSelectionChange={(values) => handleColumnSelection('completeness', values)}
-                      placeholder="Search and select columns for completeness checks..."
-                      maxHeight="160px"
-                    />
-                  </div>
+                   {/* Completeness Checks */}
+                   <div className="space-y-3">
+                     <div className="flex items-center justify-between">
+                       <h5 className="font-medium text-sm text-blue-700">Completeness Checks</h5>
+                       <div className="text-xs text-blue-600 bg-blue-50 px-2 py-1 rounded">
+                         Suggested: {getSuggestedColumns('completeness').slice(0, 3).join(', ')}
+                       </div>
+                     </div>
+                     <p className="text-xs text-gray-600">Select columns to check for missing or null values. All data source features are available.</p>
+                     <MultiSelectSearch
+                       options={getAppropriateColumns('completeness')}
+                       selectedValues={selectedColumns.completeness}
+                       onSelectionChange={(values) => handleColumnSelection('completeness', values)}
+                       placeholder="Search and select columns for completeness checks..."
+                       maxHeight="160px"
+                     />
+                   </div>
 
-                  {/* Uniqueness Checks */}
-                  <div className="space-y-3">
-                    <h5 className="font-medium text-sm text-green-700">Uniqueness Checks</h5>
-                    <p className="text-xs text-gray-600">Select columns to check for duplicate values (typically IDs and unique identifiers)</p>
-                    <MultiSelectSearch
-                      options={getAppropriateColumns('uniqueness')}
-                      selectedValues={selectedColumns.uniqueness}
-                      onSelectionChange={(values) => handleColumnSelection('uniqueness', values)}
-                      placeholder="Search and select columns for uniqueness checks..."
-                      maxHeight="160px"
-                    />
-                  </div>
+                   {/* Uniqueness Checks */}
+                   <div className="space-y-3">
+                     <div className="flex items-center justify-between">
+                       <h5 className="font-medium text-sm text-green-700">Uniqueness Checks</h5>
+                       <div className="text-xs text-green-600 bg-green-50 px-2 py-1 rounded">
+                         Suggested: {getSuggestedColumns('uniqueness').slice(0, 3).join(', ')}
+                       </div>
+                     </div>
+                     <p className="text-xs text-gray-600">Select columns to check for duplicate values. All data source features are available.</p>
+                     <MultiSelectSearch
+                       options={getAppropriateColumns('uniqueness')}
+                       selectedValues={selectedColumns.uniqueness}
+                       onSelectionChange={(values) => handleColumnSelection('uniqueness', values)}
+                       placeholder="Search and select columns for uniqueness checks..."
+                       maxHeight="160px"
+                     />
+                   </div>
 
-                  {/* Validity and Range Checks */}
-                  <div className="space-y-3">
-                    <h5 className="font-medium text-sm text-orange-700">Validity and Range Checks</h5>
-                    <p className="text-xs text-gray-600">Select columns to validate formats and value ranges (emails, phone numbers, codes)</p>
-                    <MultiSelectSearch
-                      options={getAppropriateColumns('validity')}
-                      selectedValues={selectedColumns.validity}
-                      onSelectionChange={(values) => handleColumnSelection('validity', values)}
-                      placeholder="Search and select columns for validity checks..."
-                      maxHeight="160px"
-                    />
-                  </div>
+                   {/* Validity and Range Checks */}
+                   <div className="space-y-3">
+                     <div className="flex items-center justify-between">
+                       <h5 className="font-medium text-sm text-orange-700">Validity and Range Checks</h5>
+                       <div className="text-xs text-orange-600 bg-orange-50 px-2 py-1 rounded">
+                         Suggested: {getSuggestedColumns('validity').slice(0, 3).join(', ')}
+                       </div>
+                     </div>
+                     <p className="text-xs text-gray-600">Select columns to validate formats and value ranges. All data source features are available.</p>
+                     <MultiSelectSearch
+                       options={getAppropriateColumns('validity')}
+                       selectedValues={selectedColumns.validity}
+                       onSelectionChange={(values) => handleColumnSelection('validity', values)}
+                       placeholder="Search and select columns for validity checks..."
+                       maxHeight="160px"
+                     />
+                   </div>
 
-                  {/* Consistency Checks */}
-                  <div className="space-y-3">
-                    <h5 className="font-medium text-sm text-purple-700">Consistency Checks</h5>
-                    <p className="text-xs text-gray-600">Select numeric and date columns to check for logical consistency and relationships</p>
-                    <MultiSelectSearch
-                      options={getAppropriateColumns('consistency')}
-                      selectedValues={selectedColumns.consistency}
-                      onSelectionChange={(values) => handleColumnSelection('consistency', values)}
-                      placeholder="Search and select columns for consistency checks..."
-                      maxHeight="160px"
-                    />
-                  </div>
+                   {/* Consistency Checks */}
+                   <div className="space-y-3">
+                     <div className="flex items-center justify-between">
+                       <h5 className="font-medium text-sm text-purple-700">Consistency Checks</h5>
+                       <div className="text-xs text-purple-600 bg-purple-50 px-2 py-1 rounded">
+                         Suggested: {getSuggestedColumns('consistency').slice(0, 3).join(', ')}
+                       </div>
+                     </div>
+                     <p className="text-xs text-gray-600">Select columns to check for logical consistency and relationships. All data source features are available.</p>
+                     <MultiSelectSearch
+                       options={getAppropriateColumns('consistency')}
+                       selectedValues={selectedColumns.consistency}
+                       onSelectionChange={(values) => handleColumnSelection('consistency', values)}
+                       placeholder="Search and select columns for consistency checks..."
+                       maxHeight="160px"
+                     />
+                   </div>
 
-                  {/* Staleness Checks */}
-                  <div className="space-y-3">
-                    <h5 className="font-medium text-sm text-red-700">Staleness Checks</h5>
-                    <p className="text-xs text-gray-600">Select date columns to check for outdated or stale data</p>
-                    <MultiSelectSearch
-                      options={getAppropriateColumns('staleness')}
-                      selectedValues={selectedColumns.staleness}
-                      onSelectionChange={(values) => handleColumnSelection('staleness', values)}
-                      placeholder="Search and select date columns for staleness checks..."
-                      maxHeight="160px"
-                    />
-                  </div>
+                   {/* Staleness Checks */}
+                   <div className="space-y-3">
+                     <div className="flex items-center justify-between">
+                       <h5 className="font-medium text-sm text-red-700">Staleness Checks</h5>
+                       <div className="text-xs text-red-600 bg-red-50 px-2 py-1 rounded">
+                         Suggested: {getSuggestedColumns('staleness').slice(0, 3).join(', ')}
+                       </div>
+                     </div>
+                     <p className="text-xs text-gray-600">Select date columns to check for outdated or stale data. All data source features are available.</p>
+                     <MultiSelectSearch
+                       options={getAppropriateColumns('staleness')}
+                       selectedValues={selectedColumns.staleness}
+                       onSelectionChange={(values) => handleColumnSelection('staleness', values)}
+                       placeholder="Search and select date columns for staleness checks..."
+                       maxHeight="160px"
+                     />
+                   </div>
                 </div>
 
-                {/* AI/ML Approach Selection */}
-                <div className="space-y-4">
-                  <h4 className="font-medium text-gray-900">AI/ML Approach Selection</h4>
-                  <p className="text-sm text-gray-600">Choose multiple AI/ML approaches for advanced anomaly detection and data quality assessment</p>
-                  <MultiSelectSearch
-                    options={aiApproachOptions}
-                    selectedValues={aiApproaches}
-                    onSelectionChange={setAiApproaches}
-                    placeholder="Search and select AI/ML approaches..."
-                    maxHeight="200px"
-                  />
-                </div>
+                 {/* AI/ML Approach Selection */}
+                 <div className="space-y-4">
+                   <div className="flex items-center justify-between">
+                     <h4 className="font-medium text-gray-900">AI/ML Approach Selection</h4>
+                     <div className="text-xs text-blue-600 bg-blue-50 px-2 py-1 rounded">
+                       Recommended: isolation-forest, ensemble, z-score
+                     </div>
+                   </div>
+                   <p className="text-sm text-gray-600">Choose multiple AI/ML approaches for advanced anomaly detection and data quality assessment. All approaches are searchable.</p>
+                   <MultiSelectSearch
+                     options={aiApproachOptions}
+                     selectedValues={aiApproaches}
+                     onSelectionChange={setAiApproaches}
+                     placeholder="Search and select AI/ML approaches..."
+                     maxHeight="200px"
+                   />
+                 </div>
               </CardContent>
             </Card>
           )}
