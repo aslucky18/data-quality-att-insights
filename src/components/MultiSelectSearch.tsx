@@ -20,7 +20,7 @@ interface MultiSelectSearchProps {
   placeholder?: string;
   label?: string;
   className?: string;
-  maxHeight?: string;
+  maxHeight?: string; // Re-added maxHeight prop
 }
 
 export const MultiSelectSearch = ({
@@ -30,19 +30,18 @@ export const MultiSelectSearch = ({
   placeholder = "Search and select...",
   label,
   className,
-  maxHeight = "200px"
+  maxHeight = "300px" // Re-added maxHeight with a default value
 }: MultiSelectSearchProps) => {
   const [isOpen, setIsOpen] = useState(false);
   const [searchValue, setSearchValue] = useState("");
   const dropdownRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
-  const filteredOptions = searchValue.length >= 2 
-    ? options.filter(option =>
-        option.label.toLowerCase().includes(searchValue.toLowerCase()) ||
-        option.value.toLowerCase().includes(searchValue.toLowerCase())
-      ).slice(0, 4)
-    : [];
+  // Filter options based on search value. If search is empty, show all options.
+  const filteredOptions = options.filter(option =>
+      option.label.toLowerCase().includes(searchValue.toLowerCase()) ||
+      option.value.toLowerCase().includes(searchValue.toLowerCase())
+  );
 
   const selectedOptions = options.filter(option => 
     selectedValues.includes(option.value)
@@ -54,6 +53,8 @@ export const MultiSelectSearch = ({
     } else {
       onSelectionChange([...selectedValues, value]);
     }
+    // Clear search input after selection to show all options again
+    setSearchValue("");
   };
 
   const handleRemove = (value: string) => {
@@ -81,15 +82,19 @@ export const MultiSelectSearch = ({
   return (
     <div className={cn("space-y-2", className)}>
       {label && <Label>{label}</Label>}
-      <div className="relative" ref={dropdownRef}>
-        {/* Input Container */}
+      {/* Main component container */}
+      <div
+        ref={dropdownRef}
+        className={cn(
+          "w-full rounded-md border border-input bg-background",
+          "flex flex-col", // Use flex-col to stack input and options
+          "focus-within:ring-2 focus-within:ring-ring focus-within:ring-offset-2",
+          isOpen && "ring-2 ring-ring ring-offset-2"
+        )}
+      >
+        {/* Input Area */}
         <div
-          className={cn(
-            "min-h-[40px] w-full rounded-md border border-input bg-background px-3 py-2 text-sm",
-            "flex flex-wrap items-center gap-1 cursor-text",
-            "focus-within:ring-2 focus-within:ring-ring focus-within:ring-offset-2",
-            isOpen && "ring-2 ring-ring ring-offset-2"
-          )}
+          className="min-h-[40px] flex flex-wrap items-center gap-1 cursor-text px-3 py-2"
           onClick={() => {
             setIsOpen(true);
             inputRef.current?.focus();
@@ -138,18 +143,15 @@ export const MultiSelectSearch = ({
           />
         </div>
 
-        {/* Dropdown Content */}
+        {/* Dropdown Content (now inside the main box) */}
         {isOpen && (
-          <div 
-            className="absolute top-full left-0 right-0 z-50 mt-1 rounded-md border bg-popover shadow-lg overflow-hidden"
-            style={{ maxHeight }}
-          >
-            <div className="max-h-full overflow-y-auto p-1">
-              {searchValue.length < 2 ? (
-                <div className="px-3 py-2 text-sm text-muted-foreground">
-                  Type to search
-                </div>
-              ) : filteredOptions.length === 0 ? (
+          <>
+            <div className="border-t border-input"></div> {/* Separator */}
+            <div 
+              className="overflow-y-auto p-1" // Added overflow-y-auto for scrolling
+              style={{ maxHeight }} // Added maxHeight for scrollable area
+            >
+              {filteredOptions.length === 0 ? (
                 <div className="px-3 py-2 text-sm text-muted-foreground">
                   No options found
                 </div>
@@ -186,7 +188,7 @@ export const MultiSelectSearch = ({
                 })
               )}
             </div>
-          </div>
+          </>
         )}
       </div>
     </div>

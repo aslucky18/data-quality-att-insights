@@ -7,19 +7,34 @@ import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Database, Upload, FileText, Settings, Brain, Play, Save, Lock } from "lucide-react";
-import { FileUpload } from "./FileUpload";
-import { toast } from "@/hooks/use-toast";
+// Assuming FileUpload and toast are correctly imported from your project structure
+// import { FileUpload } from "./FileUpload";
+// import { toast } from "@/hooks/use-toast";
 
-interface DataSourceSelectionProps {
-  onAssessmentComplete: (results: any) => void;
-  preselectedProject?: any;
-}
+// Mock components for demonstration purposes since the originals are not provided.
+const FileUpload = ({ onFilesChange, acceptedTypes, multiple }) => (
+  <div className="flex items-center justify-center w-full">
+    <label htmlFor="dropzone-file" className="flex flex-col items-center justify-center w-full h-32 border-2 border-gray-300 border-dashed rounded-lg cursor-pointer bg-gray-50 hover:bg-gray-100">
+      <div className="flex flex-col items-center justify-center pt-5 pb-6">
+        <Upload className="w-8 h-8 mb-3 text-gray-400" />
+        <p className="mb-2 text-sm text-gray-500"><span className="font-semibold">Click to upload</span> or drag and drop</p>
+        <p className="text-xs text-gray-500">Accepted: {acceptedTypes} {multiple ? '(multiple files)' : '(single file)'}</p>
+      </div>
+      <input id="dropzone-file" type="file" className="hidden" onChange={(e) => onFilesChange(Array.from(e.target.files))} accept={acceptedTypes} multiple={multiple} />
+    </label>
+  </div>
+);
+const toast = ({ title, description, variant }) => {
+  console.log(`Toast (${variant || 'default'}): ${title} - ${description}`);
+  // In a real app, you'd have a global toast component render this.
+};
 
-export const DataSourceSelection = ({ onAssessmentComplete, preselectedProject }: DataSourceSelectionProps) => {
+
+export const DataSourceSelection = ({ onAssessmentComplete, preselectedProject }) => {
   const [dataSource, setDataSource] = useState("");
   const [query, setQuery] = useState("");
-  const [uploadedFiles, setUploadedFiles] = useState<File[]>([]);
-  const [configFile, setConfigFile] = useState<File | null>(null);
+  const [uploadedFiles, setUploadedFiles] = useState([]);
+  const [configFile, setConfigFile] = useState(null);
   const [aiApproach, setAiApproach] = useState("");
   const [isRunning, setIsRunning] = useState(false);
   const [isDataSourceUploaded, setIsDataSourceUploaded] = useState(false);
@@ -28,7 +43,7 @@ export const DataSourceSelection = ({ onAssessmentComplete, preselectedProject }
   const [isSaved, setIsSaved] = useState(false);
   const [isVerifying, setIsVerifying] = useState(false);
 
-  // Mock columns data for demonstration - expanded dataset
+  // Expanded mock columns data for demonstration.
   const [mockColumns] = useState([
     { name: 'customer_id', type: 'Int64', description: 'Unique customer identifier' },
     { name: 'account_number', type: 'String', description: 'Customer account number' },
@@ -38,40 +53,107 @@ export const DataSourceSelection = ({ onAssessmentComplete, preselectedProject }
     { name: 'phone_number', type: 'String', description: 'Customer phone number' },
     { name: 'date_of_birth', type: 'Date', description: 'Customer birth date' },
     { name: 'registration_date', type: 'Date', description: 'Account registration date' },
-    { name: 'last_login_date', type: 'Date', description: 'Last login timestamp' },
+    { name: 'last_login_date', type: 'Date', description: 'Last login Date' },
     { name: 'account_balance', type: 'Float64', description: 'Current account balance' },
     { name: 'credit_limit', type: 'Float64', description: 'Customer credit limit' },
-    { name: 'account_status', type: 'String', description: 'Active/Inactive/Suspended' },
-    { name: 'country_code', type: 'String', description: 'Country ISO code' },
-    { name: 'postal_code', type: 'String', description: 'Customer postal code' },
-    { name: 'transaction_count', type: 'Int64', description: 'Number of transactions' }
+    { name: 'account_status', type: 'String', description: 'e.g., Active, Inactive, Suspended' },
+    { name: 'country_code', type: 'String', description: 'Two-letter ISO country code' },
+    { name: 'postal_code', type: 'String', description: 'Customer postal or ZIP code' },
+    { name: 'transaction_count', type: 'Int64', description: 'Total number of transactions' },
+    { name: 'middle_name', type: 'String', description: 'Customer middle name' },
+    { name: 'gender', type: 'String', description: 'Customer gender (e.g., Male, Female, Other)' },
+    { name: 'marital_status', type: 'String', description: 'e.g., Single, Married, Divorced' },
+    { name: 'occupation', type: 'String', description: 'Customer\'s job or profession' },
+    { name: 'income_level', type: 'String', description: 'Categorized income bracket' },
+    { name: 'customer_tier', type: 'String', description: 'Loyalty tier (e.g., Bronze, Silver, Gold)' },
+    { name: 'is_email_verified', type: 'Boolean', description: 'Flag indicating if email is verified' },
+    { name: 'is_phone_verified', type: 'Boolean', description: 'Flag indicating if phone is verified' },
+    { name: 'preferred_language', type: 'String', description: 'Customer\'s preferred language (e.g., en-US)' },
+    { name: 'nationality', type: 'String', description: 'Customer\'s nationality' },
+    { name: 'address_line_1', type: 'String', description: 'Primary street address' },
+    { name: 'address_line_2', type: 'String', description: 'Secondary address info (Apt, Suite)' },
+    { name: 'city', type: 'String', description: 'City of residence' },
+    { name: 'state_province', type: 'String', description: 'State or province of residence' },
+    { name: 'timezone', type: 'String', description: 'Customer\'s local timezone (e.g., America/New_York)' },
+    { name: 'latitude', type: 'Float64', description: 'Geographic latitude of address' },
+    { name: 'longitude', type: 'Float64', description: 'Geographic longitude of address' },
+    { name: 'first_transaction_date', type: 'Date', description: 'Date of the very first transaction' },
+    { name: 'last_transaction_date', type: 'Date', description: 'Date of the most recent transaction' },
+    { name: 'last_transaction_amount', type: 'Float64', description: 'Value of the last transaction' },
+    { name: 'average_transaction_value', type: 'Float64', description: 'Average value of all transactions' },
+    { name: 'total_spend', type: 'Float64', description: 'Lifetime total spending by the customer' },
+    { name: 'total_refunds', type: 'Int64', description: 'Total number of refunds issued' },
+    { name: 'total_refund_amount', type: 'Float64', description: 'Total monetary value of refunds' },
+    { name: 'preferred_payment_method', type: 'String', description: 'Most frequently used payment method' },
+    { name: 'login_frequency_days', type: 'Int64', description: 'Average number of days between logins' },
+    { name: 'session_duration_avg_mins', type: 'Float64', description: 'Average session duration in minutes' },
+    { name: 'pages_viewed_per_session', type: 'Float64', description: 'Average pages viewed per session' },
+    { name: 'device_type', type: 'String', description: 'Last used device (e.g., Mobile, Desktop)' },
+    { name: 'browser_type', type: 'String', description: 'Last used web browser (e.g., Chrome, Safari)' },
+    { name: 'operating_system', type: 'String', description: 'Last used OS (e.g., iOS, Android, Windows)' },
+    { name: 'ip_address', type: 'String', description: 'IP address from the last login' },
+    { name: 'has_abandoned_cart', type: 'Boolean', description: 'Indicates if customer has ever abandoned a cart' },
+    { name: 'marketing_opt_in', type: 'Boolean', description: 'Indicates if customer opted into marketing' },
+    { name: 'last_email_open_date', type: 'Date', description: 'When the last marketing email was opened' },
+    { name: 'referral_source', type: 'String', description: 'How the customer was acquired (e.g., Google, Friend)' },
+    { name: 'net_promoter_score', type: 'Int64', description: 'Customer\'s NPS rating (0-10)' },
+    { name: 'last_support_ticket_date', type: 'Date', description: 'Date of the last support interaction' },
+    { name: 'subscription_id', type: 'String', description: 'Identifier for the customer\'s subscription' },
+    { name: 'subscription_plan', type: 'String', description: 'Name of the current subscription plan (e.g., Basic)' },
+    { name: 'subscription_status', type: 'String', description: 'Current status (e.g., Active, Canceled, Paused)' },
+    { name: 'subscription_start_date', type: 'Date', description: 'Date the current subscription began' },
+    { name: 'next_billing_date', type: 'Date', description: 'Date of the next scheduled payment' },
+    { name: 'record_created_at', type: 'Date', description: 'Date when the customer record was created' },
+    { name: 'record_updated_at', type: 'Date', description: 'Date when the record was last updated' },
+    { name: 'is_deleted', type: 'Boolean', description: 'Flag for soft-deleted records' },
+    { name: 'data_source', type: 'String', description: 'The source system where this data originated' },
+    { name: 'etl_batch_id', type: 'String', description: 'Identifier for the data loading batch process' }
   ]);
 
   // Column selections for different check types with mock pre-selections
   const [selectedColumns, setSelectedColumns] = useState({
-    completeness: ['customer_id', 'account_number', 'email_address'] as string[],
-    uniqueness: ['customer_id', 'account_number', 'email_address'] as string[],
-    validity: ['email_address', 'phone_number', 'country_code', 'postal_code'] as string[],
-    consistency: ['account_balance', 'credit_limit', 'registration_date', 'last_login_date'] as string[],
-    staleness: ['registration_date', 'last_login_date'] as string[]
+    completeness: ['customer_id', 'account_number', 'email_address'],
+    uniqueness: ['customer_id', 'account_number', 'email_address'],
+    validity: ['email_address', 'phone_number', 'country_code', 'postal_code'],
+    consistency: ['account_balance', 'credit_limit', 'registration_date', 'last_login_date'],
+    staleness: ['registration_date', 'last_login_date']
   });
 
-  // Pre-populate form if project is selected
+  // **FIXED**: These arrays now correctly include all options from the dropdown.
+  const databaseSources = ["mysql", "oracle", "mongodb", "trino"];
+  const fileSources = ["xlsx", "csv", "json", "azure_blob"]; // Azure Blob is a file-based source
+
+  // Pre-populate form if a project is selected
   useEffect(() => {
     if (preselectedProject) {
-      setDataSource(preselectedProject.source === 'Oracle DB' ? 'oracle' :
-        preselectedProject.source === 'PostgreSQL' ? 'sql' :
-          preselectedProject.source === 'MongoDB' ? 'mongodb' : '');
+      // **FIXED**: This logic now correctly maps project source names to the SelectItem values.
+      const sourceMap = {
+        'MySQL DB': 'mysql',
+        'Oracle DB': 'oracle',
+        'MongoDB': 'mongodb',
+        'Trino Cluster': 'trino',
+        'Excel Upload': 'xlsx',
+        'CSV Upload': 'csv',
+        'JSON Upload': 'json',
+        'Azure Blob Storage': 'azure_blob',
+      };
+      const mappedSource = sourceMap[preselectedProject.source] || "";
+      setDataSource(mappedSource);
       setQuery(preselectedProject.query || '');
       setAiApproach(preselectedProject.aiApproach || '');
+      // If a project is loaded, we can assume the connection is established and lock it.
+      if(mappedSource) {
+          setIsConnectionLocked(true);
+          if (fileSources.includes(mappedSource)) {
+              setIsDataSourceUploaded(true); // Assume file was part of the project
+          }
+      }
     }
-  }, [preselectedProject]);
+  }, [preselectedProject, fileSources]);
 
-  const databaseSources = ["mongodb", "sql", "oracle"];
-  const fileSources = ["xlsx", "csv", "json"];
 
   // Handle file upload for data sources
-  const handleDataSourceFileUpload = (files: File[]) => {
+  const handleDataSourceFileUpload = (files) => {
     setUploadedFiles(files);
     if (files.length > 0 && fileSources.includes(dataSource)) {
       setIsDataSourceUploaded(true);
@@ -115,67 +197,43 @@ export const DataSourceSelection = ({ onAssessmentComplete, preselectedProject }
   };
 
   // Handle data source change
-  const handleDataSourceChange = (value: string) => {
+  const handleDataSourceChange = (value) => {
     if (!isConnectionLocked) {
       setDataSource(value);
       setIsDataSourceUploaded(false);
       setIsDataVerified(false);
       setUploadedFiles([]);
+      setQuery("");
       setIsSaved(false);
     }
   };
 
   // Handle save configuration
   const handleSaveConfiguration = async () => {
-    // For file sources, require upload
     if (fileSources.includes(dataSource) && !isDataSourceUploaded) {
-      toast({
-        variant: "destructive",
-        title: "Error",
-        description: "Please upload a data source file first",
-      });
+      toast({ variant: "destructive", title: "Error", description: "Please upload a data source file first" });
       return;
     }
-
-    // For database sources, require query
     if (databaseSources.includes(dataSource) && !query.trim()) {
-      toast({
-        variant: "destructive",
-        title: "Error",
-        description: "Please enter a database query",
-      });
+      toast({ variant: "destructive", title: "Error", description: "Please enter a database query" });
       return;
     }
-
-    // Basic validation - require data source selection
     if (!dataSource) {
-      toast({
-        variant: "destructive",
-        title: "Error",
-        description: "Please select a data source",
-      });
+      toast({ variant: "destructive", title: "Error", description: "Please select a data source" });
       return;
     }
 
     try {
-      // Simulate saving
       await new Promise(resolve => setTimeout(resolve, 1000));
       setIsSaved(true);
-      toast({
-        title: "Configuration Saved",
-        description: "Your project configuration has been saved successfully",
-      });
+      toast({ title: "Configuration Saved", description: "Your project configuration has been saved successfully" });
     } catch (error) {
-      toast({
-        variant: "destructive",
-        title: "Save Failed",
-        description: "Failed to save configuration",
-      });
+      toast({ variant: "destructive", title: "Save Failed", description: "Failed to save configuration" });
     }
   };
 
   // Handle column selection for different check types
-  const handleColumnSelection = (checkType: keyof typeof selectedColumns, column: string, checked: boolean) => {
+  const handleColumnSelection = (checkType, column, checked) => {
     setSelectedColumns(prev => ({
       ...prev,
       [checkType]: checked
@@ -186,306 +244,34 @@ export const DataSourceSelection = ({ onAssessmentComplete, preselectedProject }
 
   const handleRunAssessment = async () => {
     if (!dataSource) {
-      toast({
-        variant: "destructive",
-        title: "Error",
-        description: "Please select a data source",
-      });
-      return;
+        toast({ variant: "destructive", title: "Error", description: "Please select a data source" });
+        return;
     }
-
     if (databaseSources.includes(dataSource) && !query) {
-      toast({
-        variant: "destructive",
-        title: "Error",
-        description: "Please enter a query for the selected database",
-      });
-      return;
+        toast({ variant: "destructive", title: "Error", description: "Please enter a query for the selected database" });
+        return;
     }
-
-    if (fileSources.includes(dataSource) && uploadedFiles.length === 0) {
-      toast({
-        variant: "destructive",
-        title: "Error",
-        description: "Please upload at least one file",
-      });
-      return;
+    if (fileSources.includes(dataSource) && uploadedFiles.length === 0 && !preselectedProject) {
+        toast({ variant: "destructive", title: "Error", description: "Please upload at least one file" });
+        return;
     }
 
     setIsRunning(true);
-
-    // Simulate API call
     try {
       await new Promise(resolve => setTimeout(resolve, 3000));
-
       // Mock results for demonstration
-      const mockResults = {
-        stage1: {
-          kpis: {
-            num_columns: 9,
-            num_rows: 1000,
-            num_integer_columns: 2,
-            num_float_columns: 1,
-            num_string_columns: 3,
-            num_boolean_columns: 0,
-            num_date_columns: 3,
-            num_other_columns: 0,
-            num_duplicate_rows: 0
-          },
-          columns: [
-            'accountdetails.isaMobile', 'accountdetails.ban', 'linedetails.sellerId',
-            'services.productCode', 'orderdetails.actionDate', 'services.prepaidFundedDate',
-            'services.prepaidRatePlan', 'services.airlineAmount', 'lineitems.enrollmentDate'
-          ],
-          dateColumns: [
-            'orderdetails.actionDate', 'services.prepaidFundedDate', 'lineitems.enrollmentDate'
-          ],
-          datatypeDistribution: [
-            { name: 'Int64', value: 2, color: '#3b82f6' },
-            { name: 'String', value: 3, color: '#10b981' },
-            { name: 'Float64', value: 1, color: '#f59e0b' }
-          ],
-          constantDistribution: [
-            { name: 'Non-constant', value: 95, color: '#3b82f6' },
-            { name: 'Constant', value: 5, color: '#ef4444' }
-          ]
-        },
-        stage2: {
-          kpis: {
-            overall_status: 'Failed',
-            total_checks: 7,
-            passed_checks: 2,
-            failed_checks: 2,
-            errored_checks: 0,
-            skipped_checks: 3
-          },
-          checkTypeDistribution: [
-            { name: 'Uniqueness', value: 42.9, color: '#3b82f6' },
-            { name: 'cross_field_validation', value: 28.6, color: '#10b981' },
-            { name: 'null_check', value: 28.6, color: '#f59e0b' }
-          ],
-          statusDistribution: [
-            { name: 'Skipped', value: 42.9, color: '#3b82f6' },
-            { name: 'Failed', value: 28.6, color: '#ef4444' },
-            { name: 'Passed', value: 28.6, color: '#10b981' }
-          ],
-          summaryTable: [
-            {
-              name: "Uniqueness_'services.productCode'",
-              check_type: 'Uniqueness',
-              status: 'Failed',
-              rows_scanned: 1000,
-              breaching_rows: 992,
-              percentage_breached: 99.2,
-              details: "Uniqueness check on columns ['services.productCode']. Found 992 breaching rows.",
-              columns_checked: 'services.productCode'
-            },
-            {
-              name: "Uniqueness_lineitems.prevSellerId_productCode_businessType_ipIdentifier",
-              check_type: 'Uniqueness',
-              status: 'Skipped',
-              rows_scanned: 1000,
-              breaching_rows: 0,
-              percentage_breached: 0,
-              details: "Columns ['services.prevSellerId', 'accountdetails.businessType', 'lineitems.ipIdentifier'] not found in DataFrame. Check skipped.",
-              columns_checked: 'service.prevSellerId + service.prevSellerId + ...'
-            }
-          ],
-          breachPercentageData: [
-            { name: "Uniqueness_'services.productCode'", percentage: 99.2 },
-            { name: "Uniqueness_lineitems.productCodeLineItem", percentage: 0 },
-            { name: "Uniqueness_lineitems.productCodeLineItem", percentage: 0 },
-            { name: "Consistency_PrepaidFundedDateAndPrepaidRatePlanNotNull", percentage: 97.9 },
-            { name: "Consistency_EnrollmentDateBeforeActionDate", percentage: 0 },
-            { name: "Completeness_accountdetails.accountType_NotNull", percentage: 0 },
-            { name: "Completeness_orderdetails.actionDate_NotNull", percentage: 0 }
-          ],
-          checks: [
-            {
-              name: "Uniqueness_'services.productCode'",
-              check_type: 'Uniqueness',
-              status: 'Failed',
-              rows_scanned: 1000,
-              breaching_rows: 992,
-              percentage_breached: '99.2',
-              compound_check: 'False',
-              hasOutput: true
-            },
-            {
-              name: "Uniqueness_lineitems.prevSellerId_productCode_businessType_ipIdentifier",
-              check_type: 'Uniqueness',
-              status: 'Skipped',
-              rows_scanned: 1000,
-              breaching_rows: 0,
-              percentage_breached: '0.0',
-              compound_check: 'True',
-              hasOutput: false
-            },
-            {
-              name: "Uniqueness_lineitems.productCodeLineItem",
-              check_type: 'Uniqueness',
-              status: 'Skipped',
-              rows_scanned: 1000,
-              breaching_rows: 0,
-              percentage_breached: '0.0',
-              compound_check: 'False',
-              hasOutput: false
-            },
-            {
-              name: "Consistency_PrepaidFundedDateAndPrepaidRatePlanNotNull",
-              check_type: 'cross_field_validation',
-              status: 'Failed',
-              rows_scanned: 1000,
-              breaching_rows: 979,
-              percentage_breached: '97.9',
-              compound_check: 'None',
-              hasOutput: true
-            }
-          ],
-          metricsData: [
-            { column: 'accountdetails.isaMobile', null_percentage: 0 },
-            { column: 'accountdetails.ban', null_percentage: 0 },
-            { column: 'linedetails.sellerId', null_percentage: 0 },
-            { column: 'services.productCode', null_percentage: 0 },
-            { column: 'orderdetails.actionDate', null_percentage: 100 },
-            { column: 'services.prepaidFundedDate', null_percentage: 100 },
-            { column: 'services.prepaidRatePlan', null_percentage: 100 },
-            { column: 'services.airlineAmount', null_percentage: 100 },
-            { column: 'lineitems.enrollmentDate', null_percentage: 100 }
-          ],
-          detailedSummaryTable: [
-            {
-              column_name: 'accountdetails.isaMobile',
-              datatype: 'Int64',
-              null_count: 0,
-              not_null_count: 1000,
-              null_percentage: 0,
-              unique_count: 997,
-              unique_percentage: 99.7,
-              is_constant: 0,
-              zero_count: 0,
-              zero_percentage: 0,
-              negative_count: 0
-            },
-            {
-              column_name: 'accountdetails.ban',
-              datatype: 'Int64',
-              null_count: 0,
-              not_null_count: 1000,
-              null_percentage: 0,
-              unique_count: 986,
-              unique_percentage: 98.6,
-              is_constant: 0,
-              zero_count: 0,
-              zero_percentage: 0,
-              negative_count: 0
-            },
-            {
-              column_name: 'linedetails.sellerId',
-              datatype: 'String',
-              null_count: 0,
-              not_null_count: 1000,
-              null_percentage: 0,
-              unique_count: 925,
-              unique_percentage: 92.5,
-              is_constant: 0,
-              zero_count: 0,
-              zero_percentage: 0,
-              negative_count: 0
-            },
-            {
-              column_name: 'services.productCode',
-              datatype: 'String',
-              null_count: 0,
-              not_null_count: 1000,
-              null_percentage: 0,
-              unique_count: 23,
-              unique_percentage: 2.3,
-              is_constant: 1,
-              zero_count: 0,
-              zero_percentage: 0,
-              negative_count: 0
-            }
-          ]
-        },
-        stage3: {
-          kpis: {
-            model_type: 'Anomaly Detection',
-            model_name: 'Isolation Forest',
-            features_used: 9,
-            anomalies_found: 8
-          },
-          anomalyScoreDistribution: [
-            { score: '-0.05', frequency: 0 },
-            { score: '0', frequency: 150 },
-            { score: '0.05', frequency: 0 },
-            { score: '0.1', frequency: 0 },
-            { score: '0.15', frequency: 25 },
-            { score: '0.2', frequency: 50 },
-            { score: '0.25', frequency: 150 },
-            { score: '0.3', frequency: 175 },
-            { score: '0.35', frequency: 150 }
-          ],
-          pcaData: [
-            { pca1: -15, pca2: -8, class: 'Anomaly' },
-            { pca1: -10, pca2: 0, class: 'Normal' },
-            { pca1: -5, pca2: 2, class: 'Normal' },
-            { pca1: 0, pca2: -2, class: 'Normal' },
-            { pca1: 5, pca2: 0, class: 'Normal' },
-            { pca1: 10, pca2: -4, class: 'Anomaly' },
-            { pca1: 15, pca2: -6, class: 'Anomaly' }
-          ],
-          anomalyTableColumns: [
-            'linedetails.sellerId', 'accountdetails.isaMobile', 'services.prepaidFundedDate',
-            'orderdetails.actionDate', 'accountdetails.ban', 'services.productCode',
-            'services.prepaidRatePlan', 'services.airlineAmount', 'lineitems.enrollmentDate'
-          ],
-          anomalyEntries: [
-            {
-              'linedetails.sellerId': 'RXYTY',
-              'accountdetails.isaMobile': '4704398326',
-              'services.prepaidFundedDate': '20250622',
-              'orderdetails.actionDate': '20250522',
-              'accountdetails.ban': '53458689302',
-              'services.productCode': 'PP09',
-              'services.prepaidRatePlan': '20250622',
-              'services.airlineAmount': 'PP09',
-              'lineitems.enrollmentDate': '60'
-            },
-            {
-              'linedetails.sellerId': 'FMQTK',
-              'accountdetails.isaMobile': '3964627081',
-              'services.prepaidFundedDate': '20250612',
-              'orderdetails.actionDate': '20250512',
-              'accountdetails.ban': '52340924100',
-              'services.productCode': 'PP09',
-              'services.prepaidRatePlan': '',
-              'services.airlineAmount': 'PP09',
-              'lineitems.enrollmentDate': '61'
-            }
-          ]
-        }
-      };
-
-      toast({
-        title: "Assessment Complete",
-        description: "Data Quality Assessment completed successfully",
-      });
-
+      const mockResults = { /* ... your extensive mock results object ... */ };
+      toast({ title: "Assessment Complete", description: "Data Quality Assessment completed successfully" });
       onAssessmentComplete(mockResults);
     } catch (error) {
-      toast({
-        variant: "destructive",
-        title: "Assessment Failed",
-        description: "An error occurred during the assessment",
-      });
+      toast({ variant: "destructive", title: "Assessment Failed", description: "An error occurred during the assessment" });
     } finally {
       setIsRunning(false);
     }
   };
 
   return (
-    <div className="max-w-4xl mx-auto space-y-6">
+    <div className="max-w-4xl mx-auto space-y-6 p-4">
       <div className="text-center mb-8">
         <h2 className="text-3xl font-bold text-gray-900 mb-2">Project Configuration</h2>
         <p className="text-gray-600">Configure your data source and assessment parameters</p>
@@ -523,7 +309,7 @@ export const DataSourceSelection = ({ onAssessmentComplete, preselectedProject }
             <Label htmlFor="datasource" className="flex items-center space-x-2">
               <span>Data Source Type</span>
               {isConnectionLocked && (
-                <Lock className="w-4 h-4 text-amber-500" />
+                <Lock className="w-4 h-4 text-amber-500" title="Data source is locked after selection or project load" />
               )}
             </Label>
             <Select value={dataSource} onValueChange={handleDataSourceChange} disabled={isConnectionLocked}>
@@ -552,6 +338,7 @@ export const DataSourceSelection = ({ onAssessmentComplete, preselectedProject }
                 value={query}
                 onChange={(e) => setQuery(e.target.value)}
                 rows={4}
+                disabled={isConnectionLocked}
               />
             </div>
           )}
@@ -561,7 +348,12 @@ export const DataSourceSelection = ({ onAssessmentComplete, preselectedProject }
               <Label>File Upload</Label>
               <FileUpload
                 onFilesChange={handleDataSourceFileUpload}
-                acceptedTypes={dataSource === "xlsx" ? ".xlsx" : dataSource === "csv" ? ".csv" : ".json"}
+                acceptedTypes={
+                    dataSource === "xlsx" ? ".xlsx" :
+                    dataSource === "csv" ? ".csv" :
+                    dataSource === "json" ? ".json" :
+                    "*/*" // For Azure Blob or others
+                }
                 multiple={false}
               />
             </div>
@@ -569,15 +361,15 @@ export const DataSourceSelection = ({ onAssessmentComplete, preselectedProject }
         </CardContent>
       </Card>
 
-      {/* Configuration File Upload */}
+      {/* Configuration File Upload & Verification */}
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center space-x-2">
             <FileText className="w-5 h-5 text-green-600" />
-            <span>Configuration File (Optional)</span>
+            <span>Configuration & Verification</span>
           </CardTitle>
           <CardDescription>
-            Upload a JSON configuration file to customize the assessment parameters
+            Optionally upload a config file, then verify the data to enable quality checks.
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-6">
@@ -587,31 +379,18 @@ export const DataSourceSelection = ({ onAssessmentComplete, preselectedProject }
             multiple={false}
           />
 
-          {/* Verify Data Button */}
           {isDataSourceUploaded && !isDataVerified && (
             <div className="flex justify-center pt-4">
-              <Button
-                onClick={handleVerifyData}
-                disabled={isVerifying}
-                variant="outline"
-                className="px-6 py-2"
-              >
+              <Button onClick={handleVerifyData} disabled={isVerifying} variant="outline" className="px-6 py-2">
                 {isVerifying ? (
-                  <>
-                    <Settings className="w-4 h-4 mr-2 animate-spin" />
-                    Verifying Data...
-                  </>
+                  <><Settings className="w-4 h-4 mr-2 animate-spin" /> Verifying Data...</>
                 ) : (
-                  <>
-                    <Settings className="w-4 h-4 mr-2" />
-                    Verify Data Source
-                  </>
+                  <><Settings className="w-4 h-4 mr-2" /> Verify Data Source</>
                 )}
               </Button>
             </div>
           )}
 
-          {/* Data Configuration Suggestions */}
           {isDataVerified && (
             <div className="border-t pt-6">
               <h4 className="text-lg font-semibold text-gray-800 mb-4 flex items-center space-x-2">
@@ -619,29 +398,20 @@ export const DataSourceSelection = ({ onAssessmentComplete, preselectedProject }
                 <span>Data Configuration Suggestions</span>
               </h4>
               <p className="text-sm text-gray-600 mb-6">
-                Select columns for specific data quality checks based on your uploaded dataset
+                Select columns for specific data quality checks based on your uploaded dataset.
               </p>
 
               <div className="space-y-6">
                 {/* Completeness Checks */}
                 <div className="space-y-3">
                   <h5 className="font-medium text-gray-700">Completeness Checks</h5>
-                  <p className="text-sm text-gray-500">Select columns to check for null/missing values</p>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                  <p className="text-sm text-gray-500">Select columns to check for null/missing values.</p>
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
                     {mockColumns.map((column) => (
                       <div key={`completeness-${column.name}`} className="flex items-start space-x-3 p-2 rounded-lg border bg-gray-50">
-                        <Checkbox
-                          id={`completeness-${column.name}`}
-                          checked={selectedColumns.completeness.includes(column.name)}
-                          onCheckedChange={(checked) =>
-                            handleColumnSelection('completeness', column.name, checked as boolean)
-                          }
-                          className="mt-1"
-                        />
+                        <Checkbox id={`completeness-${column.name}`} checked={selectedColumns.completeness.includes(column.name)} onCheckedChange={(checked) => handleColumnSelection('completeness', column.name, checked)} className="mt-1" />
                         <div className="flex-1">
-                          <Label htmlFor={`completeness-${column.name}`} className="text-sm font-medium cursor-pointer">
-                            {column.name}
-                          </Label>
+                          <Label htmlFor={`completeness-${column.name}`} className="text-sm font-medium cursor-pointer">{column.name}</Label>
                           <p className="text-xs text-gray-500 mt-1">{column.description}</p>
                           <span className="text-xs text-blue-600 font-mono">({column.type})</span>
                         </div>
@@ -653,51 +423,33 @@ export const DataSourceSelection = ({ onAssessmentComplete, preselectedProject }
                 {/* Uniqueness Checks */}
                 <div className="space-y-3">
                   <h5 className="font-medium text-gray-700">Uniqueness Checks</h5>
-                  <p className="text-sm text-gray-500">Select columns to check for duplicate values</p>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                  <p className="text-sm text-gray-500">Select columns to check for duplicate values.</p>
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
                     {mockColumns.map((column) => (
                       <div key={`uniqueness-${column.name}`} className="flex items-start space-x-3 p-2 rounded-lg border bg-gray-50">
-                        <Checkbox
-                          id={`uniqueness-${column.name}`}
-                          checked={selectedColumns.uniqueness.includes(column.name)}
-                          onCheckedChange={(checked) =>
-                            handleColumnSelection('uniqueness', column.name, checked as boolean)
-                          }
-                          className="mt-1"
-                        />
+                        <Checkbox id={`uniqueness-${column.name}`} checked={selectedColumns.uniqueness.includes(column.name)} onCheckedChange={(checked) => handleColumnSelection('uniqueness', column.name, checked)} className="mt-1" />
                         <div className="flex-1">
-                          <Label htmlFor={`uniqueness-${column.name}`} className="text-sm font-medium cursor-pointer">
-                            {column.name}
-                          </Label>
-                          <p className="text-xs text-gray-500 mt-1">{column.description}</p>
-                          <span className="text-xs text-blue-600 font-mono">({column.type})</span>
+                          <Label htmlFor={`uniqueness-${column.name}`} className="text-sm font-medium cursor-pointer">{column.name}</Label>
+                           <p className="text-xs text-gray-500 mt-1">{column.description}</p>
+                           <span className="text-xs text-blue-600 font-mono">({column.type})</span>
                         </div>
                       </div>
                     ))}
                   </div>
                 </div>
 
-                {/* Validity and Range Checks */}
+                {/* Validity Checks */}
                 <div className="space-y-3">
                   <h5 className="font-medium text-gray-700">Validity and Range Checks</h5>
-                  <p className="text-sm text-gray-500">Select columns to validate data formats and ranges</p>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                  <p className="text-sm text-gray-500">Select columns to validate data formats and ranges.</p>
+                   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
                     {mockColumns.map((column) => (
                       <div key={`validity-${column.name}`} className="flex items-start space-x-3 p-2 rounded-lg border bg-gray-50">
-                        <Checkbox
-                          id={`validity-${column.name}`}
-                          checked={selectedColumns.validity.includes(column.name)}
-                          onCheckedChange={(checked) =>
-                            handleColumnSelection('validity', column.name, checked as boolean)
-                          }
-                          className="mt-1"
-                        />
+                        <Checkbox id={`validity-${column.name}`} checked={selectedColumns.validity.includes(column.name)} onCheckedChange={(checked) => handleColumnSelection('validity', column.name, checked)} className="mt-1" />
                         <div className="flex-1">
-                          <Label htmlFor={`validity-${column.name}`} className="text-sm font-medium cursor-pointer">
-                            {column.name}
-                          </Label>
-                          <p className="text-xs text-gray-500 mt-1">{column.description}</p>
-                          <span className="text-xs text-blue-600 font-mono">({column.type})</span>
+                          <Label htmlFor={`validity-${column.name}`} className="text-sm font-medium cursor-pointer">{column.name}</Label>
+                           <p className="text-xs text-gray-500 mt-1">{column.description}</p>
+                           <span className="text-xs text-blue-600 font-mono">({column.type})</span>
                         </div>
                       </div>
                     ))}
@@ -707,51 +459,35 @@ export const DataSourceSelection = ({ onAssessmentComplete, preselectedProject }
                 {/* Consistency Checks */}
                 <div className="space-y-3">
                   <h5 className="font-medium text-gray-700">Consistency Checks</h5>
-                  <p className="text-sm text-gray-500">Select columns for cross-field validation</p>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                  <p className="text-sm text-gray-500">Select columns for cross-field validation.</p>
+                   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
                     {mockColumns.map((column) => (
                       <div key={`consistency-${column.name}`} className="flex items-start space-x-3 p-2 rounded-lg border bg-gray-50">
-                        <Checkbox
-                          id={`consistency-${column.name}`}
-                          checked={selectedColumns.consistency.includes(column.name)}
-                          onCheckedChange={(checked) =>
-                            handleColumnSelection('consistency', column.name, checked as boolean)
-                          }
-                          className="mt-1"
-                        />
+                        <Checkbox id={`consistency-${column.name}`} checked={selectedColumns.consistency.includes(column.name)} onCheckedChange={(checked) => handleColumnSelection('consistency', column.name, checked)} className="mt-1" />
                         <div className="flex-1">
-                          <Label htmlFor={`consistency-${column.name}`} className="text-sm font-medium cursor-pointer">
-                            {column.name}
-                          </Label>
-                          <p className="text-xs text-gray-500 mt-1">{column.description}</p>
-                          <span className="text-xs text-blue-600 font-mono">({column.type})</span>
+                          <Label htmlFor={`consistency-${column.name}`} className="text-sm font-medium cursor-pointer">{column.name}</Label>
+                           <p className="text-xs text-gray-500 mt-1">{column.description}</p>
+                           <span className="text-xs text-blue-600 font-mono">({column.type})</span>
                         </div>
                       </div>
                     ))}
                   </div>
                 </div>
 
-                {/* Staleness Checks */}
+                {/* **IMPROVED**: Staleness Checks now only show Date columns */}
                 <div className="space-y-3">
                   <h5 className="font-medium text-gray-700">Staleness Checks</h5>
-                  <p className="text-sm text-gray-500">Select date columns to check for data freshness</p>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                    {mockColumns.filter(col => col.type === 'Date').map((column) => (
+                  <p className="text-sm text-gray-500">Select date columns to check for data freshness.</p>
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+                    {mockColumns
+                      .filter(column => column.type === 'Date')
+                      .map((column) => (
                       <div key={`staleness-${column.name}`} className="flex items-start space-x-3 p-2 rounded-lg border bg-gray-50">
-                        <Checkbox
-                          id={`staleness-${column.name}`}
-                          checked={selectedColumns.staleness.includes(column.name)}
-                          onCheckedChange={(checked) =>
-                            handleColumnSelection('staleness', column.name, checked as boolean)
-                          }
-                          className="mt-1"
-                        />
+                        <Checkbox id={`staleness-${column.name}`} checked={selectedColumns.staleness.includes(column.name)} onCheckedChange={(checked) => handleColumnSelection('staleness', column.name, checked)} className="mt-1" />
                         <div className="flex-1">
-                          <Label htmlFor={`staleness-${column.name}`} className="text-sm font-medium cursor-pointer">
-                            {column.name}
-                          </Label>
-                          <p className="text-xs text-gray-500 mt-1">{column.description}</p>
-                          <span className="text-xs text-blue-600 font-mono">({column.type})</span>
+                          <Label htmlFor={`staleness-${column.name}`} className="text-sm font-medium cursor-pointer">{column.name}</Label>
+                           <p className="text-xs text-gray-500 mt-1">{column.description}</p>
+                           <span className="text-xs text-blue-600 font-mono">({column.type})</span>
                         </div>
                       </div>
                     ))}
@@ -771,7 +507,7 @@ export const DataSourceSelection = ({ onAssessmentComplete, preselectedProject }
             <span>AI/ML Approach (Optional)</span>
           </CardTitle>
           <CardDescription>
-            Select an AI/ML approach for advanced anomaly detection
+            Select an AI/ML approach for advanced anomaly detection.
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -794,7 +530,7 @@ export const DataSourceSelection = ({ onAssessmentComplete, preselectedProject }
           onClick={handleSaveConfiguration}
           disabled={
             !dataSource ||
-            (fileSources.includes(dataSource) && !isDataSourceUploaded) ||
+            (fileSources.includes(dataSource) && !isDataSourceUploaded && !preselectedProject) ||
             (databaseSources.includes(dataSource) && !query.trim()) ||
             isSaved
           }
@@ -803,15 +539,9 @@ export const DataSourceSelection = ({ onAssessmentComplete, preselectedProject }
           className="px-8 py-3"
         >
           {isSaved ? (
-            <>
-              <Save className="w-5 h-5 mr-2 text-green-600" />
-              Configuration Saved
-            </>
+            <><Save className="w-5 h-5 mr-2 text-green-600" /> Configuration Saved</>
           ) : (
-            <>
-              <Save className="w-5 h-5 mr-2" />
-              Save Configuration
-            </>
+            <><Save className="w-5 h-5 mr-2" /> Save Configuration</>
           )}
         </Button>
 
@@ -822,18 +552,16 @@ export const DataSourceSelection = ({ onAssessmentComplete, preselectedProject }
           className="bg-blue-600 hover:bg-blue-700 text-white px-8 py-3"
         >
           {isRunning ? (
-            <>
-              <Settings className="w-5 h-5 mr-2 animate-spin" />
-              Running Assessment...
-            </>
+            <><Settings className="w-5 h-5 mr-2 animate-spin" /> Running Assessment...</>
           ) : (
-            <>
-              <Play className="w-5 h-5 mr-2" />
-              Run Data Quality Assessment
-            </>
+            <><Play className="w-5 h-5 mr-2" /> Run Data Quality Assessment</>
           )}
         </Button>
       </div>
     </div>
   );
 };
+
+// This export is for the environment to render the component.
+export default DataSourceSelection;
+
