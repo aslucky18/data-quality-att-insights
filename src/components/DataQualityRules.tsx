@@ -79,7 +79,7 @@ function SearchableConditionSelect({
 
   return (
     <div ref={ref} className="relative w-full">
-      <button
+      <Button
         type="button"
         onClick={() => setOpen((o) => !o)}
         className={cn(
@@ -92,7 +92,7 @@ function SearchableConditionSelect({
         <span className={cn("truncate text-left", !value && "text-muted-foreground")}
           >{value || placeholder}</span>
         <ChevronDown className={cn("h-4 w-4 text-muted-foreground transition-transform", open && "rotate-180")} />
-      </button>
+      </Button>
 
       {open && (
         <div

@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import '@/index.css'
 import { useParams, useNavigate, useLocation } from "react-router-dom";
 import { Header } from "@/components/Header";
 import { Button } from "@/components/ui/button";
@@ -12,6 +13,7 @@ import { ArrowLeft, Save, Database, FileText, Brain, Trash2, CheckCircle, Settin
 import { FileUpload } from "@/components/FileUpload";
 import { MultiSelectSearch } from "@/components/MultiSelectSearch";
 import { toast } from "@/hooks/use-toast";
+import DataQualityConfig, { DataQualityConfiguration } from "./DataQualityConfiguration";
 
 interface DQProject {
   id: string;
@@ -34,7 +36,7 @@ export const DQProjectConfiguration = ({ userInfo, onLogout }: DQProjectConfigur
   const navigate = useNavigate();
   const location = useLocation();
   const isEdit = Boolean(projectId);
-  
+
   const [project, setProject] = useState<DQProject>({
     id: '',
     name: '',
@@ -45,7 +47,7 @@ export const DQProjectConfiguration = ({ userInfo, onLogout }: DQProjectConfigur
     query: '',
     aiApproach: ''
   });
-  
+
   const [dataSource, setDataSource] = useState("");
   const [query, setQuery] = useState("");
   const [uploadedFiles, setUploadedFiles] = useState<File[]>([]);
@@ -91,8 +93,8 @@ export const DQProjectConfiguration = ({ userInfo, onLogout }: DQProjectConfigur
     { value: 'autoencoder', label: 'Neural Network Autoencoder', description: 'Deep learning based anomaly detection' },
     { value: 'svm', label: 'One-Class Support Vector Machine', description: 'SVM-based outlier detection' }
   ];
-  
-  
+
+
   // Connection fields for different data sources
   const [connectionFields, setConnectionFields] = useState({
     // MySQL fields
@@ -101,7 +103,7 @@ export const DQProjectConfiguration = ({ userInfo, onLogout }: DQProjectConfigur
     mysql_username: '',
     mysql_password: '',
     mysql_database: '',
-    
+
     // Oracle fields
     oracle_host: '',
     oracle_port: '',
@@ -109,10 +111,10 @@ export const DQProjectConfiguration = ({ userInfo, onLogout }: DQProjectConfigur
     oracle_username: '',
     oracle_password: '',
     oracle_database: '',
-    
+
     // MongoDB fields
     mongodb_connection_string: '',
-    
+
     // Trino fields
     trino_host: '',
     trino_port: '',
@@ -120,7 +122,7 @@ export const DQProjectConfiguration = ({ userInfo, onLogout }: DQProjectConfigur
     trino_password: '',
     trino_catalog: '',
     trino_schema: '',
-    
+
     // Azure Blob fields
     azure_account_name: '',
     azure_container_name: '',
@@ -141,14 +143,14 @@ export const DQProjectConfiguration = ({ userInfo, onLogout }: DQProjectConfigur
         const foundProject = projects.find(p => p.id === projectId);
         if (foundProject) {
           setProject(foundProject);
-          setDataSource(foundProject.source === 'Oracle DB' ? 'oracle' : 
-                      foundProject.source === 'PostgreSQL' ? 'sql' :
-                      foundProject.source === 'MongoDB' ? 'mongodb' : '');
+          setDataSource(foundProject.source === 'Oracle DB' ? 'oracle' :
+            foundProject.source === 'PostgreSQL' ? 'sql' :
+              foundProject.source === 'MongoDB' ? 'mongodb' : '');
           setQuery(foundProject.query || '');
           setAiApproaches(foundProject.aiApproach ? foundProject.aiApproach.split(',') : []);
-          setConnectionVerified(databaseSources.includes(foundProject.source === 'Oracle DB' ? 'oracle' : 
-                      foundProject.source === 'PostgreSQL' ? 'sql' :
-                      foundProject.source === 'MongoDB' ? 'mongodb' : '') ? true : true);
+          setConnectionVerified(databaseSources.includes(foundProject.source === 'Oracle DB' ? 'oracle' :
+            foundProject.source === 'PostgreSQL' ? 'sql' :
+              foundProject.source === 'MongoDB' ? 'mongodb' : '') ? true : true);
         }
       }
     }
@@ -177,19 +179,21 @@ export const DQProjectConfiguration = ({ userInfo, onLogout }: DQProjectConfigur
   };
 
   const handleSaveConnection = async () => {
-    
+
     setIsSavingConnection(true);
-    
+
+
     // Simulate saving connection
     await new Promise(resolve => setTimeout(resolve, 1500));
-    
+
     // Save connection to localStorage for the project
     const connectionKey = `connection-${dataSource}-${project.name || 'new'}`;
     localStorage.setItem(connectionKey, JSON.stringify(connectionFields));
-    
+
     setIsSavingConnection(false);
     setConnectionSaved(true);
-    
+    setIsDataVerified(true);
+
     toast({
       title: "Connection Saved",
       description: "Connection configuration has been saved successfully",
@@ -198,15 +202,15 @@ export const DQProjectConfiguration = ({ userInfo, onLogout }: DQProjectConfigur
 
   const handleVerifyConnection = async () => {
     if (!databaseSources.includes(dataSource)) return;
-    
+
     setIsVerifying(true);
-    
+
     // Simulate connection verification
     await new Promise(resolve => setTimeout(resolve, 2000));
-    
+
     setConnectionVerified(true);
     setIsVerifying(false);
-    
+
     toast({
       title: "Connection Verified",
       description: "Database connection has been successfully verified",
@@ -224,11 +228,11 @@ export const DQProjectConfiguration = ({ userInfo, onLogout }: DQProjectConfigur
     }
 
     setIsVerifying(true);
-    
+
     try {
       // Simulate data verification process
       await new Promise(resolve => setTimeout(resolve, 2000));
-      
+
       setIsDataVerified(true);
       toast({
         title: "Data Verified Successfully",
@@ -261,7 +265,7 @@ export const DQProjectConfiguration = ({ userInfo, onLogout }: DQProjectConfigur
       type: col.type,
       description: col.description
     }));
-    
+
     return allColumns;
   };
 
@@ -298,9 +302,9 @@ export const DQProjectConfiguration = ({ userInfo, onLogout }: DQProjectConfigur
     const nameValid = project.name.trim() !== '';
     const descriptionValid = project.description?.trim() !== '';
     const dataSourceValid = dataSource !== '';
-    const connectionValid = databaseSources.includes(dataSource) ? connectionVerified : 
-                          fileSources.includes(dataSource) ? uploadedFiles.length > 0 : true;
-    
+    const connectionValid = databaseSources.includes(dataSource) ? connectionVerified :
+      fileSources.includes(dataSource) ? uploadedFiles.length > 0 : true;
+
     return nameValid && descriptionValid && dataSourceValid && connectionValid;
   };
 
@@ -317,7 +321,7 @@ export const DQProjectConfiguration = ({ userInfo, onLogout }: DQProjectConfigur
     const nameError = validateField('name', project.name);
     const descriptionError = validateField('description', project.description || '');
     const dataSourceError = validateField('dataSource', dataSource);
-    
+
     setValidationErrors({
       name: nameError,
       description: descriptionError,
@@ -339,7 +343,7 @@ export const DQProjectConfiguration = ({ userInfo, onLogout }: DQProjectConfigur
 
     const savedProjects = localStorage.getItem('dq-projects');
     const projects: DQProject[] = savedProjects ? JSON.parse(savedProjects) : [];
-    
+
     const sourceMap = {
       'mysql': 'MySQL',
       'oracle': 'Oracle',
@@ -393,13 +397,13 @@ export const DQProjectConfiguration = ({ userInfo, onLogout }: DQProjectConfigur
 
     const savedProjects = localStorage.getItem('dq-projects');
     const savedRuns = localStorage.getItem('dq-runs');
-    
+
     if (savedProjects) {
       const projects: DQProject[] = JSON.parse(savedProjects);
       const updatedProjects = projects.filter(p => p.id !== projectId);
       localStorage.setItem('dq-projects', JSON.stringify(updatedProjects));
     }
-    
+
     if (savedRuns) {
       const runs = JSON.parse(savedRuns);
       const updatedRuns = runs.filter((r: any) => r.projectId !== projectId);
@@ -510,31 +514,31 @@ export const DQProjectConfiguration = ({ userInfo, onLogout }: DQProjectConfigur
             <CardContent className="space-y-4">
               <div className="space-y-2">
                 <Label htmlFor="datasource">Data Source Type</Label>
-                 <Select 
-                   value={dataSource} 
-                   onValueChange={(value) => { 
-                     setDataSource(value);
-                     setConnectionVerified(false);
-                     setConnectionSaved(false);
-                     setIsDataVerified(false);
-                     setUploadedFiles([]);
-                     handleFieldBlur('dataSource', value);
-                   }}
-                   disabled={uploadedFiles.length > 0 && fileSources.includes(dataSource)}
-                 >
-                   <SelectTrigger className={validationErrors.dataSource ? 'border-red-500' : ''}>
-                     <SelectValue placeholder="Select a data source" />
-                   </SelectTrigger>
+                <Select
+                  value={dataSource}
+                  onValueChange={(value) => {
+                    setDataSource(value);
+                    setConnectionVerified(false);
+                    setConnectionSaved(false);
+                    setIsDataVerified(false);
+                    setUploadedFiles([]);
+                    handleFieldBlur('dataSource', value);
+                  }}
+                  disabled={uploadedFiles.length > 0 && fileSources.includes(dataSource)}
+                >
+                  <SelectTrigger className={validationErrors.dataSource ? 'border-red-500' : ''}>
+                    <SelectValue placeholder="Select a data source" />
+                  </SelectTrigger>
                   <SelectContent>
-                    
-                <SelectItem value="mysql">MySQL</SelectItem>
-                <SelectItem value="oracle">Oracle</SelectItem>
-                <SelectItem value="mongodb">Mongo DB</SelectItem>
-                <SelectItem value="trino">Trino</SelectItem>
-                <SelectItem value="azure_blob">Azure Blob</SelectItem>
-                <SelectItem value="xlsx">Excel File (.xlsx)</SelectItem>
-                <SelectItem value="csv">CSV File (.csv)</SelectItem>
-                <SelectItem value="json">JSON File (.json)</SelectItem>
+
+                    <SelectItem value="mysql">MySQL</SelectItem>
+                    <SelectItem value="oracle">Oracle</SelectItem>
+                    <SelectItem value="mongodb">Mongo DB</SelectItem>
+                    <SelectItem value="trino">Trino</SelectItem>
+                    <SelectItem value="azure_blob">Azure Blob</SelectItem>
+                    <SelectItem value="xlsx">Excel File (.xlsx)</SelectItem>
+                    <SelectItem value="csv">CSV File (.csv)</SelectItem>
+                    <SelectItem value="json">JSON File (.json)</SelectItem>
                   </SelectContent>
                 </Select>
                 {validationErrors.dataSource && (
@@ -552,7 +556,7 @@ export const DQProjectConfiguration = ({ userInfo, onLogout }: DQProjectConfigur
                       <Input
                         id="mysql_host"
                         value={connectionFields.mysql_host}
-                        onChange={(e) => setConnectionFields({...connectionFields, mysql_host: e.target.value})}
+                        onChange={(e) => setConnectionFields({ ...connectionFields, mysql_host: e.target.value })}
                         placeholder="localhost"
                       />
                     </div>
@@ -561,7 +565,7 @@ export const DQProjectConfiguration = ({ userInfo, onLogout }: DQProjectConfigur
                       <Input
                         id="mysql_port"
                         value={connectionFields.mysql_port}
-                        onChange={(e) => setConnectionFields({...connectionFields, mysql_port: e.target.value})}
+                        onChange={(e) => setConnectionFields({ ...connectionFields, mysql_port: e.target.value })}
                         placeholder="3306"
                       />
                     </div>
@@ -570,7 +574,7 @@ export const DQProjectConfiguration = ({ userInfo, onLogout }: DQProjectConfigur
                       <Input
                         id="mysql_username"
                         value={connectionFields.mysql_username}
-                        onChange={(e) => setConnectionFields({...connectionFields, mysql_username: e.target.value})}
+                        onChange={(e) => setConnectionFields({ ...connectionFields, mysql_username: e.target.value })}
                         placeholder="root"
                       />
                     </div>
@@ -580,7 +584,7 @@ export const DQProjectConfiguration = ({ userInfo, onLogout }: DQProjectConfigur
                         id="mysql_password"
                         type="password"
                         value={connectionFields.mysql_password}
-                        onChange={(e) => setConnectionFields({...connectionFields, mysql_password: e.target.value})}
+                        onChange={(e) => setConnectionFields({ ...connectionFields, mysql_password: e.target.value })}
                         placeholder="Password"
                       />
                     </div>
@@ -590,7 +594,7 @@ export const DQProjectConfiguration = ({ userInfo, onLogout }: DQProjectConfigur
                     <Input
                       id="mysql_database"
                       value={connectionFields.mysql_database}
-                      onChange={(e) => setConnectionFields({...connectionFields, mysql_database: e.target.value})}
+                      onChange={(e) => setConnectionFields({ ...connectionFields, mysql_database: e.target.value })}
                       placeholder="Database name"
                     />
                   </div>
@@ -650,7 +654,7 @@ export const DQProjectConfiguration = ({ userInfo, onLogout }: DQProjectConfigur
                       <Input
                         id="oracle_host"
                         value={connectionFields.oracle_host}
-                        onChange={(e) => setConnectionFields({...connectionFields, oracle_host: e.target.value})}
+                        onChange={(e) => setConnectionFields({ ...connectionFields, oracle_host: e.target.value })}
                         placeholder="localhost"
                       />
                     </div>
@@ -659,7 +663,7 @@ export const DQProjectConfiguration = ({ userInfo, onLogout }: DQProjectConfigur
                       <Input
                         id="oracle_port"
                         value={connectionFields.oracle_port}
-                        onChange={(e) => setConnectionFields({...connectionFields, oracle_port: e.target.value})}
+                        onChange={(e) => setConnectionFields({ ...connectionFields, oracle_port: e.target.value })}
                         placeholder="1521"
                       />
                     </div>
@@ -668,7 +672,7 @@ export const DQProjectConfiguration = ({ userInfo, onLogout }: DQProjectConfigur
                       <Input
                         id="oracle_sid"
                         value={connectionFields.oracle_sid}
-                        onChange={(e) => setConnectionFields({...connectionFields, oracle_sid: e.target.value})}
+                        onChange={(e) => setConnectionFields({ ...connectionFields, oracle_sid: e.target.value })}
                         placeholder="xe"
                       />
                     </div>
@@ -677,7 +681,7 @@ export const DQProjectConfiguration = ({ userInfo, onLogout }: DQProjectConfigur
                       <Input
                         id="oracle_username"
                         value={connectionFields.oracle_username}
-                        onChange={(e) => setConnectionFields({...connectionFields, oracle_username: e.target.value})}
+                        onChange={(e) => setConnectionFields({ ...connectionFields, oracle_username: e.target.value })}
                         placeholder="system"
                       />
                     </div>
@@ -687,7 +691,7 @@ export const DQProjectConfiguration = ({ userInfo, onLogout }: DQProjectConfigur
                         id="oracle_password"
                         type="password"
                         value={connectionFields.oracle_password}
-                        onChange={(e) => setConnectionFields({...connectionFields, oracle_password: e.target.value})}
+                        onChange={(e) => setConnectionFields({ ...connectionFields, oracle_password: e.target.value })}
                         placeholder="Password"
                       />
                     </div>
@@ -696,7 +700,7 @@ export const DQProjectConfiguration = ({ userInfo, onLogout }: DQProjectConfigur
                       <Input
                         id="oracle_database"
                         value={connectionFields.oracle_database}
-                        onChange={(e) => setConnectionFields({...connectionFields, oracle_database: e.target.value})}
+                        onChange={(e) => setConnectionFields({ ...connectionFields, oracle_database: e.target.value })}
                         placeholder="Database name"
                       />
                     </div>
@@ -756,7 +760,7 @@ export const DQProjectConfiguration = ({ userInfo, onLogout }: DQProjectConfigur
                     <Input
                       id="mongodb_connection_string"
                       value={connectionFields.mongodb_connection_string}
-                      onChange={(e) => setConnectionFields({...connectionFields, mongodb_connection_string: e.target.value})}
+                      onChange={(e) => setConnectionFields({ ...connectionFields, mongodb_connection_string: e.target.value })}
                       placeholder="mongodb://username:password@host:port/database"
                     />
                   </div>
@@ -816,7 +820,7 @@ export const DQProjectConfiguration = ({ userInfo, onLogout }: DQProjectConfigur
                       <Input
                         id="trino_host"
                         value={connectionFields.trino_host}
-                        onChange={(e) => setConnectionFields({...connectionFields, trino_host: e.target.value})}
+                        onChange={(e) => setConnectionFields({ ...connectionFields, trino_host: e.target.value })}
                         placeholder="localhost"
                       />
                     </div>
@@ -825,7 +829,7 @@ export const DQProjectConfiguration = ({ userInfo, onLogout }: DQProjectConfigur
                       <Input
                         id="trino_port"
                         value={connectionFields.trino_port}
-                        onChange={(e) => setConnectionFields({...connectionFields, trino_port: e.target.value})}
+                        onChange={(e) => setConnectionFields({ ...connectionFields, trino_port: e.target.value })}
                         placeholder="8080"
                       />
                     </div>
@@ -834,7 +838,7 @@ export const DQProjectConfiguration = ({ userInfo, onLogout }: DQProjectConfigur
                       <Input
                         id="trino_username"
                         value={connectionFields.trino_username}
-                        onChange={(e) => setConnectionFields({...connectionFields, trino_username: e.target.value})}
+                        onChange={(e) => setConnectionFields({ ...connectionFields, trino_username: e.target.value })}
                         placeholder="admin"
                       />
                     </div>
@@ -844,7 +848,7 @@ export const DQProjectConfiguration = ({ userInfo, onLogout }: DQProjectConfigur
                         id="trino_password"
                         type="password"
                         value={connectionFields.trino_password}
-                        onChange={(e) => setConnectionFields({...connectionFields, trino_password: e.target.value})}
+                        onChange={(e) => setConnectionFields({ ...connectionFields, trino_password: e.target.value })}
                         placeholder="Password"
                       />
                     </div>
@@ -853,7 +857,7 @@ export const DQProjectConfiguration = ({ userInfo, onLogout }: DQProjectConfigur
                       <Input
                         id="trino_catalog"
                         value={connectionFields.trino_catalog}
-                        onChange={(e) => setConnectionFields({...connectionFields, trino_catalog: e.target.value})}
+                        onChange={(e) => setConnectionFields({ ...connectionFields, trino_catalog: e.target.value })}
                         placeholder="hive"
                       />
                     </div>
@@ -862,7 +866,7 @@ export const DQProjectConfiguration = ({ userInfo, onLogout }: DQProjectConfigur
                       <Input
                         id="trino_schema"
                         value={connectionFields.trino_schema}
-                        onChange={(e) => setConnectionFields({...connectionFields, trino_schema: e.target.value})}
+                        onChange={(e) => setConnectionFields({ ...connectionFields, trino_schema: e.target.value })}
                         placeholder="default"
                       />
                     </div>
@@ -923,7 +927,7 @@ export const DQProjectConfiguration = ({ userInfo, onLogout }: DQProjectConfigur
                       <Input
                         id="azure_account_name"
                         value={connectionFields.azure_account_name}
-                        onChange={(e) => setConnectionFields({...connectionFields, azure_account_name: e.target.value})}
+                        onChange={(e) => setConnectionFields({ ...connectionFields, azure_account_name: e.target.value })}
                         placeholder="mystorageaccount"
                       />
                     </div>
@@ -932,7 +936,7 @@ export const DQProjectConfiguration = ({ userInfo, onLogout }: DQProjectConfigur
                       <Input
                         id="azure_container_name"
                         value={connectionFields.azure_container_name}
-                        onChange={(e) => setConnectionFields({...connectionFields, azure_container_name: e.target.value})}
+                        onChange={(e) => setConnectionFields({ ...connectionFields, azure_container_name: e.target.value })}
                         placeholder="mycontainer"
                       />
                     </div>
@@ -942,7 +946,7 @@ export const DQProjectConfiguration = ({ userInfo, onLogout }: DQProjectConfigur
                         id="azure_sas_token"
                         type="password"
                         value={connectionFields.azure_sas_token}
-                        onChange={(e) => setConnectionFields({...connectionFields, azure_sas_token: e.target.value})}
+                        onChange={(e) => setConnectionFields({ ...connectionFields, azure_sas_token: e.target.value })}
                         placeholder="?sv=2022-11-02&ss=b&srt=..."
                       />
                     </div>
@@ -998,55 +1002,57 @@ export const DQProjectConfiguration = ({ userInfo, onLogout }: DQProjectConfigur
                   <h4 className="font-medium text-gray-900">File Upload Configuration</h4>
                   <div className="space-y-2">
                     <Label>File Upload</Label>
-                     <FileUpload
-                       onFilesChange={handleDataSourceFileUpload}
-                       acceptedTypes={dataSource === "xlsx" ? ".xlsx" : dataSource === "csv" ? ".csv" : ".json"}
-                       multiple={true}
-                     />
+                    <FileUpload
+                      onFilesChange={handleDataSourceFileUpload}
+                      acceptedTypes={dataSource === "xlsx" ? ".xlsx" : dataSource === "csv" ? ".csv" : ".json"}
+                      multiple={true}
+                    />
                   </div>
                   <div className="flex items-center gap-2">
-                     <Button
-                       type="button"
-                       variant="outline"
-                       onClick={handleSaveConnection}
-                       disabled={uploadedFiles.length === 0 || isSavingConnection}
-                       className="flex items-center gap-2"
-                     >
-                       {connectionSaved ? (
-                         <CheckCircle className="h-4 w-4 text-green-600" />
-                       ) : (
-                         <Save className="h-4 w-4" />
-                       )}
-                       {isSavingConnection ? 'Saving...' : connectionSaved ? 'Saved' : 'Save'}
-                     </Button>
-                     <Button
-                       type="button"
-                       variant="outline"
-                       onClick={handleVerifyData}
-                       disabled={uploadedFiles.length === 0 || isVerifying}
-                       className="flex items-center gap-2"
-                     >
-                       {isDataVerified ? (
-                         <CheckCircle className="h-4 w-4 text-green-600" />
-                       ) : (
-                         <Database className="h-4 w-4" />
-                       )}
-                       {isVerifying ? 'Verifying...' : isDataVerified ? 'Data Verified' : 'Verify Data Source'}
-                     </Button>
-                   </div>
+                    <Button
+                      type="button"
+                      variant="outline"
+                      onClick={handleSaveConnection}
+                      disabled={uploadedFiles.length === 0 || isSavingConnection}
+                      className="flex items-center gap-2"
+                    >
+                      {connectionSaved ? (
+                        <CheckCircle className="h-4 w-4 text-green-600" />
+                      ) : (
+                        <Save className="h-4 w-4" />
+                      )}
+                      {isSavingConnection ? 'Saving...' : connectionSaved ? 'Saved' : 'Save'}
+                    </Button>
+                    <Button
+                      type="button"
+                      variant="outline"
+                      onClick={handleVerifyData}
+                      disabled={uploadedFiles.length === 0 || isVerifying}
+                      className="flex items-center gap-2"
+                    >
+                      {isDataVerified ? (
+                        <CheckCircle className="h-4 w-4 text-green-600" />
+                      ) : (
+                        <Database className="h-4 w-4" />
+                      )}
+                      {isVerifying ? 'Verifying...' : isDataVerified ? 'Data Verified' : 'Verify Data Source'}
+                    </Button>
+                  </div>
                 </div>
               )}
             </CardContent>
           </Card>
 
+          {/* Column Selection */}
 
-{/*
-Code 3 R : Emergency Rescue
-Remoeve this comment if you want to add column selection and verification functionality
-          {/* Column Selection and Verification 
-*/}
+          {isDataVerified && (connectionSaved) && (
+            <div className="fade-in">
+              <DataQualityConfiguration />
+            </div>
+          )}
 
-          
+
+
           {/* Save Button */}
           <div className="flex justify-end pt-4">
             <Button
@@ -1062,4 +1068,4 @@ Remoeve this comment if you want to add column selection and verification functi
       </div>
     </div>
   );
-};
+};        

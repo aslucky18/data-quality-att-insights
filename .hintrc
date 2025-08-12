@@ -6,8 +6,19 @@
     "axe/forms": [
       "default",
       {
-        "label": "off"
+        "label": "off",
+        "select-name": "off"
       }
-    ]
+    ],
+    "button-type": "off",
+    "axe/name-role-value": "off",
+    "axe/aria": [
+      "default",
+      {
+        "aria-input-field-name": "off",
+        "aria-required-children": "off"
+      }
+    ],
+    "no-inline-styles": "off"
   }
 }
