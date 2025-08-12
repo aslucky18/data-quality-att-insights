@@ -6,7 +6,8 @@ import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Checkbox } from "@/components/ui/checkbox";
-import { Database, Upload, FileText, Settings, Brain, Play, Save, Lock } from "lucide-react";
+import { Database, Upload, FileText, Settings, Brain, Play, Save, Lock, Check, RefreshCw } from "lucide-react";
+import { ColumnConfigurationModal } from "./ColumnConfigurationModal";
 // Assuming FileUpload and toast are correctly imported from your project structure
 // import { FileUpload } from "./FileUpload";
 // import { toast } from "@/hooks/use-toast";
@@ -42,6 +43,12 @@ export const DataSourceSelection = ({ onAssessmentComplete, preselectedProject }
   const [isConnectionLocked, setIsConnectionLocked] = useState(false);
   const [isSaved, setIsSaved] = useState(false);
   const [isVerifying, setIsVerifying] = useState(false);
+  const [isSavingConnection, setIsSavingConnection] = useState(false);
+  const [connectionSaved, setConnectionSaved] = useState(false);
+  const [showColumnModal, setShowColumnModal] = useState(false);
+  const [focusColumns, setFocusColumns] = useState([]);
+  const [focusColumnsConfigured, setFocusColumnsConfigured] = useState(false);
+  const [extractedColumns, setExtractedColumns] = useState([]);
 
   // Expanded mock columns data for demonstration.
   const [mockColumns] = useState([
@@ -158,18 +165,48 @@ export const DataSourceSelection = ({ onAssessmentComplete, preselectedProject }
     if (files.length > 0 && fileSources.includes(dataSource)) {
       setIsDataSourceUploaded(true);
       setIsConnectionLocked(true);
+      // Reset all states when file changes
       setIsSaved(false);
-      setIsDataVerified(false); // Reset verification when new file is uploaded
+      setIsDataVerified(false);
+      setConnectionSaved(false);
+      setFocusColumnsConfigured(false);
+      setFocusColumns([]);
+      
+      // Extract column names from file (mock implementation)
+      extractColumnsFromFile(files[0]);
     }
+  };
+
+  // Extract columns from uploaded file (mock implementation)
+  const extractColumnsFromFile = async (file) => {
+    // In a real implementation, you would parse the file and extract actual column names
+    // For now, we'll use the mock columns as if they were extracted from the file
+    setExtractedColumns(mockColumns);
+    
+    toast({
+      title: "File Processed",
+      description: `Extracted ${mockColumns.length} columns from ${file.name}`,
+      variant: "default",
+    });
   };
 
   // Handle data verification
   const handleVerifyData = async () => {
-    if (!isDataSourceUploaded && fileSources.includes(dataSource)) {
+    // Check required fields based on data source type
+    if (fileSources.includes(dataSource) && !isDataSourceUploaded) {
       toast({
         variant: "destructive",
         title: "Error",
         description: "Please upload a data source file first",
+      });
+      return;
+    }
+
+    if (databaseSources.includes(dataSource) && !query.trim()) {
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: "Please enter a database query first",
       });
       return;
     }
@@ -181,9 +218,14 @@ export const DataSourceSelection = ({ onAssessmentComplete, preselectedProject }
       await new Promise(resolve => setTimeout(resolve, 2000));
 
       setIsDataVerified(true);
+      
+      // Show column configuration modal after successful verification
+      setShowColumnModal(true);
+      
       toast({
         title: "Data Verified Successfully",
-        description: "Your data has been validated and column suggestions are now available",
+        description: "Please configure your focus columns to proceed",
+        variant: "default",
       });
     } catch (error) {
       toast({
@@ -200,36 +242,50 @@ export const DataSourceSelection = ({ onAssessmentComplete, preselectedProject }
   const handleDataSourceChange = (value) => {
     if (!isConnectionLocked) {
       setDataSource(value);
+      // Reset all states when data source changes
       setIsDataSourceUploaded(false);
       setIsDataVerified(false);
       setUploadedFiles([]);
       setQuery("");
       setIsSaved(false);
+      setConnectionSaved(false);
+      setFocusColumnsConfigured(false);
+      setFocusColumns([]);
+      setExtractedColumns([]);
     }
   };
 
-  // Handle save configuration
-  const handleSaveConfiguration = async () => {
-    if (fileSources.includes(dataSource) && !isDataSourceUploaded) {
-      toast({ variant: "destructive", title: "Error", description: "Please upload a data source file first" });
+  // Handle save connection
+  const handleSaveConnection = async () => {
+    if (!isDataVerified) {
+      toast({ variant: "destructive", title: "Error", description: "Please verify data source first" });
       return;
     }
-    if (databaseSources.includes(dataSource) && !query.trim()) {
-      toast({ variant: "destructive", title: "Error", description: "Please enter a database query" });
-      return;
-    }
-    if (!dataSource) {
-      toast({ variant: "destructive", title: "Error", description: "Please select a data source" });
+    if (!focusColumnsConfigured) {
+      toast({ variant: "destructive", title: "Error", description: "Please configure focus columns first" });
       return;
     }
 
+    setIsSavingConnection(true);
     try {
       await new Promise(resolve => setTimeout(resolve, 1000));
-      setIsSaved(true);
-      toast({ title: "Configuration Saved", description: "Your project configuration has been saved successfully" });
+      setConnectionSaved(true);
+      toast({ title: "Data Source Saved", description: "Your data source configuration has been saved successfully", variant: "default" });
     } catch (error) {
-      toast({ variant: "destructive", title: "Save Failed", description: "Failed to save configuration" });
+      toast({ variant: "destructive", title: "Save Failed", description: "Failed to save data source configuration" });
+    } finally {
+      setIsSavingConnection(false);
     }
+  };
+
+  // Handle reconfigure focus columns
+  const handleReconfigureFocusColumns = () => {
+    setShowColumnModal(true);
+  };
+
+  // Handle focus columns configuration save
+  const handleFocusColumnsSave = () => {
+    setFocusColumnsConfigured(true);
   };
 
   // Handle column selection for different check types
@@ -261,7 +317,7 @@ export const DataSourceSelection = ({ onAssessmentComplete, preselectedProject }
       await new Promise(resolve => setTimeout(resolve, 3000));
       // Mock results for demonstration
       const mockResults = { /* ... your extensive mock results object ... */ };
-      toast({ title: "Assessment Complete", description: "Data Quality Assessment completed successfully" });
+      toast({ title: "Assessment Complete", description: "Data Quality Assessment completed successfully", variant: "default" });
       onAssessmentComplete(mockResults);
     } catch (error) {
       toast({ variant: "destructive", title: "Assessment Failed", description: "An error occurred during the assessment" });
@@ -309,7 +365,7 @@ export const DataSourceSelection = ({ onAssessmentComplete, preselectedProject }
             <Label htmlFor="datasource" className="flex items-center space-x-2">
               <span>Data Source Type</span>
               {isConnectionLocked && (
-                <Lock className="w-4 h-4 text-amber-500" title="Data source is locked after selection or project load" />
+                <Lock className="w-4 h-4 text-amber-500" />
               )}
             </Label>
             <Select value={dataSource} onValueChange={handleDataSourceChange} disabled={isConnectionLocked}>
@@ -527,23 +583,32 @@ export const DataSourceSelection = ({ onAssessmentComplete, preselectedProject }
       {/* Action Buttons */}
       <div className="flex justify-center space-x-4 pt-6">
         <Button
-          onClick={handleSaveConfiguration}
-          disabled={
-            !dataSource ||
-            (fileSources.includes(dataSource) && !isDataSourceUploaded && !preselectedProject) ||
-            (databaseSources.includes(dataSource) && !query.trim()) ||
-            isSaved
-          }
+          onClick={handleSaveConnection}
+          disabled={!isDataVerified || !focusColumnsConfigured || isSavingConnection || connectionSaved}
           variant="outline"
           size="lg"
           className="px-8 py-3"
         >
-          {isSaved ? (
-            <><Save className="w-5 h-5 mr-2 text-green-600" /> Configuration Saved</>
+          {connectionSaved ? (
+            <><Save className="w-5 h-5 mr-2 text-green-600" /> Data Source Saved</>
+          ) : isSavingConnection ? (
+            <><Settings className="w-5 h-5 mr-2 animate-spin" /> Saving...</>
           ) : (
-            <><Save className="w-5 h-5 mr-2" /> Save Configuration</>
+            <><Save className="w-5 h-5 mr-2" /> Save Data Source</>
           )}
         </Button>
+
+        {focusColumnsConfigured && (
+          <Button
+            onClick={handleReconfigureFocusColumns}
+            variant="outline"
+            size="lg"
+            className="px-6 py-3"
+          >
+            <RefreshCw className="w-4 h-4 mr-2" />
+            Reconfigure Focus Columns
+          </Button>
+        )}
 
         <Button
           onClick={handleRunAssessment}
@@ -558,6 +623,16 @@ export const DataSourceSelection = ({ onAssessmentComplete, preselectedProject }
           )}
         </Button>
       </div>
+
+      {/* Column Configuration Modal */}
+      <ColumnConfigurationModal
+        isOpen={showColumnModal}
+        onClose={() => setShowColumnModal(false)}
+        columns={fileSources.includes(dataSource) ? extractedColumns : mockColumns}
+        selectedColumns={focusColumns}
+        onColumnSelectionChange={setFocusColumns}
+        onSaveConfiguration={handleFocusColumnsSave}
+      />
     </div>
   );
 };
