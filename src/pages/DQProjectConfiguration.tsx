@@ -14,6 +14,7 @@ import { FileUpload } from "@/components/FileUpload";
 import { MultiSelectSearch } from "@/components/MultiSelectSearch";
 import { toast } from "@/hooks/use-toast";
 import DataQualityConfig, { DataQualityConfiguration } from "./DataQualityConfiguration";
+import AnomalyDetectionMultiSelect from "./AnomalyMultiSelectDrop";
 
 interface DQProject {
   id: string;
@@ -201,7 +202,7 @@ export const DQProjectConfiguration = ({ userInfo, onLogout }: DQProjectConfigur
   };
 
   const handleVerifyConnection = async () => {
-    if (!databaseSources.includes(dataSource)) return;
+    if (!databaseSources.includes(dataSource) && isFormValid) return;
 
     setIsVerifying(true);
 
@@ -309,6 +310,8 @@ export const DQProjectConfiguration = ({ userInfo, onLogout }: DQProjectConfigur
   };
 
   const handleDataSourceFileUpload = (files: File[]) => {
+    setIsDataVerified(false);
+    setConnectionSaved(false);
     setUploadedFiles(files);
     if (files.length > 0 && fileSources.includes(dataSource)) {
       // Lock the connection type dropdown after upload for file types
@@ -1005,7 +1008,9 @@ export const DQProjectConfiguration = ({ userInfo, onLogout }: DQProjectConfigur
                     <FileUpload
                       onFilesChange={handleDataSourceFileUpload}
                       acceptedTypes={dataSource === "xlsx" ? ".xlsx" : dataSource === "csv" ? ".csv" : ".json"}
-                      multiple={true}
+                      multiple={false}
+
+
                     />
                   </div>
                   <div className="flex items-center gap-2">
@@ -1015,6 +1020,7 @@ export const DQProjectConfiguration = ({ userInfo, onLogout }: DQProjectConfigur
                       onClick={handleSaveConnection}
                       disabled={uploadedFiles.length === 0 || isSavingConnection || !isDataVerified}
                       className="flex items-center gap-2"
+
                     >
                       {connectionSaved ? (
                         <CheckCircle className="h-4 w-4 text-green-600" />
@@ -1044,12 +1050,38 @@ export const DQProjectConfiguration = ({ userInfo, onLogout }: DQProjectConfigur
           </Card>
 
           {/* Column Selection */}
-
           {isDataVerified && (connectionSaved) && (
             <div className="fade-in">
-              <DataQualityConfiguration />
+              <Card>
+                <DataQualityConfiguration />
+              </Card><br /><br />
+
+              <Card>
+                <CardHeader>
+                  <CardTitle>
+                    Anomaly Detection using AI/ML Models
+                  </CardTitle>
+                  <CardDescription>
+                    Select all the models that you would like to use for anomaly detection in this project.
+                  </CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <AnomalyDetectionMultiSelect />
+                </CardContent>
+
+              </Card>
             </div>
           )}
+
+          {/* AI/ML Model Selection*/}
+
+          <div className="fade-in">
+
+
+          </div>
+
+
+          {/* Project Configuration Summary */}
 
           {/* Save Button */}
           <div className="flex justify-end pt-4">

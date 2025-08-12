@@ -10,6 +10,7 @@ interface FileUploadProps {
   onFilesChange: (files: File[]) => void;
   acceptedTypes: string;
   multiple: boolean;
+
 }
 
 export const FileUpload = ({ onFilesChange, acceptedTypes, multiple }: FileUploadProps) => {
@@ -19,7 +20,7 @@ export const FileUpload = ({ onFilesChange, acceptedTypes, multiple }: FileUploa
     const newFiles = multiple ? [...files, ...acceptedFiles] : acceptedFiles.slice(0, 1);
     setFiles(newFiles);
     onFilesChange(newFiles);
-    
+
     toast({
       title: "Files uploaded",
       description: `${acceptedFiles.length} file(s) uploaded successfully`,
@@ -42,11 +43,10 @@ export const FileUpload = ({ onFilesChange, acceptedTypes, multiple }: FileUploa
 
   return (
     <div className="space-y-4">
-      <Card 
-        {...getRootProps()} 
-        className={`border-2 border-dashed p-6 text-center cursor-pointer transition-colors ${
-          isDragActive ? 'border-blue-400 bg-blue-50' : 'border-gray-300 hover:border-gray-400'
-        }`}
+      <Card
+        {...getRootProps()}
+        className={`border-2 border-dashed p-6 text-center cursor-pointer transition-colors ${isDragActive ? 'border-blue-400 bg-blue-50' : 'border-gray-300 hover:border-gray-400'
+          }`}
       >
         <input {...getInputProps()} />
         <Upload className="w-8 h-8 mx-auto mb-2 text-gray-400" />
@@ -75,6 +75,7 @@ export const FileUpload = ({ onFilesChange, acceptedTypes, multiple }: FileUploa
                 size="sm"
                 onClick={() => removeFile(index)}
                 className="text-red-500 hover:text-red-700"
+
               >
                 <X className="w-4 h-4" />
               </Button>
