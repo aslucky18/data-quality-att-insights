@@ -1013,7 +1013,7 @@ export const DQProjectConfiguration = ({ userInfo, onLogout }: DQProjectConfigur
                       type="button"
                       variant="outline"
                       onClick={handleSaveConnection}
-                      disabled={uploadedFiles.length === 0 || isSavingConnection}
+                      disabled={uploadedFiles.length === 0 || isSavingConnection || !isDataVerified}
                       className="flex items-center gap-2"
                     >
                       {connectionSaved ? (
@@ -1021,7 +1021,7 @@ export const DQProjectConfiguration = ({ userInfo, onLogout }: DQProjectConfigur
                       ) : (
                         <Save className="h-4 w-4" />
                       )}
-                      {isSavingConnection ? 'Saving...' : connectionSaved ? 'Saved' : 'Save'}
+                      {isSavingConnection ? 'Saving...' : connectionSaved ? 'Source Saved' : 'Save Source'}
                     </Button>
                     <Button
                       type="button"
@@ -1050,8 +1050,6 @@ export const DQProjectConfiguration = ({ userInfo, onLogout }: DQProjectConfigur
               <DataQualityConfiguration />
             </div>
           )}
-
-
 
           {/* Save Button */}
           <div className="flex justify-end pt-4">
