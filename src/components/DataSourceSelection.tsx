@@ -190,7 +190,7 @@ export const DataSourceSelection = ({ onAssessmentComplete, preselectedProject }
     });
   };
 
-  // Handle data verification
+  // Handle data verification - shows popup for column selection after verification
   const handleVerifyData = async () => {
     // Check required fields based on data source type
     if (fileSources.includes(dataSource) && !isDataSourceUploaded) {
@@ -219,12 +219,12 @@ export const DataSourceSelection = ({ onAssessmentComplete, preselectedProject }
 
       setIsDataVerified(true);
       
-      // Show column configuration modal after successful verification
+      // Show column configuration modal for Focus Fields selection
       setShowColumnModal(true);
       
       toast({
         title: "Data Verified Successfully",
-        description: "Please configure your focus columns to proceed",
+        description: "Please select your Focus Fields to continue",
         variant: "default",
       });
     } catch (error) {
@@ -255,14 +255,14 @@ export const DataSourceSelection = ({ onAssessmentComplete, preselectedProject }
     }
   };
 
-  // Handle save connection
+  // Handle save connection - only enabled after verification and Focus Fields configuration
   const handleSaveConnection = async () => {
     if (!isDataVerified) {
-      toast({ variant: "destructive", title: "Error", description: "Please verify data source first" });
+      toast({ variant: "destructive", title: "Error", description: "Please verify connection and configure Focus Fields first" });
       return;
     }
     if (!focusColumnsConfigured) {
-      toast({ variant: "destructive", title: "Error", description: "Please configure focus columns first" });
+      toast({ variant: "destructive", title: "Error", description: "Please configure Focus Fields first" });
       return;
     }
 
@@ -270,7 +270,7 @@ export const DataSourceSelection = ({ onAssessmentComplete, preselectedProject }
     try {
       await new Promise(resolve => setTimeout(resolve, 1000));
       setConnectionSaved(true);
-      toast({ title: "Data Source Saved", description: "Your data source configuration has been saved successfully", variant: "default" });
+      toast({ title: "Connection Saved", description: `Data source saved with ${focusColumns.length} Focus Fields configured`, variant: "default" });
     } catch (error) {
       toast({ variant: "destructive", title: "Save Failed", description: "Failed to save data source configuration" });
     } finally {
@@ -286,6 +286,11 @@ export const DataSourceSelection = ({ onAssessmentComplete, preselectedProject }
   // Handle focus columns configuration save
   const handleFocusColumnsSave = () => {
     setFocusColumnsConfigured(true);
+    toast({ 
+      title: "Focus Fields Configured", 
+      description: `${focusColumns.length} Focus Fields have been selected for this project`,
+      variant: "default" 
+    });
   };
 
   // Handle column selection for different check types

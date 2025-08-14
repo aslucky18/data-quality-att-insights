@@ -28,6 +28,7 @@ interface Rule {
 interface DataQualityConfigurationProps {
   onAddRule?: (rule: Omit<Rule, 'id'>) => void;
   onDeleteRule?: (ruleId: string) => void;
+  focusColumns?: string[];
 }
 
 const conditionOptions = [
@@ -38,7 +39,8 @@ const conditionOptions = [
   { value: "format_check", label: "Format Check" },
 ];
 
-const columnOptions = [
+// Default columns if no focus columns are provided
+const defaultColumnOptions = [
   { value: "id", label: "id" },
   { value: "email", label: "email" },
   { value: "order_date", label: "order_date" },
@@ -210,8 +212,13 @@ const SearchableSelect = ({
 
 export const DataQualityConfiguration = ({
   onAddRule,
-  onDeleteRule
+  onDeleteRule,
+  focusColumns = []
 }: DataQualityConfigurationProps) => {
+  // Use focus columns if provided, otherwise use default columns
+  const columnOptions = focusColumns.length > 0 
+    ? focusColumns.map(col => ({ value: col, label: col }))
+    : defaultColumnOptions;
   const [rules, setRules] = useState<Rule[]>([
     {
       id: "1",
