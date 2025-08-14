@@ -1068,7 +1068,6 @@ export const DQProjectConfiguration = ({ userInfo, onLogout }: DQProjectConfigur
                 <CardContent className="space-y-4">
                   <AnomalyDetectionMultiSelect />
                 </CardContent>
-
               </Card>
             </div>
           )}
@@ -1098,4 +1097,4 @@ export const DQProjectConfiguration = ({ userInfo, onLogout }: DQProjectConfigur
       </div>
     </div>
   );
-};        
+};
