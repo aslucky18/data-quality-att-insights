@@ -30,13 +30,7 @@ type Option = {
 // Define the options for the multi-select
 const ANOMALY_DETECTION_OPTIONS: Option[] = [
   { value: "isolation-forest", label: "Isolation Forest" },
-  { value: "one-class-svm", label: "One-Class SVM" },
-  { value: "local-outlier-factor", label: "Local Outlier Factor" },
-  { value: "z-score", label: "Z-Score" },
-  { value: "iqr", label: "Interquartile Range (IQR)" },
-  { value: "autoencoder", label: "Autoencoder" },
-  { value: "dbscan", label: "DBSCAN" },
-  { value: "pca", label: "PCA-based Detection" },
+  { value: "kmeans", label: "KMeans" },
 ];
 
 export default function AnomalyDetectionMultiSelect() {

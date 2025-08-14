@@ -223,13 +223,13 @@ export const DataQualityConfiguration = ({
     {
       id: "1",
       condition: "uniqueness",
-      columns: ["id", "email"],
+      columns: [focusColumns[0]],
       threshold: 99.5,
     },
     {
       id: "2",
       condition: "null_check",
-      columns: ["order_date", "customer_id"],
+      columns: [focusColumns[0]],
       threshold: 99.9,
     },
   ]);
@@ -356,7 +356,6 @@ export const DataQualityConfiguration = ({
               <Input
                 type="number"
                 step="0.1"
-                
                 max="100"
                 value={rule.threshold}
                 onChange={(e) => updateRule(rule.id, 'threshold', parseFloat(e.target.value) || 0)}

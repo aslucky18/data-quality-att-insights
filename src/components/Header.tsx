@@ -1,7 +1,8 @@
 
 import { Button } from "@/components/ui/button";
-import { LogOut, User, Building2, Database } from "lucide-react";
+import { LogOut, User, Building2, Database, AlertTriangle } from "lucide-react";
 import { Link } from "react-router-dom";
+import { Alert } from "./ui/alert";
 
 interface HeaderProps {
   userInfo: { userid: string } | null;
@@ -21,12 +22,21 @@ export const Header = ({ userInfo, onLogout }: HeaderProps) => {
             <p className="text-sm text-gray-600">Advanced Data Assessment Platform</p>
           </div>
         </div>
-        
+
         <div className="flex items-center space-x-4">
           <div className="flex items-center space-x-2 text-gray-600">
             <User className="w-4 h-4" />
             <span className="text-sm font-medium">{userInfo?.userid}</span>
           </div>
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => window.location.href = "/projects"}
+            className="text-gray-600 hover:text-red-900"
+          >
+            <AlertTriangle className="w-4 h-4" color="red" />
+            <span className="text-sm font-medium" >Alerts</span>
+          </Button>
           <Button
             variant="ghost"
             size="sm"

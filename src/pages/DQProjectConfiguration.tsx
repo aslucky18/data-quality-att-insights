@@ -9,7 +9,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
-import { ArrowLeft, Save, Database, FileText, Brain, Trash2, CheckCircle, Settings, Upload } from "lucide-react";
+import { ArrowLeft, Save, Database, FileText, Brain, Trash2, CheckCircle, Settings, Upload, Plus } from "lucide-react";
 import { FileUpload } from "@/components/FileUpload";
 import { MultiSelectSearch } from "@/components/MultiSelectSearch";
 import { toast } from "@/hooks/use-toast";
@@ -187,8 +187,8 @@ export const DQProjectConfiguration = ({ userInfo, onLogout }: DQProjectConfigur
       toast({ variant: "destructive", title: "Error", description: "Please verify connection and configure Focus Fields first" });
       return;
     }
-    if (!focusFieldsConfigured) {
-      toast({ variant: "destructive", title: "Error", description: "Please configure Focus Fields first" });
+    if (focusFields.length === 0) { // Add this check
+      toast({ variant: "destructive", title: "Error", description: "Please select at least one Focus Field" });
       return;
     }
 
@@ -204,15 +204,15 @@ export const DQProjectConfiguration = ({ userInfo, onLogout }: DQProjectConfigur
     setIsSavingConnection(false);
     setConnectionSaved(true);
     setIsDataVerified(true);
+    setFocusFieldsConfigured(true); // Add this line to correctly set the state
 
     toast({
       title: "Connection Saved",
       description: `Connection saved with ${focusFields.length} Focus Fields configured`,
     });
   };
-
   const handleVerifyConnection = async () => {
-    if (!databaseSources.includes(dataSource) && isFormValid) return;
+    if (!databaseSources.includes(dataSource) && isFormValid()) return;
 
     setIsVerifying(true);
 
@@ -221,6 +221,7 @@ export const DQProjectConfiguration = ({ userInfo, onLogout }: DQProjectConfigur
 
     setConnectionVerified(true);
     setIsVerifying(false);
+    setFocusFieldsConfigured(false); // Add this line to reset the focus fields configured state
 
     // Show Focus Fields modal after successful verification
     setShowFocusFieldsModal(true);
@@ -248,10 +249,10 @@ export const DQProjectConfiguration = ({ userInfo, onLogout }: DQProjectConfigur
       await new Promise(resolve => setTimeout(resolve, 2000));
 
       setIsDataVerified(true);
-      
+
       // Show Focus Fields modal after successful verification
       setShowFocusFieldsModal(true);
-      
+
       toast({
         title: "Data Verified Successfully",
         description: "Please select your Focus Fields to continue",
@@ -278,10 +279,10 @@ export const DQProjectConfiguration = ({ userInfo, onLogout }: DQProjectConfigur
   const handleFocusFieldsSave = () => {
     setFocusFieldsConfigured(true);
     setShowFocusFieldsModal(false);
-    toast({ 
-      title: "Focus Fields Configured", 
+    toast({
+      title: "Focus Fields Configured",
       description: `${focusFields.length} Focus Fields have been selected for this project`,
-      variant: "default" 
+      variant: "default"
     });
   };
 
@@ -557,6 +558,7 @@ export const DQProjectConfiguration = ({ userInfo, onLogout }: DQProjectConfigur
                     setConnectionVerified(false);
                     setConnectionSaved(false);
                     setIsDataVerified(false);
+                    setFocusFieldsConfigured(false)
                     setUploadedFiles([]);
                     handleFieldBlur('dataSource', value);
                   }}
@@ -566,7 +568,6 @@ export const DQProjectConfiguration = ({ userInfo, onLogout }: DQProjectConfigur
                     <SelectValue placeholder="Select a data source" />
                   </SelectTrigger>
                   <SelectContent>
-
                     <SelectItem value="mysql">MySQL</SelectItem>
                     <SelectItem value="oracle">Oracle</SelectItem>
                     <SelectItem value="mongodb">Mongo DB</SelectItem>
@@ -673,7 +674,7 @@ export const DQProjectConfiguration = ({ userInfo, onLogout }: DQProjectConfigur
                       )}
                       {isVerifying ? 'Verifying...' : connectionVerified ? 'Connection Verified' : 'Verify Connection'}
                     </Button>
-                    {focusFieldsConfigured && (
+                    {connectionVerified && (
                       <Button
                         type="button"
                         variant="outline"
@@ -684,17 +685,31 @@ export const DQProjectConfiguration = ({ userInfo, onLogout }: DQProjectConfigur
                         Reconfigure Focus Fields
                       </Button>
                     )}
-                    {connectionVerified && (
-                      <span className="text-sm text-green-600">✓ Connection verified successfully</span>
-                    )}
-                    {focusFieldsConfigured && (
-                      <div className="mt-3 p-3 bg-green-50 border border-green-200 rounded-lg">
-                        <p className="text-sm text-green-800">
-                          ✓ Focus Fields configured: {focusFields.length} columns selected
-                        </p>
-                      </div>
-                    )}
+
+
                   </div>
+
+                  {connectionVerified && (
+                    <div className="mt-3 p-3 bg-green-50 border border-green-200 rounded-lg">
+                      <p className="text-sm text-green-800">
+                        ✓ Connection verified successfully
+                      </p>
+                    </div>
+                  )}
+                  {connectionSaved && (
+                    <div className="mt-3 p-3 bg-green-50 border border-green-200 rounded-lg">
+                      <p className="text-sm text-green-800">
+                        ✓ Connection saved successfully
+                      </p>
+                    </div>
+                  )}
+                  {focusFieldsConfigured && (
+                    <div className="mt-3 p-3 bg-green-50 border border-green-200 rounded-lg">
+                      <p className="text-sm text-green-800">
+                        ✓ Focus Fields configured: {focusFields.length} columns selected
+                      </p>
+                    </div>
+                  )}
                 </div>
               )}
 
@@ -799,9 +814,38 @@ export const DQProjectConfiguration = ({ userInfo, onLogout }: DQProjectConfigur
                       {isVerifying ? 'Verifying...' : connectionVerified ? 'Connection Verified' : 'Verify Connection'}
                     </Button>
                     {connectionVerified && (
-                      <span className="text-sm text-green-600">✓ Connection verified successfully</span>
+                      <Button
+                        type="button"
+                        variant="outline"
+                        onClick={handleReconfigureFocusFields}
+                        className="flex items-center gap-2"
+                      >
+                        <Settings className="h-4 w-4" />
+                        Reconfigure Focus Fields
+                      </Button>
                     )}
                   </div>
+                  {connectionSaved && (
+                    <div className="mt-3 p-3 bg-green-50 border border-green-200 rounded-lg">
+                      <p className="text-sm text-green-800">
+                        ✓ Connection saved successfully
+                      </p>
+                    </div>
+                  )}
+                  {connectionVerified && (
+                    <div className="mt-3 p-3 bg-green-50 border border-green-200 rounded-lg">
+                      <p className="text-sm text-green-800">
+                        ✓ Connection verified successfully
+                      </p>
+                    </div>
+                  )}
+                  {focusFieldsConfigured && (
+                    <div className="mt-3 p-3 bg-green-50 border border-green-200 rounded-lg">
+                      <p className="text-sm text-green-800">
+                        ✓ Focus Fields configured: {focusFields.length} columns selected
+                      </p>
+                    </div>
+                  )}
                 </div>
               )}
 
@@ -858,9 +902,42 @@ export const DQProjectConfiguration = ({ userInfo, onLogout }: DQProjectConfigur
                       {isVerifying ? 'Verifying...' : connectionVerified ? 'Connection Verified' : 'Verify Connection'}
                     </Button>
                     {connectionVerified && (
-                      <span className="text-sm text-green-600">✓ Connection verified successfully</span>
+                      <Button
+                        type="button"
+                        variant="outline"
+                        onClick={handleReconfigureFocusFields}
+                        className="flex items-center gap-2"
+                      >
+                        <Settings className="h-4 w-4" />
+                        Reconfigure Focus Fields
+                      </Button>
                     )}
+
+
+
                   </div>
+
+                  {connectionSaved && (
+                    <div className="mt-3 p-3 bg-green-50 border border-green-200 rounded-lg">
+                      <p className="text-sm text-green-800">
+                        ✓ Connection saved successfully
+                      </p>
+                    </div>
+                  )}
+                  {connectionVerified && (
+                    <div className="mt-3 p-3 bg-green-50 border border-green-200 rounded-lg">
+                      <p className="text-sm text-green-800">
+                        ✓ Connection verified successfully
+                      </p>
+                    </div>
+                  )}
+                  {focusFieldsConfigured && (
+                    <div className="mt-3 p-3 bg-green-50 border border-green-200 rounded-lg">
+                      <p className="text-sm text-green-800">
+                        ✓ Focus Fields configured: {focusFields.length} columns selected
+                      </p>
+                    </div>
+                  )}
                 </div>
               )}
 
@@ -965,9 +1042,42 @@ export const DQProjectConfiguration = ({ userInfo, onLogout }: DQProjectConfigur
                       {isVerifying ? 'Verifying...' : connectionVerified ? 'Connection Verified' : 'Verify Connection'}
                     </Button>
                     {connectionVerified && (
-                      <span className="text-sm text-green-600">✓ Connection verified successfully</span>
+                      <Button
+                        type="button"
+                        variant="outline"
+                        onClick={handleReconfigureFocusFields}
+                        className="flex items-center gap-2"
+                      >
+                        <Settings className="h-4 w-4" />
+                        Reconfigure Focus Fields
+                      </Button>
                     )}
+
+
+
                   </div>
+
+                  {connectionSaved && (
+                    <div className="mt-3 p-3 bg-green-50 border border-green-200 rounded-lg">
+                      <p className="text-sm text-green-800">
+                        ✓ Connection saved successfully
+                      </p>
+                    </div>
+                  )}
+                  {connectionVerified && (
+                    <div className="mt-3 p-3 bg-green-50 border border-green-200 rounded-lg">
+                      <p className="text-sm text-green-800">
+                        ✓ Connection verified successfully
+                      </p>
+                    </div>
+                  )}
+                  {focusFieldsConfigured && (
+                    <div className="mt-3 p-3 bg-green-50 border border-green-200 rounded-lg">
+                      <p className="text-sm text-green-800">
+                        ✓ Focus Fields configured: {focusFields.length} columns selected
+                      </p>
+                    </div>
+                  )}
                 </div>
               )}
 
@@ -1045,12 +1155,46 @@ export const DQProjectConfiguration = ({ userInfo, onLogout }: DQProjectConfigur
                       {isVerifying ? 'Verifying...' : connectionVerified ? 'Connection Verified' : 'Verify Connection'}
                     </Button>
                     {connectionVerified && (
-                      <span className="text-sm text-green-600">✓ Connection verified successfully</span>
+                      <Button
+                        type="button"
+                        variant="outline"
+                        onClick={handleReconfigureFocusFields}
+                        className="flex items-center gap-2"
+                      >
+                        <Settings className="h-4 w-4" />
+                        Reconfigure Focus Fields
+                      </Button>
                     )}
+
+
+
                   </div>
+
+                  {connectionSaved && (
+                    <div className="mt-3 p-3 bg-green-50 border border-green-200 rounded-lg">
+                      <p className="text-sm text-green-800">
+                        ✓ Connection saved successfully
+                      </p>
+                    </div>
+                  )}
+                  {connectionVerified && (
+                    <div className="mt-3 p-3 bg-green-50 border border-green-200 rounded-lg">
+                      <p className="text-sm text-green-800">
+                        ✓ Connection verified successfully
+                      </p>
+                    </div>
+                  )}
+                  {focusFieldsConfigured && (
+                    <div className="mt-3 p-3 bg-green-50 border border-green-200 rounded-lg">
+                      <p className="text-sm text-green-800">
+                        ✓ Focus Fields configured: {focusFields.length} columns selected
+                      </p>
+                    </div>
+                  )}
                 </div>
               )}
 
+              {/* File Upload Type*/}
               {fileSources.includes(dataSource) && (
                 <div className="space-y-4 border rounded-lg p-4 bg-gray-50">
                   <h4 className="font-medium text-gray-900">File Upload Configuration</h4>
@@ -1094,7 +1238,7 @@ export const DQProjectConfiguration = ({ userInfo, onLogout }: DQProjectConfigur
                       )}
                       {isVerifying ? 'Verifying...' : isDataVerified ? 'Data Verified' : 'Verify Connection'}
                     </Button>
-                    {focusFieldsConfigured && (
+                    {connectionVerified && (
                       <Button
                         type="button"
                         variant="outline"
@@ -1105,11 +1249,27 @@ export const DQProjectConfiguration = ({ userInfo, onLogout }: DQProjectConfigur
                         Reconfigure Focus Fields
                       </Button>
                     )}
+
                   </div>
+
+                  {connectionSaved && (
+                    <div className="mt-3 p-3 bg-green-50 border border-green-200 rounded-lg">
+                      <p className="text-sm text-green-800">
+                        ✓ Connection Saved
+                      </p>
+                    </div>
+                  )}
                   {focusFieldsConfigured && (
                     <div className="mt-3 p-3 bg-green-50 border border-green-200 rounded-lg">
                       <p className="text-sm text-green-800">
                         ✓ Focus Fields configured: {focusFields.length} columns selected
+                      </p>
+                    </div>
+                  )}
+                  {focusFieldsConfigured && (
+                    <div className="mt-3 p-3 bg-green-50 border border-green-200 rounded-lg">
+                      <p className="text-sm text-green-800">
+                        ✓ Connection Verified
                       </p>
                     </div>
                   )}
@@ -1123,8 +1283,7 @@ export const DQProjectConfiguration = ({ userInfo, onLogout }: DQProjectConfigur
             <div className="fade-in">
               <Card>
                 <DataQualityConfiguration focusColumns={focusFields} />
-              </Card><br /><br />
-
+              </Card><br/><br/>
               <Card>
                 <CardHeader>
                   <CardTitle>
@@ -1141,16 +1300,7 @@ export const DQProjectConfiguration = ({ userInfo, onLogout }: DQProjectConfigur
             </div>
           )}
 
-          {/* AI/ML Model Selection*/}
-
-          <div className="fade-in">
-
-
-          </div>
-
-
           {/* Project Configuration Summary */}
-
           {/* Save Button */}
           <div className="flex justify-end pt-4">
             <Button
@@ -1176,7 +1326,7 @@ export const DQProjectConfiguration = ({ userInfo, onLogout }: DQProjectConfigur
             <p className="text-gray-600 mb-6">
               Select the columns you want to focus on for data quality analysis. These Focus Fields will be available in the Data Configuration Suggestions section.
             </p>
-            
+
             {/* Search and Actions */}
             <div className="flex items-center justify-between gap-4 mb-6">
               <div className="flex items-center gap-2">
@@ -1197,8 +1347,44 @@ export const DQProjectConfiguration = ({ userInfo, onLogout }: DQProjectConfigur
                   />
                   {focusFields.length === mockColumns.length ? 'Deselect All' : 'Select All'}
                 </button>
+                <input
+                  type="file"
+                  accept=".json"
+                  id="focusFieldUpload"
+                  style={{ display: "none" }}
+                  onChange={(e) => {
+                    const file = e.target.files[0];
+                    if (file) {
+                      const reader = new FileReader();
+                      reader.onload = (event) => {
+                        try {
+                          const jsonData = JSON.parse(event.target.result.toString());
+                          console.log("Uploaded JSON:", jsonData);
+                          toast({
+                            title: "File Uploaded",
+                            description: "Focus fields loaded successfully.",
+                          })
+                        } catch (err) {
+                          toast({
+                            title: "Invalid File",
+                            description: "Focus fields loading failed.",
+                          })
+
+                        }
+                      };
+                      reader.readAsText(file);
+                    }
+                  }}
+                />
+                <Button
+                  onClick={() => document.getElementById("focusFieldUpload").click()}
+                  className="flex items-center gap-2 bg-white-500 hover:bg-white-600 text-black border border-gray-500"
+                >
+                  <Plus className="h-4 w-4" />
+                  Upload File
+                </Button>
               </div>
-              <div className="text-sm text-gray-600">
+              <div className="text-md text-gray-600">
                 {focusFields.length} of {mockColumns.length} selected
               </div>
             </div>
@@ -1206,14 +1392,13 @@ export const DQProjectConfiguration = ({ userInfo, onLogout }: DQProjectConfigur
             {/* Columns Grid (3x4) */}
             <div className="grid grid-cols-3 gap-4 mb-6">
               {mockColumns.map((column) => (
-                <div 
-                  key={column.name} 
-                  className={`cursor-pointer p-4 border rounded-lg transition-all hover:shadow-md ${
-                    focusFields.includes(column.name) ? 'border-blue-500 bg-blue-50' : 'border-gray-200'
-                  }`}
+                <div
+                  key={column.name}
+                  className={`cursor-pointer p-4 border rounded-lg transition-all hover:shadow-md ${focusFields.includes(column.name) ? 'border-blue-500 bg-blue-50' : 'border-gray-200'
+                    }`}
                   onClick={() => {
-                    setFocusFields(prev => 
-                      prev.includes(column.name) 
+                    setFocusFields(prev =>
+                      prev.includes(column.name)
                         ? prev.filter(name => name !== column.name)
                         : [...prev, column.name]
                     );
@@ -1229,9 +1414,6 @@ export const DQProjectConfiguration = ({ userInfo, onLogout }: DQProjectConfigur
                     <div className="flex-1 min-w-0">
                       <h4 className="font-medium text-sm truncate">{column.name}</h4>
                       <p className="text-xs text-gray-500 mt-1 line-clamp-2">{column.description}</p>
-                      <span className="inline-block text-xs bg-gray-100 text-gray-600 px-2 py-1 rounded mt-2">
-                        {column.type}
-                      </span>
                     </div>
                   </div>
                 </div>
@@ -1240,14 +1422,14 @@ export const DQProjectConfiguration = ({ userInfo, onLogout }: DQProjectConfigur
 
             {/* Action Buttons */}
             <div className="flex items-center justify-end gap-3 pt-4 border-t">
-              <Button 
-                variant="outline" 
+              <Button
+                variant="outline"
                 onClick={() => setShowFocusFieldsModal(false)}
               >
                 Cancel
               </Button>
-              <Button 
-                onClick={handleFocusFieldsSave} 
+              <Button
+                onClick={handleFocusFieldsSave}
                 disabled={focusFields.length === 0}
                 className="bg-blue-600 hover:bg-blue-700 text-white"
               >

@@ -77,11 +77,11 @@ export const ResultsDashboard = ({ results }: ResultsDashboardProps) => {
 
       {/* Stage Results Tabs */}
       <Tabs value={activeTab} onValueChange={setActiveTab}>
-        <TabsList className="grid w-full grid-cols-4">
+        <TabsList className="grid w-full grid-cols-3">
           <TabsTrigger value="stage1">Stage 1: Basic Checks</TabsTrigger>
           <TabsTrigger value="stage2">Stage 2: Quality Metrics</TabsTrigger>
           <TabsTrigger value="stage3">Stage 3: Anomaly Detection</TabsTrigger>
-          <TabsTrigger value="alerts">Alert Management</TabsTrigger>
+          
         </TabsList>
 
         <TabsContent value="stage1">
@@ -111,9 +111,7 @@ export const ResultsDashboard = ({ results }: ResultsDashboardProps) => {
           />
         </TabsContent>
 
-        <TabsContent value="alerts">
-          <AlertManagement />
-        </TabsContent>
+        
       </Tabs>
     </div>
   );
