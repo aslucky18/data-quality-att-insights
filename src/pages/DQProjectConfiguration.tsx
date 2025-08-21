@@ -140,23 +140,36 @@ export const DQProjectConfiguration = ({ userInfo, onLogout }: DQProjectConfigur
 
   useEffect(() => {
     if (isEdit && projectId) {
-      // Load existing project
-      const savedProjects = localStorage.getItem('dq-projects');
-      if (savedProjects) {
-        const projects: DQProject[] = JSON.parse(savedProjects);
-        const foundProject = projects.find(p => p.id === projectId);
-        if (foundProject) {
-          setProject(foundProject);
-          setDataSource(foundProject.source === 'Oracle DB' ? 'oracle' :
-            foundProject.source === 'PostgreSQL' ? 'sql' :
-              foundProject.source === 'MongoDB' ? 'mongodb' : '');
-          setQuery(foundProject.query || '');
-          setAiApproaches(foundProject.aiApproach ? foundProject.aiApproach.split(',') : []);
-          setConnectionVerified(databaseSources.includes(foundProject.source === 'Oracle DB' ? 'oracle' :
-            foundProject.source === 'PostgreSQL' ? 'sql' :
-              foundProject.source === 'MongoDB' ? 'mongodb' : '') ? true : true);
+        // Load existing project
+        const savedProjects = localStorage.getItem('dq-projects');
+        if (savedProjects) {
+            const projects: DQProject[] = JSON.parse(savedProjects);
+            const foundProject = projects.find(p => p.id === projectId);
+            if (foundProject) {
+                setProject(foundProject);
+                // Map the stored source label to the value expected in the selection
+                const ds =
+                  foundProject.source === 'Oracle DB' ? 'oracle' :
+                  foundProject.source === 'MySQL' ? 'mysql' :
+                  foundProject.source === 'MongoDB' ? 'mongodb' :
+                  foundProject.source === 'Trino' ? 'trino' :
+                  foundProject.source === 'Azure Blob' ? 'azure_blob' :
+                  foundProject.source.toLowerCase();
+                setDataSource(ds);
+                setQuery(foundProject.query || '');
+                setAiApproaches(foundProject.aiApproach ? foundProject.aiApproach.split(',') : []);
+
+                // Load saved project config (e.g. selectedColumns and data verification info)
+                const configKey = `project-config-${foundProject.id}`;
+                const configData = localStorage.getItem(configKey);
+                if (configData) {
+                    const parsedConfig = JSON.parse(configData);
+                    setSelectedColumns(parsedConfig.selectedColumns);
+                    setIsDataVerified(parsedConfig.isDataVerified);
+                    // If needed, you can also load uploadedFiles or other fields from parsedConfig here.
+                }
+            }
         }
-      }
     }
   }, [isEdit, projectId]);
 
@@ -461,7 +474,7 @@ export const DQProjectConfiguration = ({ userInfo, onLogout }: DQProjectConfigur
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-white">
-      <Header userInfo={userInfo} onLogout={onLogout} />
+      <Header userInfo={userInfo} alerts={""} onLogout={onLogout} />
       <div className="container mx-auto max-w-4xl p-6">
         {/* Header */}
         <div className="flex items-center justify-between mb-6">
@@ -505,6 +518,7 @@ export const DQProjectConfiguration = ({ userInfo, onLogout }: DQProjectConfigur
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
+              {/* Project Name  */}
               <div className="grid gap-2">
                 <Label htmlFor="name">Project Name</Label>
                 <Input
@@ -515,10 +529,12 @@ export const DQProjectConfiguration = ({ userInfo, onLogout }: DQProjectConfigur
                   placeholder="Enter project name"
                   className={validationErrors.name ? 'border-red-500' : ''}
                 />
+                {/* This is to show validation errors for Project Name  */}
                 {validationErrors.name && (
                   <p className="text-sm text-red-500 mt-1">{validationErrors.name}</p>
                 )}
               </div>
+              {/* Project Description  */}
               <div className="grid gap-2">
                 <Label htmlFor="description">Description</Label>
                 <Textarea
@@ -554,13 +570,13 @@ export const DQProjectConfiguration = ({ userInfo, onLogout }: DQProjectConfigur
                 <Select
                   value={dataSource}
                   onValueChange={(value) => {
-                    setDataSource(value);
-                    setConnectionVerified(false);
-                    setConnectionSaved(false);
-                    setIsDataVerified(false);
-                    setFocusFieldsConfigured(false)
-                    setUploadedFiles([]);
-                    handleFieldBlur('dataSource', value);
+                      setDataSource(value);
+                      setConnectionVerified(false);
+                      setConnectionSaved(false);
+                      setIsDataVerified(false);
+                      setFocusFieldsConfigured(false);
+                      setUploadedFiles([]);
+                      handleFieldBlur('dataSource', value);
                   }}
                   disabled={uploadedFiles.length > 0 && fileSources.includes(dataSource)}
                 >
@@ -1283,7 +1299,7 @@ export const DQProjectConfiguration = ({ userInfo, onLogout }: DQProjectConfigur
             <div className="fade-in">
               <Card>
                 <DataQualityConfiguration focusColumns={focusFields} />
-              </Card><br/><br/>
+              </Card><br /><br />
               <Card>
                 <CardHeader>
                   <CardTitle>
