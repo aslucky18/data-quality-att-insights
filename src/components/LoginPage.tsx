@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -8,16 +7,36 @@ import { Building2 } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
 
 interface LoginPageProps {
-  onLogin: (userid: string) => void;
+  onLogin: (userid: string, isAdmin: boolean, profileImageURL: string) => void;
 }
 
 export const LoginPage = ({ onLogin }: LoginPageProps) => {
   const [userid, setUserid] = useState("");
   const [password, setPassword] = useState("");
+  // The profileImageURL state is now managed within the component
+  const [profileImageURL, setProfileImageURL] = useState("");
+  const [isAdmin, setIsAdmin] = useState(false);
+  
   const [isLoading, setIsLoading] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    // --- Data processing before login ---
+    // Use local variables to ensure the correct, current data is passed to onLogin
+    // This avoids issues with asynchronous state updates.
+    let isUserAdmin = false;
+    if (userid === "admin") {
+      isUserAdmin = true;
+      setIsAdmin(true);
+    }
+    
+    // **Please assign the user's image url here only .**
+
+    const newProfileImageURL = 'https://tse1.mm.bing.net/th/id/OIP.DHVLtvgV0hRBXlnOF-BTGAHaFD?rs=1&pid=ImgDetMain&o=7&rm=3';
+    setProfileImageURL(newProfileImageURL);
+    
+    // --- Validation ---
     if (!userid || !password) {
       toast({
         variant: "destructive",
@@ -28,14 +47,16 @@ export const LoginPage = ({ onLogin }: LoginPageProps) => {
     }
 
     setIsLoading(true);
-    // Simulate API call
+
+    // --- Simulate API call ---
     try {
       await new Promise(resolve => setTimeout(resolve, 1000));
       toast({
         title: "Login Successful",
         description: `Welcome to Data Quality Framework, ${userid}`,
       });
-      onLogin(userid);
+      // Pass the local variables to the onLogin handler
+      onLogin(userid, isUserAdmin, newProfileImageURL);
     } catch (error) {
       toast({
         variant: "destructive",

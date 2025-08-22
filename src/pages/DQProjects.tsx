@@ -222,7 +222,7 @@ export const DQProjects = ({ userInfo, onLogout }: DQProjectsProps) => {
   if (projects.length === 0) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-blue-50 to-white">
-        <Header userInfo={userInfo} onLogout={onLogout} />
+        <Header userInfo={userInfo} onLogout={onLogout} alerts={[]}/>
         <div className="min-h-[80vh] flex items-center justify-center">
           <div className="text-center space-y-6">
             <div className="w-24 h-24 bg-purple-100 rounded-full flex items-center justify-center mx-auto">
@@ -248,7 +248,7 @@ export const DQProjects = ({ userInfo, onLogout }: DQProjectsProps) => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-white">
-      <Header userInfo={userInfo} onLogout={onLogout} />
+      <Header userInfo={userInfo} onLogout={onLogout} alerts={[]}/>
       <div className="container mx-auto max-w-4xl p-6">
         <div className="flex justify-center">
           {/* DQ Projects Section */}

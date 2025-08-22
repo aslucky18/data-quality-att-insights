@@ -1,0 +1,1 @@
+const headerColor = '0xff0b7a88'

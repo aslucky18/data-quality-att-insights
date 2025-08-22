@@ -11,15 +11,17 @@ import { DQProjectConfiguration } from "./pages/DQProjectConfiguration";
 import { DQProjectRuns } from "./pages/DQProjectRuns";
 import NotFound from "./pages/NotFound";
 
+
 const queryClient = new QueryClient();
 
 const App = () => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [userInfo, setUserInfo] = useState<{ userid: string } | null>(null);
+  const [userInfo, setUserInfo] = useState<{ userid: string, isAdmin: boolean, profileImageURL: string, } | null>(null);
 
-  const handleLogin = (userid: string) => {
+  const handleLogin = (userid: string, isAdmin: boolean, profileImageURL: string) => {
     setIsAuthenticated(true);
-    setUserInfo({ userid });
+    setUserInfo({ userid, isAdmin, profileImageURL });
+    
   };
 
   const handleLogout = () => {
