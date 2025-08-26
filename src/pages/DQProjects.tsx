@@ -1,10 +1,12 @@
 import { useState, useEffect } from "react";
+import { Filter } from "lucide-react";
+import { WorkspacePanel } from "./WorkspacePanel";
+import { RunsPanel } from "./RunsPanel";
+import { InsightsPanel } from "./InsightsPanel";
 import { useNavigate } from "react-router-dom";
 import { Header } from "@/components/Header";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { Play, Pause, Trash2, Plus, CheckCircle, XCircle, Clock, AlertTriangle, FileText, Activity } from "lucide-react";
+import { Plus, CheckCircle, XCircle, Clock, AlertTriangle } from "lucide-react";
 
 interface DQProject {
   id: string;
@@ -108,18 +110,18 @@ interface DQProjectsProps {
 
 export const DQProjects = ({ userInfo, onLogout }: DQProjectsProps) => {
   const navigate = useNavigate();
-  
+
   // Load data from localStorage on component mount, fallback to initial data
   const [projects, setProjects] = useState<DQProject[]>(() => {
     const savedProjects = localStorage.getItem('dq-projects');
     return savedProjects ? JSON.parse(savedProjects) : initialProjects;
   });
-  
+
   const [runs, setRuns] = useState<DQRun[]>(() => {
     const savedRuns = localStorage.getItem('dq-runs');
     return savedRuns ? JSON.parse(savedRuns) : initialRuns;
   });
-  
+
 
   // Save data to localStorage whenever projects or runs change
   useEffect(() => {
@@ -142,8 +144,8 @@ export const DQProjects = ({ userInfo, onLogout }: DQProjectsProps) => {
   };
 
   const handleToggleProjectStatus = (id: string) => {
-    setProjects(projects.map(p => 
-      p.id === id 
+    setProjects(projects.map(p =>
+      p.id === id
         ? { ...p, status: p.status === 'active' ? 'paused' : 'active' }
         : p
     ));
@@ -166,12 +168,12 @@ export const DQProjects = ({ userInfo, onLogout }: DQProjectsProps) => {
       records: 0,
       errors: 0
     };
-    
+
     setRuns([newRun, ...runs]);
-    
+
     // Update project's last run
-    setProjects(projects.map(p => 
-      p.id === projectId 
+    setProjects(projects.map(p =>
+      p.id === projectId
         ? { ...p, lastRun: newRun.startTime }
         : p
     ));
@@ -222,7 +224,7 @@ export const DQProjects = ({ userInfo, onLogout }: DQProjectsProps) => {
   if (projects.length === 0) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-blue-50 to-white">
-        <Header userInfo={userInfo} onLogout={onLogout} alerts={[]}/>
+        <Header userInfo={userInfo} onLogout={onLogout} alerts={[]} />
         <div className="min-h-[80vh] flex items-center justify-center">
           <div className="text-center space-y-6">
             <div className="w-24 h-24 bg-purple-100 rounded-full flex items-center justify-center mx-auto">
@@ -232,14 +234,14 @@ export const DQProjects = ({ userInfo, onLogout }: DQProjectsProps) => {
               <h1 className="text-3xl font-bold text-gray-900 mb-2">No Projects Yet</h1>
               <p className="text-gray-600 mb-6">Get started by creating your first data quality project</p>
             </div>
-              <Button 
-                size="lg" 
-                className="bg-purple-600 hover:bg-purple-700 text-white"
-                onClick={handleCreateProject}
-              >
-                <Plus className="h-5 w-5 mr-2" />
-                Create Your First Project
-              </Button>
+            <Button
+              size="lg"
+              className="bg-purple-600 hover:bg-purple-700 text-white"
+              onClick={handleCreateProject}
+            >
+              <Plus className="h-5 w-5 mr-2" />
+              Create Your First Project
+            </Button>
           </div>
         </div>
       </div>
@@ -248,133 +250,28 @@ export const DQProjects = ({ userInfo, onLogout }: DQProjectsProps) => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-white">
-      <Header userInfo={userInfo} onLogout={onLogout} alerts={[]}/>
-      <div className="container mx-auto max-w-4xl p-6">
-        <div className="flex justify-center">
-          {/* DQ Projects Section */}
-          <Card className="w-full max-w-4xl">
-            <CardHeader className="flex flex-row items-center justify-between">
-              <div className="flex items-center gap-2">
-                <div className="p-2 bg-orange-100 rounded-lg">
-                  <span className="text-2xl">📋</span>
-                </div>
-                <div>
-                  <CardTitle className="text-xl">Data Quality Projects</CardTitle>
-                  <CardDescription>Data Quality project management</CardDescription>
-                </div>
-              </div>
-              <Button 
-                className="bg-purple-600 hover:bg-purple-700 text-white"
-                onClick={handleCreateProject}
-              >
-                <Plus className="h-4 w-4 mr-2" />
-                Create New
-              </Button>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              {projects.map((project) => {
-                const { latestRun, successCount, totalRuns } = getProjectRunStats(project.id);
-                const isPaused = project.status === 'paused';
-                
-                return (
-                  <div 
-                    key={project.id} 
-                    className={`border rounded-lg p-4 space-y-3 transition-all duration-200 hover:shadow-md ${
-                      isPaused ? 'opacity-60 bg-gray-50 dark:bg-gray-900/50' : 'hover:border-purple-200'
-                    }`}
-                  >
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-3">
-                        <h3 className={`font-semibold ${isPaused ? 'text-gray-500' : ''}`}>
-                          {project.name}
-                        </h3>
-                        {/* Run-level indicator */}
-                        <div className="flex items-center gap-1 px-2 py-1 bg-gray-100 dark:bg-gray-800 rounded-full text-xs">
-                          <Activity className="h-3 w-3" />
-                          <span>{successCount}/{totalRuns}</span>
-                        </div>
-                        {latestRun && (
-                          <div className="flex items-center gap-1">
-                            {getStatusIcon(latestRun.status)}
-                          </div>
-                        )}
-                      </div>
-                      <Badge 
-                        variant={project.status === 'active' ? 'default' : 'secondary'} 
-                        className={`${project.status === 'active' ? 'bg-green-600 text-white' : 'bg-gray-500 text-white'}`}
-                      >
-                        {project.status}
-                      </Badge>
-                    </div>
-                    <div className="text-sm text-muted-foreground">
-                      <div>Source: {project.source}</div>
-                      <div>Last run: {project.lastRun}</div>
-                      {project.description && (
-                        <div className="text-xs mt-1 text-gray-600 dark:text-gray-400">
-                          {project.description}
-                        </div>
-                      )}
-                    </div>
-                    <div className="flex gap-2 flex-wrap">
-                      <Button
-                        size="sm"
-                        variant="outline"
-                        onClick={() => handleOpenProject(project.id)}
-                        className="flex items-center gap-1 text-blue-600 hover:text-blue-700 hover:bg-blue-50 transition-colors"
-                        disabled={isPaused}
-                      >
-                        <FileText className="h-3 w-3" />
-                        Open
-                      </Button>
-                      <Button
-                        size="sm"
-                        variant="outline"
-                        onClick={() => handleRunProject(project.id)}
-                        className="flex items-center gap-1 hover:bg-green-50 hover:text-green-700 transition-colors"
-                        disabled={isPaused}
-                      >
-                        <Play className="h-3 w-3" />
-                        Run
-                      </Button>
-                      <Button
-                        size="sm"
-                        variant="outline"
-                        onClick={() => handleToggleProjectStatus(project.id)}
-                        className={`flex items-center gap-1 transition-colors ${
-                          isPaused 
-                            ? 'hover:bg-green-50 hover:text-green-700' 
-                            : 'hover:bg-yellow-50 hover:text-yellow-700'
-                        }`}
-                      >
-                        {isPaused ? (
-                          <>
-                            <Play className="h-3 w-3" />
-                            Resume
-                          </>
-                        ) : (
-                          <>
-                            <Pause className="h-3 w-3" />
-                            Pause
-                          </>
-                        )}
-                      </Button>
-                      <Button
-                        size="sm"
-                        variant="outline"
-                        onClick={() => handleDeleteProject(project.id)}
-                        className="flex items-center gap-1 text-red-600 hover:text-red-700 hover:bg-red-50 transition-colors"
-                      >
-                        <Trash2 className="h-3 w-3" />
-                        Delete
-                      </Button>
-                    </div>
-                  </div>
-                );
-              })}
-            </CardContent>
-          </Card>
-        </div>
+      <Header userInfo={userInfo} onLogout={onLogout} alerts={[]} />
+      <div className="bg-[#051927] min-h-screen p-4 font-sans text-gray-200 flex flex-col">
+        {/* Body Header */}
+        <header className="flex justify-end items-center mb-4">
+          <div className="flex items-center space-x-4">
+            <button className="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-4 rounded-lg flex items-center text-sm">
+              <Plus size={16} className="mr-2" /> Create Project
+            </button>
+            <button className="bg-[#0A2232] border border-blue-800 text-white font-semibold py-2 px-4 rounded-lg flex items-center text-sm">
+              <Filter size={16} className="mr-2" /> Advanced Filters
+            </button>
+          </div>
+        </header>
+
+        {/* Main Content */}
+        <main className="flex-grow flex space-x-4">
+          <WorkspacePanel />
+          <RunsPanel />
+          <InsightsPanel />
+        </main>
       </div>
     </div>
+
   );
 };
