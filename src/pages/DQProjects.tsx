@@ -306,7 +306,7 @@ export const DQProjects = ({ userInfo, onLogout }: DQProjectsProps) => {
         <header className="flex justify-end items-center mb-4">
           <div className="flex items-center space-x-4">
             <button 
-            className="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-4 rounded-lg flex items-center text-sm"
+            className="bg-white hover:bg-blue-700 text-black font-semibold py-2 px-4 rounded-lg flex items-center text-sm"
             onClick={handleCreateProject}
             >
               <Plus size={16} className="mr-2" /> Create Project

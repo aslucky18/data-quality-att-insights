@@ -33,7 +33,7 @@ export const RunsPanel = () => (
         <div className="flex justify-between items-center">
             <h2 className="text-2xl font-bold text-white">Runs</h2>
             <div className="flex items-center space-x-2">
-                <button className="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-4 rounded-lg flex items-center">
+                <button className="bg-white hover:bg-blue-700 text-black font-semibold py-2 px-4 rounded-lg flex items-center">
                     <Plus size={16} className="mr-2"/> Execute Run
                 </button>
                 <button className="p-2 bg-[#0F2C3F] rounded-lg text-gray-400 hover:text-white"><Search size={20}/></button>
