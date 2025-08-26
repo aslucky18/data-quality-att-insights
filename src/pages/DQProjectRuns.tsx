@@ -40,7 +40,7 @@ export const DQProjectRuns = ({ userInfo, onLogout }: DQProjectRunsProps) => {
 
   useEffect(() => {
     // Load project and runs data from localStorage
-    const savedProjects = localStorage.getItem('dq-projects');
+    const savedProjects = localStorage.getItem('temp-data-quality-projects');
     const savedRuns = localStorage.getItem('dq-runs');
     
     if (savedProjects && projectId) {
@@ -135,7 +135,7 @@ export const DQProjectRuns = ({ userInfo, onLogout }: DQProjectRunsProps) => {
   if (!project) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-blue-50 to-white">
-        <Header userInfo={userInfo} onLogout={onLogout} />
+        <Header alerts={""} userInfo={userInfo} onLogout={onLogout} />
         <div className="container mx-auto max-w-4xl p-6">
           <div className="text-center">
             <h1 className="text-2xl font-bold text-gray-900 mb-4">Project Not Found</h1>
@@ -151,7 +151,7 @@ export const DQProjectRuns = ({ userInfo, onLogout }: DQProjectRunsProps) => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-white">
-      <Header userInfo={userInfo} onLogout={onLogout} />
+      <Header alerts={''} userInfo={userInfo} onLogout={onLogout} />
       <div className="container mx-auto max-w-6xl p-6">
         {/* Header with back button */}
         <div className="flex items-center justify-between mb-6">

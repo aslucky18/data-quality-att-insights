@@ -1,58 +1,104 @@
 import { useState, useEffect } from "react";
 import { Filter } from "lucide-react";
-import { WorkspacePanel } from "./WorkspacePanel";
-import { RunsPanel } from "./RunsPanel";
-import { InsightsPanel } from "./InsightsPanel";
+import { WorkspacePanel } from "@/components/WorkspacePanel";
+import { RunsPanel } from "@/components/RunsPanel";
+import { InsightsPanel } from "@/components/InsightsPanel";
 import { useNavigate } from "react-router-dom";
 import { Header } from "@/components/Header";
 import { Button } from "@/components/ui/button";
 import { Plus, CheckCircle, XCircle, Clock, AlertTriangle } from "lucide-react";
-
-interface DQProject {
-  id: string;
-  name: string;
-  source: string;
-  status: 'active' | 'paused';
-  lastRun: string;
-  description?: string;
-}
-
-interface DQRun {
-  id: string;
-  projectId: string;
-  runId: string;
-  runName: string;
-  status: 'success' | 'failed' | 'running' | 'paused';
-  startTime: string;
-  duration: string;
-  records: number;
-  errors: number;
-}
-
+import  {DQProject,DQRun}  from '@/lib/types';
 const initialProjects: DQProject[] = [
+
   {
-    id: '1',
-    name: 'Customer Data Validation',
-    source: 'Oracle DB',
-    status: 'active',
-    lastRun: '2025-01-22 14:30',
-    description: 'Validates customer data integrity and completeness'
+    "id": "proj-001",
+    "name": "AT&T CleanStream",
+    "status": "active",
+    "createdBy": "Siddhartha",
+    "totalRuns": 25,
+    "statusPercent": 65,
+    "lastRun": "11:34 am, Today"
   },
   {
-    id: '2',
-    name: 'Financial Records QC',
-    source: 'PostgreSQL',
-    status: 'paused',
-    lastRun: '2025-01-21 09:15',
-    description: 'Quality control for financial transaction records'
+    "id": "proj-002",
+    "name": "Verizon DataVerify",
+    "status": "active",
+    "createdBy": "Priya",
+    "totalRuns": 18,
+    "statusPercent": 88,
+    "lastRun": "10:04 am, Today"
   },
   {
-    id: '3',
-    name: 'Inventory Data Check',
-    source: 'MongoDB',
-    status: 'active',
-    lastRun: '2025-01-22 11:45',
-    description: 'Inventory data validation and consistency checks'
+    "id": "proj-003",
+    "name": "T-Mobile PurePath",
+    "status": "active",
+    "createdBy": "Siddhartha",
+    "totalRuns": "07",
+    "statusPercent": 39,
+    "lastRun": "09:39 am, Today"
+  },
+  {
+    "id": "proj-004",
+    "name": "Internal DQ Forge",
+    "status": "paused",
+    "createdBy": "Admin",
+    "totalRuns": 10,
+    "statusPercent": 44,
+    "lastRun": "08:34 am, Today"
+  },
+  {
+    "id": "proj-005",
+    "name": "Project Phoenix",
+    "status": "active",
+    "createdBy": "Raj",
+    "totalRuns": 152,
+    "statusPercent": 95,
+    "lastRun": "03:15 pm, Yesterday"
+  },
+  {
+    "id": "proj-006",
+    "name": "Customer Insights Hub",
+    "status": "paused",
+    "createdBy": "Priya",
+    "totalRuns": 4,
+    "statusPercent": 20,
+    "lastRun": "09:00 am, 24 Aug 2025"
+  },
+  {
+    "id": "proj-007",
+    "name": "Logistics Optimizer",
+    "status": "active",
+    "createdBy": "Siddhartha",
+    "totalRuns": 89,
+    "statusPercent": 72,
+    "lastRun": "05:50 pm, Today"
+  },
+  {
+    "id": "proj-008",
+    "name": "Retail Analytics Engine",
+    "status": "active",
+    "createdBy": "Aarav",
+    "totalRuns": "31",
+    "statusPercent": 100,
+    "lastRun": "01:22 pm, Today"
+  },
+  {
+    "id": "proj-009",
+    "name": "Legacy System Bridge",
+    "status": "paused",
+    "createdBy": "Admin",
+    "totalRuns": 2,
+    "statusPercent": 15,
+    "lastRun": "11:00 pm, 22 Aug 2025"
+  },
+  {
+    "id": "proj-010",
+    "name": "Marketing Funnel Analysis",
+    "status": "active",
+    "createdBy": "Priya",
+    "totalRuns": 56,
+    "statusPercent": 81,
+    "lastRun": "04:30 pm, Today"
   }
 ];
 
@@ -113,7 +159,7 @@ export const DQProjects = ({ userInfo, onLogout }: DQProjectsProps) => {
 
   // Load data from localStorage on component mount, fallback to initial data
   const [projects, setProjects] = useState<DQProject[]>(() => {
-    const savedProjects = localStorage.getItem('dq-projects');
+    const savedProjects = localStorage.getItem('temp-data-quality-projects');
     return savedProjects ? JSON.parse(savedProjects) : initialProjects;
   });
 
@@ -122,10 +168,9 @@ export const DQProjects = ({ userInfo, onLogout }: DQProjectsProps) => {
     return savedRuns ? JSON.parse(savedRuns) : initialRuns;
   });
 
-
   // Save data to localStorage whenever projects or runs change
   useEffect(() => {
-    localStorage.setItem('dq-projects', JSON.stringify(projects));
+    localStorage.setItem('temp-data-quality-projects', JSON.stringify(projects));
   }, [projects]);
 
   useEffect(() => {
@@ -251,11 +296,19 @@ export const DQProjects = ({ userInfo, onLogout }: DQProjectsProps) => {
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-white">
       <Header userInfo={userInfo} onLogout={onLogout} alerts={[]} />
-      <div className="bg-[#051927] min-h-screen p-4 font-sans text-gray-200 flex flex-col">
+      <div className="bg-[#051927] min-h-screen font-sans text-gray-200 flex flex-col">
         {/* Body Header */}
+        <header className="flex  justify-start items-center mb-4 bg-[#188f9d]">
+          <div className="flex items-center space-x-4  p-2 rounded-lg text-lg font-semibold">
+            Dashboard
+          </div>
+        </header>
         <header className="flex justify-end items-center mb-4">
           <div className="flex items-center space-x-4">
-            <button className="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-4 rounded-lg flex items-center text-sm">
+            <button 
+            className="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-4 rounded-lg flex items-center text-sm"
+            onClick={handleCreateProject}
+            >
               <Plus size={16} className="mr-2" /> Create Project
             </button>
             <button className="bg-[#0A2232] border border-blue-800 text-white font-semibold py-2 px-4 rounded-lg flex items-center text-sm">
@@ -266,7 +319,7 @@ export const DQProjects = ({ userInfo, onLogout }: DQProjectsProps) => {
 
         {/* Main Content */}
         <main className="flex-grow flex space-x-4">
-          <WorkspacePanel />
+          <WorkspacePanel dqProjects={projects} />
           <RunsPanel />
           <InsightsPanel />
         </main>

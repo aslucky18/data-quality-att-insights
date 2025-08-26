@@ -1,44 +1,34 @@
 import { MoreVertical, ChevronDown } from 'lucide-react';
-import { useState } from 'react';
+import  {DQProject}  from '../lib/types';
+// import { useState } from 'react'; // Removed unused import
 
-// Mock Data based on the UI image
-interface DQProject {
-    name: string;
-    status: 'active' | 'paused';
-    createdBy: string;
-    totalRuns: number | string;
-    statusPercent: number;
-    lastRun: string;
+// It's good practice to define the component's props interface
 
+
+interface WorkspacePanelProps {
+    // Renamed prop to follow camelCase convention (dqProjects instead of DQProjects)
+    dqProjects: DQProject[];
 }
-const initialProjects: DQProject[] = [
-    {
-        name: 'AT&T CleanStream', status: 'active', createdBy: 'Siddhartha', totalRuns: 25, statusPercent: 65, lastRun: '11:34 am, Today'
-    },
-    { name: 'AT&T VeriFiQ', status: 'active', createdBy: 'Siddhartha', totalRuns: 18, statusPercent: 18, lastRun: '10:04 am, Today' },
-    { name: 'AT&T PurePath', status: 'active', createdBy: 'Siddhartha', totalRuns: '07', statusPercent: 39, lastRun: '09:39 am, Today' },
-    { name: 'AT&T DQ Forge', status: 'paused', createdBy: 'Siddhartha', totalRuns: 10, statusPercent: 44, lastRun: '08:34 am, Today' },
-]; // Load data from localStorage on component mount, fallback to initial data
-const [projects, setProjects] = useState<DQProject[]>(() => {
-    const savedProjects = localStorage.getItem('dq-project');
-    return initialProjects;
-});
 
-// Reusable Components
-const Card = ({ children, className = '' }) => (
+// Reusable Card Component (No changes needed here, it's well-written)
+const Card = ({ children, className = '' }: { children: React.ReactNode, className?: string }) => (
     <div className={`bg-[#0F2C3F] rounded-xl p-4 ${className}`}>
         {children}
     </div>
 );
 
-export const WorkspacePanel = () => (
+// Corrected WorkspacePanel Component
+export const WorkspacePanel = ({ dqProjects = [] }: WorkspacePanelProps) => (
+    // Note: The destructuring is done directly in the function arguments.
+    // We also provide a default empty array `[]` to prevent errors if the prop is not passed.
     <div className="w-1/4 max-w-sm bg-[#0A2232] p-4 rounded-2xl flex flex-col space-y-4">
         <div className="flex space-x-2">
             <button className="bg-[#0F2C3F] text-white py-2 px-4 rounded-lg text-sm font-semibold w-1/2">My Workspace</button>
             <button className="text-gray-400 py-2 px-4 rounded-lg text-sm font-semibold w-1/2 hover:bg-[#0F2C3F]">Team's Workspace</button>
         </div>
 
-        {projects.map((project, index) => (
+        {/* Mapped directly over the correctly-named and destructured `dqProjects` prop */}
+        {dqProjects.map((project, index) => (
             <Card key={index} className="space-y-3">
                 <div className="flex justify-between items-start">
                     <div>

@@ -141,7 +141,7 @@ export const DQProjectConfiguration = ({ userInfo, onLogout }: DQProjectConfigur
   useEffect(() => {
     if (isEdit && projectId) {
         // Load existing project
-        const savedProjects = localStorage.getItem('dq-projects');
+        const savedProjects = localStorage.getItem('temp-data-quality-projects');
         if (savedProjects) {
             const projects: DQProject[] = JSON.parse(savedProjects);
             const foundProject = projects.find(p => p.id === projectId);
@@ -391,7 +391,7 @@ export const DQProjectConfiguration = ({ userInfo, onLogout }: DQProjectConfigur
       return;
     }
 
-    const savedProjects = localStorage.getItem('dq-projects');
+    const savedProjects = localStorage.getItem('temp-data-quality-projects');
     const projects: DQProject[] = savedProjects ? JSON.parse(savedProjects) : [];
 
     const sourceMap = {
@@ -425,14 +425,14 @@ export const DQProjectConfiguration = ({ userInfo, onLogout }: DQProjectConfigur
 
     if (isEdit) {
       const updatedProjects = projects.map(p => p.id === projectId ? projectData : p);
-      localStorage.setItem('dq-projects', JSON.stringify(updatedProjects));
+      localStorage.setItem('temp-data-quality-projects', JSON.stringify(updatedProjects));
       toast({
         title: "Project Updated",
         description: "Project configuration has been updated successfully",
       });
     } else {
       projects.push(projectData);
-      localStorage.setItem('dq-projects', JSON.stringify(projects));
+      localStorage.setItem('temp-data-quality-projects', JSON.stringify(projects));
       toast({
         title: "Project Created",
         description: "New project has been created successfully",
@@ -445,13 +445,13 @@ export const DQProjectConfiguration = ({ userInfo, onLogout }: DQProjectConfigur
   const handleDeleteProject = () => {
     if (!isEdit || !projectId) return;
 
-    const savedProjects = localStorage.getItem('dq-projects');
+    const savedProjects = localStorage.getItem('temp-data-quality-projects');
     const savedRuns = localStorage.getItem('dq-runs');
 
     if (savedProjects) {
       const projects: DQProject[] = JSON.parse(savedProjects);
       const updatedProjects = projects.filter(p => p.id !== projectId);
-      localStorage.setItem('dq-projects', JSON.stringify(updatedProjects));
+      localStorage.setItem('temp-data-quality-projects', JSON.stringify(updatedProjects));
     }
 
     if (savedRuns) {
