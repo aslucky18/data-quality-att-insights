@@ -1,96 +1,162 @@
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer} from 'recharts';
-import {  Search, Plus, List, ChevronDown, ChevronRight } from 'lucide-react';
+import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, LabelList } from 'recharts';
+import { Plus, Search, List, Bell, ChevronDown } from 'lucide-react';
 
-
-const recentRuns = [
-  { id: '#A103', startTime: '12 Aug 2025  10:18:01 AM', endTime: '13 Aug 2025  11:13:02 AM', status: 'Error', alerts: '2/3' },
-  { id: '#A102', startTime: '11 Aug 2025  10:18:23 AM', endTime: '12 Aug 2025  09:12:45 AM', status: 'Error', alerts: '1/3' },
-  { id: '#A101', startTime: '10 Aug 2025  10:18:23 AM', endTime: '11 Aug 2025  09:12:45 AM', status: 'Complete', alerts: '3/3' },
-  { id: '#A100', startTime: '09 Aug 2025  08:13:26 AM', endTime: '09 Aug 2025  07:15:35 AM', status: 'Complete', alerts: '2/3' },
+// --- Data based on the image ---
+const recentRunsData = [
+  { 
+    id: '#A103', 
+    startTime: '12 Aug 2025  10:18:02 AM', 
+    endTime: '11 Aug 2025  11:12:02 AM', // Note: The end time is before start time in the image, replicated here.
+    status: 'Error', 
+    alerts: '2/3',
+    isSelected: true 
+  },
+  { 
+    id: '#A102', 
+    startTime: '11 Aug 2025  10:18:23 AM', 
+    endTime: '10 Aug 2025  09:12:45 AM', 
+    status: 'Error', 
+    alerts: '1/3',
+    isSelected: false 
+  },
+  { 
+    id: '#A101', 
+    startTime: '10 Aug 2025  10:18:23 AM', 
+    endTime: '09 Aug 2025  09:12:45 AM', 
+    status: 'Complete', 
+    alerts: '3/3',
+    isSelected: false 
+  },
+  { 
+    id: '#A100', 
+    startTime: '09 Aug 2025  08:13:25 AM', 
+    endTime: '08 Aug 2025  07:15:35 AM', 
+    status: 'Complete', 
+    alerts: '3/3',
+    isSelected: false 
+  },
 ];
 
-const dataQualityData = [
-    { name: 'A101', 'Data Quality %': 20 },
-    { name: 'A102', 'Data Quality %': 55 },
-    { name: 'A103', 'Data Quality %': 40 },
-    { name: 'A104', 'Data Quality %': 78 },
-    { name: 'A105', 'Data Quality %': 60 },
-    { name: 'A106', 'Data Quality %': 95 },
-    { name: 'A107', 'Data Quality %': 70 },
+const chartData = [
+  { name: 'A091', dataQuality: 65 },
+  { name: 'A092', dataQuality: 72 },
+  { name: 'A093', dataQuality: 68 },
+  { name: 'A094', dataQuality: 80 },
+  { name: 'A095', dataQuality: 75 },
+  { name: 'A096', dataQuality: 85 },
+  { name: 'A097', dataQuality: 78 },
 ];
 
-// Reusable Components
-const Card = ({ children, className = '' }) => (
-  <div className={`bg-[#0F2C3F] rounded-xl p-4 ${className}`}>
-    {children}
-  </div>
-);
+// --- Helper component for individual run items ---
+const RunItem = ({ run }) => {
+  // Helper function to get conditional styling for alert badges
+  const getAlertClasses = (alerts) => {
+    switch (alerts) {
+      case '1/3': return 'bg-red-100 text-red-700';
+      case '2/3': return 'bg-yellow-100 text-yellow-700';
+      case '3/3': return 'bg-green-100 text-green-700';
+      default: return 'bg-gray-100 text-gray-700';
+    }
+  };
+  
+  const selectedClasses = run.isSelected 
+    ? 'bg-blue-50 border-blue-200' 
+    : 'bg-white border-transparent';
+
+  return (
+    <div className={`flex items-center p-3 rounded-lg border ${selectedClasses} space-x-4`}>
+      <div className="flex-1 font-semibold text-gray-800">Run {run.id}</div>
+      <div className="flex-1">
+        <p className="text-xs text-gray-500">Start Time: {run.startTime}</p>
+        <p className="text-xs text-gray-500">End Time: {run.endTime}</p>
+      </div>
+      <div className="flex-1 text-sm text-gray-600">Status: {run.status}</div>
+      <div className="flex-1 flex items-center text-sm text-gray-600">
+        <Bell size={16} className="mr-2 text-gray-400" /> View Alerts
+      </div>
+      <div className="flex items-center space-x-4">
+         <span className={`px-4 py-1 text-xs font-bold rounded-full ${getAlertClasses(run.alerts)}`}>
+          {run.alerts}
+        </span>
+        <button className="bg-white border border-gray-300 rounded-md px-5 py-1.5 text-sm font-semibold text-gray-700 hover:bg-gray-50 transition-colors">
+          View
+        </button>
+      </div>
+    </div>
+  );
+};
 
 
-export const RunsPanel = () => (
-    <div className="flex-1 bg-[#0A2232] p-6 rounded-2xl flex flex-col space-y-6">
+// --- Run Dashboard Component ---
+export const RunsPanel = () => {
+  return (
+    <div className="bg-gray-50 min-h-screen p-8 font-sans">
+      <div className="max-w-7xl mx-auto">
+        
         {/* Header */}
-        <div className="flex justify-between items-center">
-            <h2 className="text-2xl font-bold text-white">Runs</h2>
-            <div className="flex items-center space-x-2">
-                <button className="bg-white hover:bg-blue-700 text-black font-semibold py-2 px-4 rounded-lg flex items-center">
-                    <Plus size={16} className="mr-2"/> Execute Run
-                </button>
-                <button className="p-2 bg-[#0F2C3F] rounded-lg text-gray-400 hover:text-white"><Search size={20}/></button>
-                <button className="p-2 bg-[#0F2C3F] rounded-lg text-gray-400 hover:text-white"><List size={20}/></button>
-            </div>
-        </div>
+        <header className="flex justify-between items-center mb-6">
+          <h1 className="text-3xl font-bold text-gray-800">Runs</h1>
+          <div className="flex items-center space-x-3">
+            <button className="flex items-center bg-blue-600 text-white font-semibold px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors">
+              <Plus size={20} className="mr-2" />
+              Execute Run
+            </button>
+            <button className="p-2 text-gray-500 hover:bg-gray-200 rounded-lg transition-colors">
+              <Search size={20} />
+            </button>
+            <button className="p-2 text-gray-500 hover:bg-gray-200 rounded-lg transition-colors">
+              <List size={20} />
+            </button>
+          </div>
+        </header>
 
-        {/* Most Recent Runs */}
-        <Card className="flex-1">
-            <h3 className="text-white font-semibold mb-4">Most Recent Runs</h3>
-            <div className="space-y-2">
-                {recentRuns.map(run => (
-                    <div key={run.id} className="grid grid-cols-12 items-center text-sm p-2 rounded-lg hover:bg-[#1A3A53]">
-                        <div className="col-span-1 font-bold text-white">{run.id}</div>
-                        <div className="col-span-4 text-gray-400">
-                            <p>Start Time: <span className="text-gray-300">{run.startTime}</span></p>
-                            <p>End Time: <span className="text-gray-300">{run.endTime}</span></p>
-                        </div>
-                        <div className="col-span-2">
-                            <span className={`px-2 py-1 text-xs rounded-full ${run.status === 'Complete' ? 'bg-green-500/20 text-green-400' : 'bg-red-500/20 text-red-400'}`}>
-                                Status: {run.status}
-                            </span>
-                        </div>
-                        <div className="col-span-2 text-gray-300 flex items-center">
-                           <ChevronRight size={16} className="text-gray-500 mr-1"/> View Alerts
-                        </div>
-                        <div className="col-span-1">
-                            <span className={`px-3 py-1 text-xs font-bold rounded ${run.alerts === '3/3' || run.alerts === '2/3' ? 'bg-green-500/20 text-green-400' : 'bg-orange-500/20 text-orange-400'}`}>
-                                {run.alerts}
-                            </span>
-                        </div>
-                        <div className="col-span-2 flex justify-end">
-                            <button className="bg-[#1A3A53] hover:bg-blue-600 text-white text-xs font-semibold py-2 px-4 rounded-lg">View</button>
-                        </div>
-                    </div>
-                ))}
-            </div>
-             <div className="text-center mt-4">
-                <button className="text-blue-400 text-sm font-semibold hover:underline">More <ChevronDown size={16} className="inline"/></button>
-            </div>
-        </Card>
+        {/* Most Recent Runs List */}
+        <section className="bg-white p-6 rounded-xl shadow-sm">
+          <h2 className="text-lg font-semibold text-gray-700 mb-4">Most Recent Runs</h2>
+          <div className="space-y-2">
+            {recentRunsData.map(run => <RunItem key={run.id} run={run} />)}
+          </div>
+          <div className="text-center mt-4">
+            <button className="text-sm font-semibold text-gray-600 hover:text-gray-900">
+              More <ChevronDown size={16} className="inline-block" />
+            </button>
+          </div>
+        </section>
 
         {/* 7 Last Runs Chart */}
-        <Card>
-            <h3 className="text-white font-semibold mb-4">7 Last Runs - Data Quality %</h3>
-            <div style={{ width: '100%', height: 250 }}>
-                <ResponsiveContainer>
-                    <LineChart data={dataQualityData} margin={{ top: 5, right: 20, left: -10, bottom: 5 }}>
-                        <CartesianGrid strokeDasharray="3 3" stroke="#1A3A53" />
-                        <XAxis dataKey="name" stroke="#6B7280" fontSize={12} />
-                        <YAxis stroke="#6B7280" fontSize={12} unit="%" />
-                        <Tooltip contentStyle={{ backgroundColor: '#0F2C3F', border: '1px solid #1A3A53' }} />
-                        <Legend />
-                        <Line type="monotone" dataKey="Data Quality %" stroke="#38BDF8" strokeWidth={2} dot={{ r: 4 }} activeDot={{ r: 8 }} />
-                    </LineChart>
-                </ResponsiveContainer>
-            </div>
-        </Card>
+        <section className="mt-8 bg-white p-6 rounded-xl shadow-sm">
+          <h2 className="text-lg font-semibold text-gray-700">7 Last Runs</h2>
+          <p className="text-sm text-gray-500 mb-4">Last 7 Runs – Data Quality %</p>
+          <div style={{ width: '100%', height: 300 }}>
+            <ResponsiveContainer>
+              <AreaChart data={chartData} margin={{ top: 20, right: 30, left: 0, bottom: 0 }}>
+                {/* Defines the gradient fill for the Area */}
+                <defs>
+                  <linearGradient id="colorDataQuality" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="5%" stopColor="#8884d8" stopOpacity={0.2}/>
+                    <stop offset="95%" stopColor="#8884d8" stopOpacity={0}/>
+                  </linearGradient>
+                </defs>
+                <CartesianGrid strokeDasharray="3 3" stroke="#e0e0e0" />
+                <XAxis dataKey="name" tick={{ fontSize: 12 }} stroke="#a0a0a0" tickLine={false} axisLine={false} />
+                <YAxis unit="%" tick={{ fontSize: 12 }} stroke="#a0a0a0" tickLine={false} axisLine={false} domain={[60, 90]} />
+                <Tooltip 
+                  contentStyle={{ 
+                    borderRadius: "0.5rem", 
+                    border: "1px solid #e0e0e0",
+                    boxShadow: "0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1)"
+                  }}
+                />
+                <Area type="monotone" dataKey="dataQuality" stroke="#5a52d1" strokeWidth={2} fillOpacity={1} fill="url(#colorDataQuality)">
+                  {/* Adds the percentage label on top of each data point */}
+                  <LabelList dataKey="dataQuality" position="top" formatter={(value) => `${value}%`} fontSize={12} />
+                </Area>
+              </AreaChart>
+            </ResponsiveContainer>
+          </div>
+        </section>
+
+      </div>
     </div>
-);
+  );
+};

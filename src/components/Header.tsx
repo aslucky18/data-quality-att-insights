@@ -1,7 +1,9 @@
+// src/components/Header.jsx
+
 import React, { useState, useRef, useEffect } from 'react';
 import "@/constants";
-import { Bell, Search, ShieldCheck } from 'lucide-react';
-
+import { Bell, Search } from 'lucide-react';
+import { searchBarColor, searchBarTextColor } from '@/constants';
 
 // A good practice is to create a dedicated component for list items
 // to keep the main component clean and readable.
@@ -10,12 +12,12 @@ const AlertItem = ({ alert }) => {
 };
 
 
-// Main Header Component - Updated to include the notification count
-const Header = ({ userInfo, alerts, onLogout }) => {
+// Main Header Component - Updated to be responsive
+export const Header = ({ userInfo, alerts, onLogout }) => {
   const [isAlertsVisible, setIsAlertsVisible] = useState(false);
   const alertsButtonRef = useRef(null);
   const alertsTooltipRef = useRef(null);
-  const notificationCount = alerts.length ? 0 : 3;
+  const notificationCount = alerts ? alerts.length : 0;
 
   const toggleAlertsTooltip = () => {
     setIsAlertsVisible((prev) => !prev);
@@ -39,34 +41,36 @@ const Header = ({ userInfo, alerts, onLogout }) => {
   }, [isAlertsVisible]);
 
   return (
-    // Header with gradient background to match the image
-    <header className="w-full bg-gradient-to-r from-[#1995A2] to-[#0B4F6C]">
-      <div className="container mx-auto px-6 py-3 flex items-center justify-between">
+    // The header is full-width on mobile and adjusts for the sidebar on medium screens (md) and up
+    <header
+      className="fixed top-0 z-40 shadow-md w-full left-0 md:left-20 md:w-[calc(100%-5rem)]"
+      style={{ height: '90px', background: 'linear-gradient(90deg, #08182d 0%, #02356c 70%, #034a7e 100%)' }}>
 
-        {/* Left Section: Logo and Title */}
-        <div className="flex items-center space-x-4">
-          <div className="w-10 h-10 bg-white rounded-full flex items-center justify-center">
-            <ShieldCheck className="w-6 h-6 text-[#1995A2]" />
-          </div>
-          <div>
-            <h1 className="text-xl font-bold text-white">ATT Data Quality</h1>
+      {/* Main container with adjusted padding for mobile */}
+      <div className="relative w-full flex items-center justify-between h-full px-4 md:px-6">
+
+        {/* Left Section - Hidden on mobile, visible on medium screens and up */}
+        <div className="hidden md:flex items-center space-x-4">
+          <h1 className="text-xl font-bold text-white">ATT Data Quality</h1>
+        </div>
+
+        {/* Center Section (Search Bar) - Hidden on mobile, visible on medium screens and up */}
+        <div className="md:block relative left-1/3 transform -translate-x-1/2 w-[calc(100%-5rem)] max-w-2xl">
+          <div className="relative">
+            <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-300" />
+            <input
+              type="text"
+              placeholder="Search Pages, Data, etc..."
+              style={{ backgroundColor: searchBarColor, color: searchBarTextColor }}
+              className="h-11 w-full pl-11 pr-4 rounded-full placeholder:text-white focus:outline-none focus:ring-2 focus:ring-cyan-400"
+            />
           </div>
         </div>
 
-        {/* Center Section: Search Bar */}
-        <div className="relative flex-grow max-w-2xl mx-6">
-          <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-300 " />
-          <input
-            type="text"
-            placeholder="Search Pages, Data, etc..."
-            className="h-11 w-full pl-11 pr-4 rounded-full bg-[#2f3a3f] text-white placeholder:text-gray-300 focus:outline-none focus:ring-2 focus:ring-cyan-400"
-          />
-        </div>
+        {/* Right Section - Always visible, but spacing and content adapts */}
+        <div className="flex items-center space-x-3 md:space-x-5 text-white ml-auto">
 
-        {/* Right Section: User Info and Actions */}
-        <div className="flex items-center space-x-5 text-white">
-
-          {/* Alerts Button with Notification Count restored */}
+          {/* Alerts */}
           <button
             type="button"
             className="relative p-2 text-cyan-300 rounded-lg focus:ring-4 focus:outline-none focus:ring-blue-500"
@@ -75,8 +79,6 @@ const Header = ({ userInfo, alerts, onLogout }) => {
           >
             <span className="sr-only">Notifications</span>
             <Bell size={28} />
-
-            {/* Notification Badge: This will now render */}
             {notificationCount > 0 && (
               <div className="absolute inline-flex items-center justify-center w-6 h-6 text-xs font-bold text-black bg-cyan-400 border-2 border-white rounded-full -top-1 -right-1">
                 {notificationCount}
@@ -84,27 +86,21 @@ const Header = ({ userInfo, alerts, onLogout }) => {
             )}
           </button>
 
-          {/* Salutation of User's Name */}
-          <div className="font-medium text-white">
-            {/* Main Greeting */}
-            <div className="font-semibold text-white">
-              Hi, {userInfo?.userid}!
-            </div>
-            {/* Subheading with Role and Icon */}
-            <div className="text-xs text-gray-200 flex items-center justify-start space-x-1">
+          {/* User Info - Text is hidden until large screens (lg) */}
+          <div className="hidden lg:block font-medium text-white text-right">
+            <div className="font-semibold">Hi, {userInfo?.userid}!</div>
+            <div className="text-xs text-gray-200 flex items-center space-x-1">
               <span>Tenency:</span>
-              {/* Use the font-bold class to make the text bold */}
-              <span className='font-bold'>{userInfo?.isAdmin ? "Admin" : "User"}</span>
+              <span className="font-bold">{userInfo?.isAdmin ? "Admin" : "User"}</span>
             </div>
           </div>
 
-
-          {/* User Profile Picture */}
-          <div className="flex items-center">
+          {/* Profile Picture - Always visible */}
+          <div>
             <button
               type="button"
               onClick={onLogout}
-              className="relative w-11 h-11 rounded-full aspect-square overflow-hidden shadow-lg transform hover:scale-105 transition-transform duration-300"
+              className="relative w-11 h-11 rounded-full overflow-hidden shadow-lg transform hover:scale-105 transition-transform duration-300"
             >
               <img
                 src={userInfo?.profileImageURL || "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQn9zilY2Yu2hc19pDZFxgWDTUDy5DId7ITqA&s"}
@@ -113,13 +109,9 @@ const Header = ({ userInfo, alerts, onLogout }) => {
               />
             </button>
           </div>
+
         </div>
       </div>
-      <script>
-        console.log(userInfo?.profileImageURL);
-      </script>
     </header>
   );
 };
-
-export { Header };

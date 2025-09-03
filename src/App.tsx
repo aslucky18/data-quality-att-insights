@@ -1,16 +1,20 @@
+// src/App.tsx
+
 import { useState } from "react";
+import { AppLayout } from "@/AppLayout";
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
-import { LoginPage } from "@/components/LoginPage";
-import { DQProjects } from "./pages/DQProjects";
-import { DQEngine } from "./pages/DQEngine";
-import { DQProjectConfiguration } from "./pages/DQProjectConfiguration";
-import { DQProjectRuns } from "./pages/DQProjectRuns";
-import NotFound from "./pages/NotFound";
 
+// Import your pages and components
+import { LoginPage } from "@/components/LoginPage";
+import { DQProjects } from "@/pages/DQProjects";
+import { DQEngine } from "@/pages/DQEngine";
+import { DQProjectConfiguration } from "@/pages/DQProjectConfiguration";
+import { DQProjectRuns } from "@/pages/DQProjectRuns";
+import NotFound from "@/pages/NotFound";
 
 const queryClient = new QueryClient();
 
@@ -21,7 +25,6 @@ const App = () => {
   const handleLogin = (userid: string, isAdmin: boolean, profileImageURL: string) => {
     setIsAuthenticated(true);
     setUserInfo({ userid, isAdmin, profileImageURL });
-    
   };
 
   const handleLogout = () => {
@@ -35,21 +38,25 @@ const App = () => {
         <Toaster />
         <Sonner />
         <BrowserRouter>
-          <div className="min-h-screen bg-gradient-to-br from-blue-50 to-white">
-            {!isAuthenticated ? (
-              <LoginPage onLogin={handleLogin} />
-            ) : (
-              <Routes>
-                <Route path="/" element={<DQProjects userInfo={userInfo} onLogout={handleLogout} />} />
+          {!isAuthenticated ? (
+            <LoginPage onLogin={handleLogin} />
+          ) : (
+            // 2. WRAP YOUR AUTHENTICATED ROUTES WITH AppLayout
+            // Pass user info and logout handler ONCE to the layout
+            <AppLayout userInfo={userInfo} onLogout={handleLogout}>
+              <Routes >
+                {/* 3. Your routes are now cleaner! No need for redundant props. */}
+                <Route path="/" element={<DQProjects userInfo={userInfo} onLogout={handleLogout}/>} />
                 <Route path="/dq-engine" element={<DQEngine userInfo={userInfo} onLogout={handleLogout} />} />
                 <Route path="/project-configuration" element={<DQProjectConfiguration userInfo={userInfo} onLogout={handleLogout} />} />
                 <Route path="/project-configuration/:projectId" element={<DQProjectConfiguration userInfo={userInfo} onLogout={handleLogout} />} />
                 <Route path="/project-runs/:projectId" element={<DQProjectRuns userInfo={userInfo} onLogout={handleLogout} />} />
-                {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
+                
+                {/* Catch-all route should be last */}
                 <Route path="*" element={<NotFound />} />
               </Routes>
-            )}
-          </div>
+            </AppLayout>
+          )}
         </BrowserRouter>
       </TooltipProvider>
     </QueryClientProvider>

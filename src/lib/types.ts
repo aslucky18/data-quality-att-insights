@@ -1,7 +1,7 @@
 export interface DQProject {
   id: string;
   name: string;
-  status: 'active' | 'paused';
+  status: 'active' | 'In-Active' ;
   createdBy: string;
   totalRuns: number | string;
   statusPercent: number;

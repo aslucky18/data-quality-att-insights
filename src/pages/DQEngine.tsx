@@ -46,7 +46,7 @@ export const DQEngine = ({ userInfo, onLogout }: DQEngineProps) => {
     if (location.state?.selectedProjectId) {
       console.log('DQ Engine received project ID:', location.state.selectedProjectId);
       console.log('Location state:', location.state);
-      
+
       // Get actual project data based on the project ID received
       const projectMapping: { [key: string]: any } = {
         '1': {
@@ -77,7 +77,7 @@ export const DQEngine = ({ userInfo, onLogout }: DQEngineProps) => {
           aiApproach: 'statistical-outlier'
         }
       };
-      
+
       const projectData = projectMapping[location.state.selectedProjectId] || {
         id: location.state.selectedProjectId,
         name: 'Default Project',
@@ -87,10 +87,10 @@ export const DQEngine = ({ userInfo, onLogout }: DQEngineProps) => {
         configFile: null,
         aiApproach: 'isolation-forest'
       };
-      
+
       console.log('Setting project data:', projectData);
       setSelectedProject(projectData);
-      
+
       // If data source is already configured and no data config needed, skip to results
       if (!location.state?.needsDataConfig && projectData.source !== 'Not Configured') {
         // Auto-run assessment for configured projects - with comprehensive mock data
@@ -108,7 +108,7 @@ export const DQEngine = ({ userInfo, onLogout }: DQEngineProps) => {
               num_duplicate_rows: 0
             },
             columns: [
-              'accountdetails.isaMobile', 'accountdetails.ban', 'linedetails.sellerId', 
+              'accountdetails.isaMobile', 'accountdetails.ban', 'linedetails.sellerId',
               'services.productCode', 'orderdetails.actionDate', 'services.prepaidFundedDate',
               'services.prepaidRatePlan', 'services.airlineAmount', 'lineitems.enrollmentDate'
             ],
@@ -174,18 +174,17 @@ export const DQEngine = ({ userInfo, onLogout }: DQEngineProps) => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-white">
-      <Header userInfo={userInfo} onLogout={onLogout} />
-      
+
       <main className="container mx-auto px-4 py-8">
 
         {currentStep === "selection" ? (
-          <DataSourceSelection 
-            onAssessmentComplete={handleAssessmentComplete} 
+          <DataSourceSelection
+            onAssessmentComplete={handleAssessmentComplete}
             preselectedProject={selectedProject}
           />
         ) : (
-          <ResultsDashboard 
-            results={assessmentResults} 
+          <ResultsDashboard
+            results={assessmentResults}
           />
         )}
       </main>
