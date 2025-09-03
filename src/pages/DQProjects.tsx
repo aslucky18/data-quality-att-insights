@@ -152,6 +152,20 @@ export const DQProjects = ({ userInfo, onLogout }: DQProjectsProps) => {
       </div>
     );
   }
+  const [selectedProjectId, setSelectedProjectId] = useState<string | null>(null);
+
+  const handleProjectSelect = (projectId: string) => {
+    setSelectedProjectId(projectId);
+  };
+
+  // Get runs for the selected project, sorted by most recent first
+  const getProjectRuns = (projectId: string | null) => {
+    if (!projectId) return [];
+    return runs
+      .filter(run => run.projectId === projectId)
+      .sort((a, b) => new Date(b.startTime).getTime() - new Date(a.startTime).getTime());
+  };
+
   console.log("Rendering DQProjects with projects:", projects.length);
   return (
     <div>
@@ -169,10 +183,17 @@ export const DQProjects = ({ userInfo, onLogout }: DQProjectsProps) => {
           </button>
         </div>
       </header>
-      {/* Main Content */}
-        <main className=" flex space-x-4">
-          <WorkspacePanel dqProjects={projects} />
-          <RunsPanel />
+      {/* Main Content - Workspace (left), Runs (middle), Insights (right) */}
+        <main className="flex space-x-4">
+          <WorkspacePanel 
+            dqProjects={projects} 
+            onProjectSelect={handleProjectSelect}
+            selectedProjectId={selectedProjectId}
+          />
+          <RunsPanel 
+            runs={getProjectRuns(selectedProjectId)}
+            selectedProject={projects.find(p => p.id === selectedProjectId)}
+          />
           <InsightsPanel />
         </main>
     </div>

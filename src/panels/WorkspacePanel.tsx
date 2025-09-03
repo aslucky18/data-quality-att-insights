@@ -5,17 +5,23 @@ import { useState } from 'react';
 // It's good practice to define the component's props interface
 interface WorkspacePanelProps {
     dqProjects: DQProject[];
+    onProjectSelect: (projectId: string) => void;
+    selectedProjectId: string | null;
 }
 
 // Reusable Card Component
-const Card = ({ children, className = '' }: { children: React.ReactNode, className?: string }) => (
-    <div className={`bg-white rounded-xl p-4 ${className}`}>
+const Card = ({ children, className = '', onClick }: { 
+  children: React.ReactNode; 
+  className?: string; 
+  onClick?: () => void;
+}) => (
+    <div className={`bg-white rounded-xl p-4 ${className}`} onClick={onClick}>
         {children}
     </div>
 );
 
 // Complete WorkspacePanel Component
-export const WorkspacePanel = ({ dqProjects = [] }: WorkspacePanelProps) => {
+export const WorkspacePanel = ({ dqProjects = [], onProjectSelect, selectedProjectId }: WorkspacePanelProps) => {
     // State to track if the project list is expanded
     const [isExpanded, setIsExpanded] = useState(false);
 
@@ -37,7 +43,12 @@ export const WorkspacePanel = ({ dqProjects = [] }: WorkspacePanelProps) => {
             {projectsToShow.map((project, index) => (
                 <Card
                     key={index}
-                    className="space-y-3 active:bg-[#cfe6ff] cursor-pointer overflow-hidden"
+                    className={`space-y-3 cursor-pointer overflow-hidden transition-colors ${
+                        selectedProjectId === project.id 
+                            ? 'bg-[#cfe6ff] border-2 border-[#0a5bb6]' 
+                            : 'hover:bg-gray-50'
+                    }`}
+                    onClick={() => onProjectSelect(project.id)}
                 >
                     {/* Top section: Project title + creator info + status + menu button */}
                     <div className="flex justify-between items-start">

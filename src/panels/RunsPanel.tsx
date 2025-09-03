@@ -88,14 +88,24 @@ const RunItem = ({ run }) => {
 
 
 // --- Run Dashboard Component ---
-export const RunsPanel = () => {
+interface RunsPanelProps {
+  runs?: any[];
+  selectedProject?: any;
+}
+
+export const RunsPanel = ({ runs = [], selectedProject }: RunsPanelProps) => {
   return (
     <div className="bg-white min-h-screen rounded-xl pl-6 pt-6 font-sans">
       <div className="max-w-7xl mx-auto">
         
         {/* Header */}
         <header className="flex justify-between items-center mb-3">
-          <h1 className="text-3xl font-bold text-gray-800">Runs</h1>
+          <div>
+            <h1 className="text-3xl font-bold text-gray-800">Runs</h1>
+            {selectedProject && (
+              <p className="text-sm text-gray-600">Project: {selectedProject.name}</p>
+            )}
+          </div>
           <div className="flex items-center space-x-3">
             <button className="flex items-center bg-blue-600 text-white font-semibold px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors">
               <Plus size={20} className="mr-2" />
@@ -112,15 +122,50 @@ export const RunsPanel = () => {
 
         {/* Most Recent Runs List */}
         <section className="bg-white p-6 rounded-xl shadow-sm">
-          <h2 className="text-lg font-semibold text-gray-700 mb-4">Most Recent Runs</h2>
+          <h2 className="text-lg font-semibold text-gray-700 mb-4">
+            {selectedProject ? `Runs for ${selectedProject.name}` : 'Most Recent Runs'}
+          </h2>
           <div className="space-y-2">
-            {recentRunsData.map(run => <RunItem key={run.id} run={run} />)}
+            {runs.length > 0 ? (
+              runs.map(run => (
+                <div key={run.id} className="flex items-center p-3 rounded-lg border bg-white border-transparent space-x-4">
+                  <div className="flex-1 font-semibold text-gray-800">Run {run.runId}</div>
+                  <div className="flex-1">
+                    <p className="text-xs text-gray-500">Start Time: {run.startTime}</p>
+                    <p className="text-xs text-gray-500">Duration: {run.duration}</p>
+                  </div>
+                  <div className="flex-1 text-sm text-gray-600">Status: {run.status}</div>
+                  <div className="flex-1 flex items-center text-sm text-gray-600">
+                    <Bell size={16} className="mr-2 text-gray-400" /> View Alerts
+                  </div>
+                  <div className="flex items-center space-x-4">
+                    <span className={`px-4 py-1 text-xs font-bold rounded-full ${
+                      run.status === 'success' ? 'bg-green-100 text-green-700' :
+                      run.status === 'failed' ? 'bg-red-100 text-red-700' :
+                      run.status === 'running' ? 'bg-blue-100 text-blue-700' :
+                      'bg-gray-100 text-gray-700'
+                    }`}>
+                      {run.status}
+                    </span>
+                    <button className="bg-white border border-gray-300 rounded-md px-5 py-1.5 text-sm font-semibold text-gray-700 hover:bg-gray-50 transition-colors">
+                      View
+                    </button>
+                  </div>
+                </div>
+              ))
+            ) : (
+              <div className="text-center py-8 text-gray-500">
+                {selectedProject ? 'No runs found for this project' : 'Select a project to view its runs'}
+              </div>
+            )}
           </div>
-          <div className="text-center mt-4">
-            <button className="text-sm font-semibold text-gray-600 hover:text-gray-900">
-              More <ChevronDown size={16} className="inline-block" />
-            </button>
-          </div>
+          {runs.length > 5 && (
+            <div className="text-center mt-4">
+              <button className="text-sm font-semibold text-gray-600 hover:text-gray-900">
+                More <ChevronDown size={16} className="inline-block" />
+              </button>
+            </div>
+          )}
         </section>
 
         {/* 7 Last Runs Chart */}
