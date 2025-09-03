@@ -87,7 +87,7 @@ export const WorkspacePanel = ({ dqProjects = [] }: WorkspacePanelProps) => {
             {dqProjects.length > DISPLAY_LIMIT && (
                 <button
                     onClick={() => setIsExpanded(!isExpanded)}
-                    className="w-full text-center text-gray-400 hover:text-white py-2 rounded-lg bg-white text-sm flex items-center justify-center"
+                    className="w-full text-center text-gray-400 hover:text-black py-2 rounded-lg bg-white text-sm flex items-center justify-center"
                 >
                     {isExpanded ? 'Less' : 'More'}
                     {isExpanded ? <ChevronUp size={16} className="ml-1" /> : <ChevronDown size={16} className="ml-1" />}
