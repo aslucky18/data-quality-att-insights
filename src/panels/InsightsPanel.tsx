@@ -1,6 +1,6 @@
 
 import {  XAxis, YAxis,  Tooltip,  ResponsiveContainer, PieChart, Pie, Cell, BarChart, Bar } from 'recharts';
-import { MoreVertical,  ChevronLeft} from 'lucide-react';
+import { MoreVertical,  ChevronLeft, Expand} from 'lucide-react';
 
 
 const dataTypeDistributionData = [
@@ -20,7 +20,7 @@ const anomaliesData = [
 
 // Reusable Components
 const Card = ({ children, className = '' }) => (
-  <div className={`bg-[#0F2C3F] rounded-xl p-4 ${className}`}>
+  <div className={`bg-white rounded-xl p-4 ${className}`}>
     {children}
   </div>
 );
@@ -28,8 +28,8 @@ const Card = ({ children, className = '' }) => (
 const CardHeader = ({ title }) => (
     //const CardHeader = ({ title,childern  }) => ( # This is for future use if we want to add more elements in header
     <div className="flex justify-between items-center mb-4">
-        <h3 className="text-white font-semibold">{title}</h3>
-        <button className="text-gray-400 hover:text-white">
+        <h3 className="text-black  font-semibold">{title}</h3>
+        <button className="text-gray-400 hover:text-black ">
             <MoreVertical size={20} />
         </button>
     </div>
@@ -37,26 +37,28 @@ const CardHeader = ({ title }) => (
 
 
 export const InsightsPanel = () => (
-    <div className="w-1/4 max-w-sm bg-[#0A2232] p-4 rounded-2xl flex flex-col space-y-4">
+    <div className="w-1/4 max-w-sm bg-white p-6 rounded-2xl flex flex-col space-y-4">
         {/* Header */}
-        <div className="flex justify-between items-center">
-             <h2 className="text-xl font-bold text-white">Insights</h2>
-             <button className="p-2 bg-[#0F2C3F] rounded-lg text-gray-400 hover:text-white"><ChevronLeft size={20}/></button>
+        <div className="flex justify-between items-center mb-3">
+             <h2 className="text-xl font-bold text-black ">Insights</h2>
+             <button className="p-2 bg-white rounded-lg text-black">
+                <Expand size={20}/>
+            </button>
         </div>
 
         {/* Data Overview */}
-        <Card>
+        <Card className='border border-gray-300'>
             <CardHeader title="Data Overview" />
             <div className="space-y-2 text-sm">
-                <div className="flex justify-between"><span className="text-gray-400">Number of columns</span> <span className="text-white font-semibold">9</span></div>
-                <div className="flex justify-between"><span className="text-gray-400">Number of rows</span> <span className="text-white font-semibold">1000</span></div>
-                <div className="flex justify-between"><span className="text-gray-400">Number of integer columns</span> <span className="text-white font-semibold">1</span></div>
-                <div className="flex justify-between"><span className="text-gray-400">Number of boolean columns</span> <span className="text-white font-semibold">9</span></div>
+                <div className="flex justify-between"><span className="text-gray-400">Number of columns</span> <span className="text-black  font-semibold">9</span></div>
+                <div className="flex justify-between"><span className="text-gray-400">Number of rows</span> <span className="text-black  font-semibold">1000</span></div>
+                <div className="flex justify-between"><span className="text-gray-400">Number of integer columns</span> <span className="text-black  font-semibold">1</span></div>
+                <div className="flex justify-between"><span className="text-gray-400">Number of boolean columns</span> <span className="text-black  font-semibold">9</span></div>
             </div>
         </Card>
 
         {/* Data Type Distribution */}
-        <Card>
+        <Card className='border border-gray-300'>
             <CardHeader title="Data Type Distribution" />
             <div className="flex items-center">
                 <div style={{ width: '50%', height: 120 }}>
@@ -67,7 +69,7 @@ export const InsightsPanel = () => (
                                     <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
                                 ))}
                             </Pie>
-                             <Tooltip contentStyle={{ backgroundColor: '#0F2C3F', border: '1px solid #1A3A53' }} />
+                             <Tooltip contentStyle={{ backgroundColor: "white", border: '1px solid #1A3A53' }} />
                         </PieChart>
                     </ResponsiveContainer>
                 </div>
@@ -76,7 +78,7 @@ export const InsightsPanel = () => (
                         <div key={index} className="flex items-center">
                             <div className="w-3 h-3 rounded-full mr-2" style={{ backgroundColor: COLORS[index % COLORS.length] }}></div>
                             <span className="text-gray-400">{entry.name}</span>
-                            <span className="ml-auto text-white font-semibold">{entry.value}%</span>
+                            <span className="ml-auto text-black  font-semibold">{entry.value}%</span>
                         </div>
                     ))}
                 </div>
@@ -84,7 +86,7 @@ export const InsightsPanel = () => (
         </Card>
 
         {/* Anomalies */}
-        <Card>
+        <Card className='border border-gray-300'>
             <CardHeader title="Anomalies" />
             <p className="text-xs text-gray-400 mb-2">Anomaly Score Distribution</p>
             <div style={{ width: '100%', height: 150 }}>
@@ -92,7 +94,7 @@ export const InsightsPanel = () => (
                     <BarChart data={anomaliesData} margin={{ top: 5, right: 0, left: 0, bottom: 5 }}>
                         <XAxis dataKey="name" stroke="#6B7280" fontSize={10} axisLine={false} tickLine={false}/>
                         <YAxis stroke="#6B7280" fontSize={10} axisLine={false} tickLine={false} />
-                        <Tooltip cursor={{fill: '#1A3A53'}} contentStyle={{ backgroundColor: '#0F2C3F', border: '1px solid #1A3A53' }} />
+                        <Tooltip cursor={{fill: '#1A3A53'}} contentStyle={{ backgroundColor: "white", border: '1px solid #1A3A53' }} />
                         <Bar dataKey="value" fill="#38BDF8" barSize={20} radius={[4, 4, 0, 0]} />
                     </BarChart>
                 </ResponsiveContainer>

@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
-import { WorkspacePanel } from "@/components/WorkspacePanel";
-import { RunsPanel } from "@/components/RunsPanel";
-import { InsightsPanel } from "@/components/InsightsPanel";
+import { WorkspacePanel } from "@/panels/WorkspacePanel";
+import { RunsPanel } from "@/panels/RunsPanel";
+import { InsightsPanel } from "@/panels/InsightsPanel";
 import { useNavigate } from "react-router-dom";
 import { Header } from "@/components/Header";
 import { Button } from "@/components/ui/button";
@@ -170,7 +170,7 @@ export const DQProjects = ({ userInfo, onLogout }: DQProjectsProps) => {
         </div>
       </header>
       {/* Main Content */}
-        <main className="flex-grow flex space-x-4">
+        <main className=" flex space-x-4">
           <WorkspacePanel dqProjects={projects} />
           <RunsPanel />
           <InsightsPanel />

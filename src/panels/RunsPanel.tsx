@@ -90,11 +90,11 @@ const RunItem = ({ run }) => {
 // --- Run Dashboard Component ---
 export const RunsPanel = () => {
   return (
-    <div className="bg-gray-50 min-h-screen p-8 font-sans">
+    <div className="bg-white min-h-screen rounded-xl pl-6 pt-6 font-sans">
       <div className="max-w-7xl mx-auto">
         
         {/* Header */}
-        <header className="flex justify-between items-center mb-6">
+        <header className="flex justify-between items-center mb-3">
           <h1 className="text-3xl font-bold text-gray-800">Runs</h1>
           <div className="flex items-center space-x-3">
             <button className="flex items-center bg-blue-600 text-white font-semibold px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors">
