@@ -184,17 +184,23 @@ export const DQProjects = ({ userInfo, onLogout }: DQProjectsProps) => {
         </div>
       </header>
       {/* Main Content - Workspace (left), Runs (middle), Insights (right) */}
-        <main className="flex space-x-4">
-          <WorkspacePanel 
-            dqProjects={projects} 
-            onProjectSelect={handleProjectSelect}
-            selectedProjectId={selectedProjectId}
-          />
-          <RunsPanel 
-            runs={getProjectRuns(selectedProjectId)}
-            selectedProject={projects.find(p => p.id === selectedProjectId)}
-          />
-          <InsightsPanel />
+        <main className="flex flex-col lg:flex-row gap-4 w-full min-h-[calc(100vh-200px)]">
+          <div className="w-full lg:w-1/4 min-w-[300px]">
+            <WorkspacePanel 
+              dqProjects={projects} 
+              onProjectSelect={handleProjectSelect}
+              selectedProjectId={selectedProjectId}
+            />
+          </div>
+          <div className="w-full lg:w-1/2 min-w-[400px]">
+            <RunsPanel 
+              runs={getProjectRuns(selectedProjectId)}
+              selectedProject={projects.find(p => p.id === selectedProjectId)}
+            />
+          </div>
+          <div className="w-full lg:w-1/4 min-w-[300px]">
+            <InsightsPanel />
+          </div>
         </main>
     </div>
   )

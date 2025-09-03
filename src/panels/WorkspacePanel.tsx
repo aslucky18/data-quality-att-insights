@@ -32,7 +32,7 @@ export const WorkspacePanel = ({ dqProjects = [], onProjectSelect, selectedProje
     const projectsToShow = isExpanded ? dqProjects : dqProjects.slice(0, DISPLAY_LIMIT);
 
     return (
-        <div className="w-1/4 max-w-sm p-4 flex flex-col space-y-4">
+        <div className="w-full h-full p-4 flex flex-col space-y-4">
             {/* Toggle Workspace */}
             <div className="flex items-center rounded-full border border-black bg-white px-2 py-1 text-sm font-semibold text-black">
                 <button className="bg-[#0a5bb6] text-white py-3 px-4 rounded-full text-sm font-semibold w-1/2">Team's Workspace</button>

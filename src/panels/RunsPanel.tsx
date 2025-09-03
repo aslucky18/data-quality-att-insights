@@ -95,7 +95,7 @@ interface RunsPanelProps {
 
 export const RunsPanel = ({ runs = [], selectedProject }: RunsPanelProps) => {
   return (
-    <div className="bg-white min-h-screen rounded-xl pl-6 pt-6 font-sans">
+    <div className="bg-white w-full h-full rounded-xl p-6 font-sans overflow-y-auto">
       <div className="max-w-7xl mx-auto">
         
         {/* Header */}

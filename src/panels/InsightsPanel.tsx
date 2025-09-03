@@ -37,7 +37,7 @@ const CardHeader = ({ title }) => (
 
 
 export const InsightsPanel = () => (
-    <div className="w-1/4 max-w-sm bg-white p-6 rounded-2xl flex flex-col space-y-4">
+    <div className="w-full h-full bg-white p-6 rounded-2xl flex flex-col space-y-4 overflow-y-auto">
         {/* Header */}
         <div className="flex justify-between items-center mb-3">
              <h2 className="text-xl font-bold text-black ">Insights</h2>
