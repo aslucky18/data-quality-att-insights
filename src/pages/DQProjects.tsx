@@ -5,7 +5,7 @@ import { InsightsPanel } from "@/panels/InsightsPanel";
 import { useNavigate } from "react-router-dom";
 import { Header } from "@/components/Header";
 import { Button } from "@/components/ui/button";
-import { ListFilter,Plus, CheckCircle, XCircle, Clock, AlertTriangle, Filter, Menu } from "lucide-react";
+import { ListFilter, Plus, CheckCircle, XCircle, Clock, AlertTriangle, Filter, Menu } from "lucide-react";
 import { DQProject, DQRun } from '@/lib/types';
 import { initialProjects, initialRuns } from "@/constants";
 
@@ -71,7 +71,8 @@ export const DQProjects = ({ userInfo, onLogout }: DQProjectsProps) => {
       startTime: new Date().toLocaleString('sv-SE').replace('T', ' ').slice(0, 16),
       duration: '0m 0s',
       records: 0,
-      errors: 0
+      errors: 0,
+      alerts:"2/3"
     };
 
     setRuns([newRun, ...runs]);
@@ -177,31 +178,31 @@ export const DQProjects = ({ userInfo, onLogout }: DQProjectsProps) => {
           >
             <Plus size={16} className="mr-2" /> Create Project
           </button>
-          <button 
-          className="flex items-center gap-x-2 rounded-full border border-black bg-white px-4 py-2 text-sm font-semibold text-black">
+          <button
+            className="flex items-center gap-x-2 rounded-full border border-black bg-white px-4 py-2 text-sm font-semibold text-black">
             <ListFilter size={16} className="mr-2" /> Advanced Filters
           </button>
         </div>
       </header>
       {/* Main Content - Workspace (left), Runs (middle), Insights (right) */}
-        <main className="flex flex-col lg:flex-row gap-4 w-full min-h-[calc(100vh-200px)]">
-          <div className="w-full lg:w-1/4 min-w-[300px]">
-            <WorkspacePanel 
-              dqProjects={projects} 
-              onProjectSelect={handleProjectSelect}
-              selectedProjectId={selectedProjectId}
-            />
-          </div>
-          <div className="w-full lg:w-1/2 min-w-[400px]">
-            <RunsPanel 
-              runs={getProjectRuns(selectedProjectId)}
-              selectedProject={projects.find(p => p.id === selectedProjectId)}
-            />
-          </div>
-          <div className="w-full lg:w-1/4 min-w-[300px]">
-            <InsightsPanel />
-          </div>
-        </main>
+      <main className="flex flex-col lg:flex-row gap-4 w-full min-h-[calc(100vh-200px)]">
+        <div className="w-full lg:w-1/4 min-w-[300px]">
+          <WorkspacePanel
+            dqProjects={projects}
+            onProjectSelect={handleProjectSelect}
+            selectedProjectId={selectedProjectId}
+          />
+        </div>
+        <div className="w-full lg:w-1/2 min-w-[400px]">
+          <RunsPanel
+            runs={getProjectRuns(selectedProjectId)}
+            selectedProject={projects.find(p => p.id === selectedProjectId)}
+          />
+        </div>
+        <div className="w-full lg:w-1/4 min-w-[300px]">
+          <InsightsPanel />
+        </div>
+      </main>
     </div>
   )
 };

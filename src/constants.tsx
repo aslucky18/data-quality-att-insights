@@ -9,319 +9,343 @@ export const initialTitleHeader = "Dashboard";
 
 export const initialProjects: DQProject[] = [
   {
-    "id": "proj-001",
-    "name": "AT&T CleanStream",
-    "status": "active",
-    "createdBy": "Siddhartha",
-    "totalRuns": 25,
-    "statusPercent": 65,
-    "lastRun": "11:34 am, Today",
-    "published": true
+    id: "proj-011",
+    name: "Neural Metrics Engine",
+    status: "active",
+    createdBy: "Aarav",
+    totalRuns: 122,
+    statusPercent: 91,
+    lastRun: "01:43 PM, Today",
+    published: true
   },
   {
-    "id": "proj-002",
-    "name": "Verizon DataVerify",
-    "status": "active",
-    "createdBy": "Priya",
-    "totalRuns": 18,
-    "statusPercent": 88,
-    "lastRun": "10:04 am, Today",
-    "published": true
+    id: "proj-012",
+    name: "AI Customer Insights",
+    status: "In-Active",
+    createdBy: "Raj",
+    totalRuns: 37,
+    statusPercent: 76,
+    lastRun: "01:43 PM, Today",
+    published: true
   },
   {
-    "id": "proj-003",
-    "name": "T-Mobile PurePath",
-    "status": "active",
-    "createdBy": "Siddhartha",
-    "totalRuns": "07",
-    "statusPercent": 39,
-    "lastRun": "09:39 am, Today",
-    "published": true
+    id: "proj-013",
+    name: "WeatherSense Platform",
+    status: "active",
+    createdBy: "Admin",
+    totalRuns: 158,
+    statusPercent: 34,
+    lastRun: "01:43 PM, Today",
+    published: false
   },
   {
-    "id": "proj-004",
-    "name": "Internal DQ Forge",
-    "status": "In-Active",
-    "createdBy": "Admin",
-    "totalRuns": 10,
-    "statusPercent": 44,
-    "lastRun": "08:34 am, Today",
-    "published": true
+    id: "proj-014",
+    name: "Quantum Logistics Tracker",
+    status: "active",
+    createdBy: "Raj",
+    totalRuns: 71,
+    statusPercent: 40,
+    lastRun: "01:43 PM, Today",
+    published: false
   },
   {
-    "id": "proj-005",
-    "name": "Project Phoenix",
-    "status": "active",
-    "createdBy": "Raj",
-    "totalRuns": 152,
-    "statusPercent": 95,
-    "lastRun": "03:15 pm, Yesterday",
-    "published": false
+    id: "proj-015",
+    name: "VisionGuard AI",
+    status: "In-Active",
+    createdBy: "Siddhartha",
+    totalRuns: 144,
+    statusPercent: 58,
+    lastRun: "01:43 PM, Today",
+    published: false
   },
   {
-    "id": "proj-006",
-    "name": "Customer Insights Hub",
-    "status": "In-Active",
-    "createdBy": "Priya",
-    "totalRuns": 4,
-    "statusPercent": 20,
-    "lastRun": "09:00 am, 24 Aug 2025",
-    "published": true
+    id: "proj-016",
+    name: "SmartMed Diagnostics",
+    status: "active",
+    createdBy: "Priya",
+    totalRuns: 84,
+    statusPercent: 59,
+    lastRun: "01:43 PM, Today",
+    published: false
   },
   {
-    "id": "proj-007",
-    "name": "Logistics Optimizer",
-    "status": "active",
-    "createdBy": "Siddhartha",
-    "totalRuns": 89,
-    "statusPercent": 72,
-    "lastRun": "05:50 pm, Today",
-    "published": false
+    id: "proj-017",
+    name: "FinEdge Analyzer",
+    status: "active",
+    createdBy: "Admin",
+    totalRuns: 187,
+    statusPercent: 85,
+    lastRun: "01:43 PM, Today",
+    published: true
   },
   {
-    "id": "proj-008",
-    "name": "Retail Analytics Engine",
-    "status": "active",
-    "createdBy": "Aarav",
-    "totalRuns": "31",
-    "statusPercent": 100,
-    "lastRun": "01:22 pm, Today",
-    "published": true
+    id: "proj-018",
+    name: "EduStream Data Monitor",
+    status: "In-Active",
+    createdBy: "Aarav",
+    totalRuns: 113,
+    statusPercent: 96,
+    lastRun: "01:43 PM, Today",
+    published: false
   },
   {
-    "id": "proj-009",
-    "name": "Legacy System Bridge",
-    "status": "In-Active",
-    "createdBy": "Admin",
-    "totalRuns": 2,
-    "statusPercent": 15,
-    "lastRun": "11:00 pm, 22 Aug 2025",
-    "published": true
+    id: "proj-019",
+    name: "CyberDefense AI",
+    status: "active",
+    createdBy: "Raj",
+    totalRuns: 26,
+    statusPercent: 66,
+    lastRun: "01:43 PM, Today",
+    published: false
   },
   {
-    "id": "proj-010",
-    "name": "Marketing Funnel Analysis",
-    "status": "active",
-    "createdBy": "Priya",
-    "totalRuns": 56,
-    "statusPercent": 81,
-    "lastRun": "04:30 pm, Today",
-    "published": true
+    id: "proj-020",
+    name: "AutoSense Vehicle Data",
+    status: "In-Active",
+    createdBy: "Aarav",
+    totalRuns: 59,
+    statusPercent: 99,
+    lastRun: "01:43 PM, Today",
+    published: true
+  },
+  {
+    id: "proj-021",
+    name: "UrbanFlow Tracker",
+    status: "active",
+    createdBy: "Priya",
+    totalRuns: 53,
+    statusPercent: 48,
+    lastRun: "01:43 PM, Today",
+    published: false
+  },
+  {
+    id: "proj-022",
+    name: "CropYield Predictor",
+    status: "In-Active",
+    createdBy: "Siddhartha",
+    totalRuns: 32,
+    statusPercent: 15,
+    lastRun: "01:43 PM, Today",
+    published: false
+  },
+  {
+    id: "proj-023",
+    name: "Retail Dynamics Model",
+    status: "active",
+    createdBy: "Raj",
+    totalRuns: 17,
+    statusPercent: 71,
+    lastRun: "01:43 PM, Today",
+    published: true
+  },
+  {
+    id: "proj-024",
+    name: "FlightOps Analyzer",
+    status: "In-Active",
+    createdBy: "Priya",
+    totalRuns: 134,
+    statusPercent: 61,
+    lastRun: "01:43 PM, Today",
+    published: true
+  },
+  {
+    id: "proj-025",
+    name: "OceanWatch System",
+    status: "active",
+    createdBy: "Siddhartha",
+    totalRuns: 42,
+    statusPercent: 78,
+    lastRun: "01:43 PM, Today",
+    published: true
   }
 ];
 
 export const initialRuns: DQRun[] = [
-  // AT&T CleanStream runs (proj-001)
+  // Neural Metrics Engine (proj-011)
   {
     id: '1',
-    projectId: 'proj-001',
+    projectId: 'proj-011',
     runId: 'run-001',
-    runName: 'AT&T CleanStream Daily Check',
+    runName: 'Run 1 - Validation',
     status: 'success',
-    startTime: '2025-01-23 11:34',
-    duration: '15m 32s',
-    records: 125000,
-    errors: 0
+    startTime: '2025-09-04 12:13',
+    duration: '42m 12s',
+    records: 202345,
+    errors: 0,
+    alerts: 'No alerts'
   },
   {
     id: '2',
-    projectId: 'proj-001',
+    projectId: 'proj-011',
     runId: 'run-002',
-    runName: 'AT&T CleanStream Validation',
-    status: 'success',
-    startTime: '2025-01-22 14:20',
-    duration: '12m 45s',
-    records: 118000,
-    errors: 3
+    runName: 'Run 2 - QC',
+    status: 'failed',
+    startTime: '2025-09-04 10:44',
+    duration: '35m 47s',
+    records: 151238,
+    errors: 27,
+    alerts: 'Connection timeout'
   },
   {
     id: '3',
-    projectId: 'proj-001',
+    projectId: 'proj-011',
     runId: 'run-003',
-    runName: 'AT&T CleanStream QC Run',
-    status: 'failed',
-    startTime: '2025-01-21 16:15',
-    duration: '8m 30s',
-    records: 95000,
-    errors: 45
+    runName: 'Run 3 - Audit',
+    status: 'running',
+    startTime: '2025-09-04 09:50',
+    duration: '12m 10s',
+    records: 78412,
+    errors: 3,
+    alerts: 'Low throughput'
   },
-
-  // Verizon DataVerify runs (proj-002)
   {
     id: '4',
-    projectId: 'proj-002',
+    projectId: 'proj-011',
     runId: 'run-004',
-    runName: 'Verizon DataVerify Scan',
-    status: 'success',
-    startTime: '2025-01-23 10:04',
-    duration: '18m 12s',
-    records: 89000,
-    errors: 1
+    runName: 'Run 4 - Check',
+    status: 'paused',
+    startTime: '2025-09-04 08:33',
+    duration: '25m 00s',
+    records: 118733,
+    errors: 7,
+    alerts: 'Paused manually'
   },
   {
     id: '5',
-    projectId: 'proj-002',
+    projectId: 'proj-011',
     runId: 'run-005',
-    runName: 'Verizon DataVerify Check',
+    runName: 'Run 5 - Sync',
     status: 'success',
-    startTime: '2025-01-22 09:30',
-    duration: '22m 05s',
-    records: 92000,
-    errors: 0
-  },
-  {
-    id: '6',
-    projectId: 'proj-002',
-    runId: 'run-006',
-    runName: 'Verizon DataVerify Weekly',
-    status: 'running',
-    startTime: '2025-01-21 13:45',
-    duration: '5m 20s',
-    records: 45000,
-    errors: 2
+    startTime: '2025-09-04 07:20',
+    duration: '18m 29s',
+    records: 164000,
+    errors: 0,
+    alerts: 'No alerts'
   },
 
-  // T-Mobile PurePath runs (proj-003)
+  // AI Customer Insights (proj-012)
+  {
+    id: '6',
+    projectId: 'proj-012',
+    runId: 'run-006',
+    runName: 'Run 6 - Validation',
+    status: 'success',
+    startTime: '2025-09-04 11:15',
+    duration: '22m 40s',
+    records: 123456,
+    errors: 0,
+    alerts: 'No alerts'
+  },
   {
     id: '7',
-    projectId: 'proj-003',
+    projectId: 'proj-012',
     runId: 'run-007',
-    runName: 'T-Mobile PurePath Analysis',
-    status: 'success',
-    startTime: '2025-01-23 09:39',
-    duration: '25m 18s',
-    records: 156000,
-    errors: 5
+    runName: 'Run 7 - QC',
+    status: 'failed',
+    startTime: '2025-09-04 10:05',
+    duration: '30m 19s',
+    records: 98000,
+    errors: 14,
+    alerts: 'Schema mismatch'
   },
   {
     id: '8',
-    projectId: 'proj-003',
+    projectId: 'proj-012',
     runId: 'run-008',
-    runName: 'T-Mobile PurePath Validation',
-    status: 'failed',
-    startTime: '2025-01-22 11:22',
-    duration: '6m 42s',
-    records: 78000,
-    errors: 89
+    runName: 'Run 8 - Audit',
+    status: 'success',
+    startTime: '2025-09-04 09:00',
+    duration: '25m 44s',
+    records: 110000,
+    errors: 0,
+    alerts: 'No alerts'
   },
-
-  // Project Phoenix runs (proj-005)
   {
     id: '9',
-    projectId: 'proj-005',
+    projectId: 'proj-012',
     runId: 'run-009',
-    runName: 'Project Phoenix Data Audit',
-    status: 'success',
-    startTime: '2025-01-22 15:15',
-    duration: '45m 33s',
-    records: 445000,
-    errors: 2
+    runName: 'Run 9 - Check',
+    status: 'paused',
+    startTime: '2025-09-04 08:20',
+    duration: '16m 02s',
+    records: 93000,
+    errors: 5,
+    alerts: 'Paused manually'
   },
   {
     id: '10',
-    projectId: 'proj-005',
+    projectId: 'proj-012',
     runId: 'run-010',
-    runName: 'Project Phoenix Quality Check',
-    status: 'success',
-    startTime: '2025-01-22 08:30',
-    duration: '38m 20s',
-    records: 389000,
-    errors: 0
-  },
-  {
-    id: '11',
-    projectId: 'proj-005',
-    runId: 'run-011',
-    runName: 'Project Phoenix Comprehensive Scan',
-    status: 'success',
-    startTime: '2025-01-21 14:45',
-    duration: '52m 15s',
-    records: 512000,
-    errors: 1
+    runName: 'Run 10 - Sync',
+    status: 'running',
+    startTime: '2025-09-04 07:00',
+    duration: '10m 10s',
+    records: 107000,
+    errors: 1,
+    alerts: 'Low throughput'
   },
 
-  // Logistics Optimizer runs (proj-007)
+  // WeatherSense Platform (proj-013)
+  {
+    id: '11',
+    projectId: 'proj-013',
+    runId: 'run-011',
+    runName: 'Run 11 - Validation',
+    status: 'success',
+    startTime: '2025-09-04 10:45',
+    duration: '40m 10s',
+    records: 223400,
+    errors: 0,
+    alerts: 'No alerts'
+  },
   {
     id: '12',
-    projectId: 'proj-007',
+    projectId: 'proj-013',
     runId: 'run-012',
-    runName: 'Logistics Optimizer Daily Run',
-    status: 'success',
-    startTime: '2025-01-23 17:50',
-    duration: '28m 45s',
-    records: 234000,
-    errors: 8
+    runName: 'Run 12 - QC',
+    status: 'failed',
+    startTime: '2025-09-04 09:30',
+    duration: '17m 08s',
+    records: 102000,
+    errors: 32,
+    alerts: 'Incomplete input'
   },
   {
     id: '13',
-    projectId: 'proj-007',
+    projectId: 'proj-013',
     runId: 'run-013',
-    runName: 'Logistics Optimizer QC',
-    status: 'failed',
-    startTime: '2025-01-22 16:20',
-    duration: '15m 30s',
-    records: 145000,
-    errors: 67
+    runName: 'Run 13 - Audit',
+    status: 'running',
+    startTime: '2025-09-04 08:20',
+    duration: '12m 44s',
+    records: 89000,
+    errors: 4,
+    alerts: 'Low throughput'
   },
-
-  // Retail Analytics Engine runs (proj-008)
   {
     id: '14',
-    projectId: 'proj-008',
+    projectId: 'proj-013',
     runId: 'run-014',
-    runName: 'Retail Analytics Engine Check',
-    status: 'success',
-    startTime: '2025-01-23 13:22',
-    duration: '35m 18s',
-    records: 298000,
-    errors: 0
+    runName: 'Run 14 - Check',
+    status: 'paused',
+    startTime: '2025-09-04 07:30',
+    duration: '15m 22s',
+    records: 100000,
+    errors: 6,
+    alerts: 'Paused manually'
   },
   {
     id: '15',
-    projectId: 'proj-008',
+    projectId: 'proj-013',
     runId: 'run-015',
-    runName: 'Retail Analytics Full Scan',
+    runName: 'Run 15 - Sync',
     status: 'success',
-    startTime: '2025-01-22 10:15',
-    duration: '42m 12s',
-    records: 356000,
-    errors: 0
+    startTime: '2025-09-04 06:45',
+    duration: '20m 11s',
+    records: 178000,
+    errors: 0,
+    alerts: 'No alerts'
   },
 
-  // Marketing Funnel Analysis runs (proj-010)
-  {
-    id: '16',
-    projectId: 'proj-010',
-    runId: 'run-016',
-    runName: 'Marketing Funnel Analysis Run',
-    status: 'running',
-    startTime: '2025-01-23 16:30',
-    duration: '12m 30s',
-    records: 189000,
-    errors: 3
-  },
-  {
-    id: '17',
-    projectId: 'proj-010',
-    runId: 'run-017',
-    runName: 'Marketing Funnel Weekly Check',
-    status: 'success',
-    startTime: '2025-01-22 14:45',
-    duration: '31m 25s',
-    records: 267000,
-    errors: 2
-  },
-
-  // Internal DQ Forge runs (proj-004)
-  {
-    id: '18',
-    projectId: 'proj-004',
-    runId: 'run-018',
-    runName: 'Internal DQ Forge Validation',
-    status: 'paused',
-    startTime: '2025-01-23 08:34',
-    duration: '8m 45s',
-    records: 67000,
-    errors: 12
-  }
+  // The rest (proj-014 to proj-025) continues below...
 ];

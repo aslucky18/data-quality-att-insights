@@ -18,4 +18,6 @@ export interface DQRun {
   duration: string;
   records: number;
   errors: number;
+  alerts: string; // added alerts property
+  isSelected?: boolean; // added optional property for selection state
 }
