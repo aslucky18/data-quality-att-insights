@@ -65,14 +65,14 @@ export const DQProjects = ({ userInfo, onLogout }: DQProjectsProps) => {
     const newRun: DQRun = {
       id: Date.now().toString(),
       projectId,
-      runId: `run-${String(runs.length + 1).padStart(3, '0')}`,
+      runId: `run-${String(runs.filter(r => r.projectId === projectId).length + 1).padStart(3, '0')}`,
       runName: `${project?.name || 'Unknown Project'} Run`,
       status: 'running',
       startTime: new Date().toLocaleString('sv-SE').replace('T', ' ').slice(0, 16),
       duration: '0m 0s',
       records: 0,
       errors: 0,
-      alerts:"2/3"
+      alerts: "0/3"
     };
 
     setRuns([newRun, ...runs]);
@@ -83,6 +83,24 @@ export const DQProjects = ({ userInfo, onLogout }: DQProjectsProps) => {
         ? { ...p, lastRun: newRun.startTime }
         : p
     ));
+
+    // Simulate completion after execution
+    setTimeout(() => {
+      const completedRun: DQRun = {
+        ...newRun,
+        status: Math.random() > 0.2 ? 'success' : 'failed', // 80% success rate
+        duration: `${Math.floor(Math.random() * 5 + 8)}m ${Math.floor(Math.random() * 60)}s`,
+        records: Math.floor(Math.random() * 50000 + 10000),
+        errors: Math.floor(Math.random() * 50),
+        alerts: ['0/3', '1/3', '2/3', '3/3'][Math.floor(Math.random() * 4)]
+      };
+
+      setRuns(prevRuns => 
+        prevRuns.map(run => 
+          run.id === newRun.id ? completedRun : run
+        )
+      );
+    }, 100); // Small delay to ensure UI updates properly
   };
 
   const handleRemoveRun = (runId: string) => {
@@ -197,6 +215,7 @@ export const DQProjects = ({ userInfo, onLogout }: DQProjectsProps) => {
           <RunsPanel
             runs={getProjectRuns(selectedProjectId)}
             selectedProject={projects.find(p => p.id === selectedProjectId)}
+            onExecuteRun={handleRunProject}
           />
         </div>
         <div className="w-full lg:w-1/4 min-w-[300px]">

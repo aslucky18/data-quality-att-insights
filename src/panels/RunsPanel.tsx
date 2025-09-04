@@ -1,6 +1,9 @@
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, LabelList } from 'recharts';
-import { Plus, Search, List, Bell, ChevronDown } from 'lucide-react';
+import { Plus, Search, List, Bell, ChevronDown, Loader2 } from 'lucide-react';
 import { DQRun } from '@/lib/types';
+import { useState } from 'react';
+import { Button } from '@/components/ui/button';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from '@/components/ui/dialog';
 
 // --- 1. Define Clear TypeScript Interfaces ---
 
@@ -54,13 +57,40 @@ const RunItem = ({ run }: { run: DQRun }) => {
 
 // --- Props for the main dashboard component ---
 interface RunsPanelProps {
-  runs?: DQRun[]; // updated from Run[] to DQRun[]
+  runs?: DQRun[];
   chartData?: ChartDataPoint[];
   selectedProject?: Project;
+  onExecuteRun?: (projectId: string) => void;
 }
 
 // --- Refactored Run Dashboard Component ---
-export const RunsPanel = ({ runs = [], chartData = [], selectedProject }: RunsPanelProps) => {
+export const RunsPanel = ({ runs = [], chartData = [], selectedProject, onExecuteRun }: RunsPanelProps) => {
+  const [showConfirmDialog, setShowConfirmDialog] = useState(false);
+  const [isExecuting, setIsExecuting] = useState(false);
+  const [showAllRuns, setShowAllRuns] = useState(false);
+
+  const displayedRuns = showAllRuns ? runs : runs.slice(0, 3);
+  const hasMoreRuns = runs.length > 3;
+
+  const handleExecuteClick = () => {
+    if (!selectedProject) return;
+    setShowConfirmDialog(true);
+  };
+
+  const handleConfirmExecution = async () => {
+    if (!selectedProject || !onExecuteRun) return;
+    
+    setShowConfirmDialog(false);
+    setIsExecuting(true);
+    
+    // Simulate execution time (10-15 seconds)
+    const executionTime = Math.floor(Math.random() * 6000) + 10000; // 10-15 seconds
+    
+    setTimeout(() => {
+      onExecuteRun(selectedProject.id);
+      setIsExecuting(false);
+    }, executionTime);
+  };
   return (
     <div className="bg-white w-full h-full rounded-xl p-6 font-sans overflow-y-auto">
       <div className="max-w-7xl mx-auto">
@@ -74,10 +104,23 @@ export const RunsPanel = ({ runs = [], chartData = [], selectedProject }: RunsPa
             )}
           </div>
           <div className="flex items-center space-x-3">
-            <button className="flex items-center bg-blue-600 text-white font-semibold px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors">
-              <Plus size={20} className="mr-2" />
-              Execute Run
-            </button>
+            <Button 
+              onClick={handleExecuteClick}
+              disabled={!selectedProject || isExecuting}
+              className="flex items-center bg-blue-600 text-white font-semibold px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors disabled:opacity-50"
+            >
+              {isExecuting ? (
+                <>
+                  <Loader2 size={20} className="mr-2 animate-spin" />
+                  Executing...
+                </>
+              ) : (
+                <>
+                  <Plus size={20} className="mr-2" />
+                  Execute Run
+                </>
+              )}
+            </Button>
             <button className="p-2 text-gray-500 hover:bg-gray-200 rounded-lg transition-colors">
               <Search size={20} />
             </button>
@@ -93,8 +136,8 @@ export const RunsPanel = ({ runs = [], chartData = [], selectedProject }: RunsPa
             {selectedProject ? `Runs for ${selectedProject.name}` : 'Most Recent Runs'}
           </h2>
           <div className="space-y-2">
-            {runs.length > 0 ? (
-              runs.map(run => (
+            {displayedRuns.length > 0 ? (
+              displayedRuns.map(run => (
                 <RunItem key={run.id} run={run} />
               ))
             ) : (
@@ -103,10 +146,23 @@ export const RunsPanel = ({ runs = [], chartData = [], selectedProject }: RunsPa
               </div>
             )}
           </div>
-          {runs.length > 5 && (
+          {hasMoreRuns && !showAllRuns && (
             <div className="text-center mt-4">
-              <button className="text-sm font-semibold text-gray-600 hover:text-gray-900">
-                More <ChevronDown size={16} className="inline-block" />
+              <button 
+                onClick={() => setShowAllRuns(true)}
+                className="text-sm font-semibold text-gray-600 hover:text-gray-900 transition-colors"
+              >
+                More ({runs.length - 3} more runs) <ChevronDown size={16} className="inline-block" />
+              </button>
+            </div>
+          )}
+          {showAllRuns && hasMoreRuns && (
+            <div className="text-center mt-4">
+              <button 
+                onClick={() => setShowAllRuns(false)}
+                className="text-sm font-semibold text-gray-600 hover:text-gray-900 transition-colors"
+              >
+                Show Less <ChevronDown size={16} className="inline-block rotate-180" />
               </button>
             </div>
           )}
@@ -143,6 +199,32 @@ export const RunsPanel = ({ runs = [], chartData = [], selectedProject }: RunsPa
           </div>
         </section>
       </div>
+
+      {/* Confirmation Dialog */}
+      <Dialog open={showConfirmDialog} onOpenChange={setShowConfirmDialog}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Execute Run</DialogTitle>
+            <DialogDescription>
+              Are you sure you want to execute a new run for project "{selectedProject?.name}"? This will start a data quality check process.
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter className="flex gap-2">
+            <Button
+              variant="outline"
+              onClick={() => setShowConfirmDialog(false)}
+            >
+              Cancel
+            </Button>
+            <Button
+              onClick={handleConfirmExecution}
+              className="bg-blue-600 hover:bg-blue-700"
+            >
+              Execute Run
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
