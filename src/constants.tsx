@@ -15,7 +15,8 @@ export const initialProjects: DQProject[] = [
     "createdBy": "Siddhartha",
     "totalRuns": 25,
     "statusPercent": 65,
-    "lastRun": "11:34 am, Today"
+    "lastRun": "11:34 am, Today",
+    "published": true
   },
   {
     "id": "proj-002",
@@ -24,7 +25,8 @@ export const initialProjects: DQProject[] = [
     "createdBy": "Priya",
     "totalRuns": 18,
     "statusPercent": 88,
-    "lastRun": "10:04 am, Today"
+    "lastRun": "10:04 am, Today",
+    "published": true
   },
   {
     "id": "proj-003",
@@ -33,7 +35,8 @@ export const initialProjects: DQProject[] = [
     "createdBy": "Siddhartha",
     "totalRuns": "07",
     "statusPercent": 39,
-    "lastRun": "09:39 am, Today"
+    "lastRun": "09:39 am, Today",
+    "published": true
   },
   {
     "id": "proj-004",
@@ -42,7 +45,8 @@ export const initialProjects: DQProject[] = [
     "createdBy": "Admin",
     "totalRuns": 10,
     "statusPercent": 44,
-    "lastRun": "08:34 am, Today"
+    "lastRun": "08:34 am, Today",
+    "published": true
   },
   {
     "id": "proj-005",
@@ -51,7 +55,8 @@ export const initialProjects: DQProject[] = [
     "createdBy": "Raj",
     "totalRuns": 152,
     "statusPercent": 95,
-    "lastRun": "03:15 pm, Yesterday"
+    "lastRun": "03:15 pm, Yesterday",
+    "published": false
   },
   {
     "id": "proj-006",
@@ -60,7 +65,8 @@ export const initialProjects: DQProject[] = [
     "createdBy": "Priya",
     "totalRuns": 4,
     "statusPercent": 20,
-    "lastRun": "09:00 am, 24 Aug 2025"
+    "lastRun": "09:00 am, 24 Aug 2025",
+    "published": true
   },
   {
     "id": "proj-007",
@@ -69,7 +75,8 @@ export const initialProjects: DQProject[] = [
     "createdBy": "Siddhartha",
     "totalRuns": 89,
     "statusPercent": 72,
-    "lastRun": "05:50 pm, Today"
+    "lastRun": "05:50 pm, Today",
+    "published": false
   },
   {
     "id": "proj-008",
@@ -78,7 +85,8 @@ export const initialProjects: DQProject[] = [
     "createdBy": "Aarav",
     "totalRuns": "31",
     "statusPercent": 100,
-    "lastRun": "01:22 pm, Today"
+    "lastRun": "01:22 pm, Today",
+    "published": true
   },
   {
     "id": "proj-009",
@@ -87,7 +95,8 @@ export const initialProjects: DQProject[] = [
     "createdBy": "Admin",
     "totalRuns": 2,
     "statusPercent": 15,
-    "lastRun": "11:00 pm, 22 Aug 2025"
+    "lastRun": "11:00 pm, 22 Aug 2025",
+    "published": true
   },
   {
     "id": "proj-010",
@@ -96,7 +105,8 @@ export const initialProjects: DQProject[] = [
     "createdBy": "Priya",
     "totalRuns": 56,
     "statusPercent": 81,
-    "lastRun": "04:30 pm, Today"
+    "lastRun": "04:30 pm, Today",
+    "published": true
   }
 ];
 

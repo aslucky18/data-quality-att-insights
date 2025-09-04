@@ -3,6 +3,7 @@ export interface DQProject {
   name: string;
   status: 'active' | 'In-Active' ;
   createdBy: string;
+  published: boolean;
   totalRuns: number | string;
   statusPercent: number;
   lastRun: string;
