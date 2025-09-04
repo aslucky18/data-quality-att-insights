@@ -204,23 +204,24 @@ export const RunsPanel = ({ runs = [], chartData = [], selectedProject, onExecut
       <Dialog open={showConfirmDialog} onOpenChange={setShowConfirmDialog}>
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
-            <DialogTitle>Execute Run</DialogTitle>
+            
             <DialogDescription>
-              Are you sure you want to execute a new run for project "{selectedProject?.name}"? This will start a data quality check process.
+              Are you sure you want to <b> execute </b>the run  ?
             </DialogDescription>
           </DialogHeader>
           <DialogFooter className="flex gap-2">
             <Button
               variant="outline"
               onClick={() => setShowConfirmDialog(false)}
+              className='rounded-full'
             >
               Cancel
             </Button>
             <Button
               onClick={handleConfirmExecution}
-              className="bg-blue-600 hover:bg-blue-700"
+              className="bg-green-600 rounded-full hover:bg-blue-700"
             >
-              Execute Run
+              Yes
             </Button>
           </DialogFooter>
         </DialogContent>

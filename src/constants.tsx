@@ -172,7 +172,7 @@ export const initialRuns: DQRun[] = [
     duration: '42m 12s',
     records: 202345,
     errors: 0,
-    alerts: 'No alerts'
+    alerts: '2/3'
   },
   {
     id: '2',
@@ -184,7 +184,7 @@ export const initialRuns: DQRun[] = [
     duration: '35m 47s',
     records: 151238,
     errors: 27,
-    alerts: 'Connection timeout'
+    alerts: '2/3'
   },
   {
     id: '3',
@@ -196,7 +196,7 @@ export const initialRuns: DQRun[] = [
     duration: '12m 10s',
     records: 78412,
     errors: 3,
-    alerts: 'Low throughput'
+    alerts: '2/3'
   },
   {
     id: '4',
@@ -208,7 +208,7 @@ export const initialRuns: DQRun[] = [
     duration: '25m 00s',
     records: 118733,
     errors: 7,
-    alerts: 'Paused manually'
+    alerts: '2/3'
   },
   {
     id: '5',
@@ -220,7 +220,7 @@ export const initialRuns: DQRun[] = [
     duration: '18m 29s',
     records: 164000,
     errors: 0,
-    alerts: 'No alerts'
+    alerts: '2/3'
   },
 
   // AI Customer Insights (proj-012)
@@ -234,7 +234,7 @@ export const initialRuns: DQRun[] = [
     duration: '22m 40s',
     records: 123456,
     errors: 0,
-    alerts: 'No alerts'
+    alerts: '2/3'
   },
   {
     id: '7',
@@ -246,7 +246,7 @@ export const initialRuns: DQRun[] = [
     duration: '30m 19s',
     records: 98000,
     errors: 14,
-    alerts: 'Schema mismatch'
+    alerts: '3/3'
   },
   {
     id: '8',
@@ -258,7 +258,7 @@ export const initialRuns: DQRun[] = [
     duration: '25m 44s',
     records: 110000,
     errors: 0,
-    alerts: 'No alerts'
+    alerts: '2/3'
   },
   {
     id: '9',
@@ -270,7 +270,7 @@ export const initialRuns: DQRun[] = [
     duration: '16m 02s',
     records: 93000,
     errors: 5,
-    alerts: 'Paused manually'
+    alerts: '2/3'
   },
   {
     id: '10',
@@ -282,7 +282,7 @@ export const initialRuns: DQRun[] = [
     duration: '10m 10s',
     records: 107000,
     errors: 1,
-    alerts: 'Low throughput'
+    alerts: '2/3'
   },
 
   // WeatherSense Platform (proj-013)
@@ -296,7 +296,7 @@ export const initialRuns: DQRun[] = [
     duration: '40m 10s',
     records: 223400,
     errors: 0,
-    alerts: 'No alerts'
+    alerts: '2/3'
   },
   {
     id: '12',
@@ -308,7 +308,7 @@ export const initialRuns: DQRun[] = [
     duration: '17m 08s',
     records: 102000,
     errors: 32,
-    alerts: 'Incomplete input'
+    alerts: '2/3'
   },
   {
     id: '13',
@@ -320,7 +320,7 @@ export const initialRuns: DQRun[] = [
     duration: '12m 44s',
     records: 89000,
     errors: 4,
-    alerts: 'Low throughput'
+    alerts: '3/3'
   },
   {
     id: '14',
@@ -332,7 +332,7 @@ export const initialRuns: DQRun[] = [
     duration: '15m 22s',
     records: 100000,
     errors: 6,
-    alerts: 'Paused manually'
+    alerts: '1/3'
   },
   {
     id: '15',
@@ -344,7 +344,7 @@ export const initialRuns: DQRun[] = [
     duration: '20m 11s',
     records: 178000,
     errors: 0,
-    alerts: 'No alerts'
+    alerts: '2/3'
   },
 
   // The rest (proj-014 to proj-025) continues below...

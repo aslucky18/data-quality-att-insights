@@ -1,4 +1,4 @@
-import { MoreVertical, ChevronDown, ChevronUp, Copy, Pencil } from 'lucide-react';
+import { MoreVertical, ChevronDown, ChevronUp, Copy, Pencil, Upload, Trash } from 'lucide-react';
 import { DQProject } from '../lib/types';
 import { useState, useEffect } from 'react';
 
@@ -70,8 +70,8 @@ export const WorkspacePanel = ({
                 <button
                     onClick={() => setActiveWorkspace('team')}
                     className={`w-1/2 rounded-full py-2 px-4 transition-colors duration-300 ${activeWorkspace === 'team'
-                            ? 'bg-[#0a5bb6] text-white'
-                            : 'text-gray-500 hover:bg-gray-100'
+                        ? 'bg-[#0a5bb6] text-white'
+                        : 'text-[#0a5bb6] hover:bg-gray-100'
                         }`}
                 >
                     Team's Workspace
@@ -79,8 +79,8 @@ export const WorkspacePanel = ({
                 <button
                     onClick={() => setActiveWorkspace('myworkspace')}
                     className={`w-1/2 rounded-full py-2 px-4 transition-colors duration-300 ${activeWorkspace === 'myworkspace'
-                            ? 'bg-[#0a5bb6] text-white'
-                            : 'text-gray-500 hover:bg-gray-100'
+                        ? 'bg-[#0a5bb6] text-white'
+                        : 'text-[#0a5bb6] hover:bg-gray-100'
                         }`}
                 >
                     My Workspace
@@ -92,8 +92,8 @@ export const WorkspacePanel = ({
                 <Card
                     key={project.id}
                     className={`space-y-3 cursor-pointer transition-all duration-300 border-2 ${selectedProjectId === project.id
-                            ? 'bg-[#cfe6ff] border-[#0a5bb6]'
-                            : 'border-transparent hover:bg-gray-100 hover:border-gray-200'
+                        ? 'bg-[#cfe6ff] border-[#0a5bb6]'
+                        : 'border-transparent hover:bg-gray-100 hover:border-gray-200'
                         }`}
                     onClick={() => onProjectSelect(project.id)}
                 >
@@ -107,8 +107,8 @@ export const WorkspacePanel = ({
                         <div className="flex items-center space-x-2 relative">
                             <span
                                 className={`text-xs font-semibold px-2 py-1 rounded-full ${project.status === 'active'
-                                        ? 'bg-green-100 text-green-800'
-                                        : 'bg-yellow-100 text-yellow-800'
+                                    ? 'bg-green-100 text-green-800'
+                                    : 'bg-yellow-100 text-yellow-800'
                                     }`}
                             >
                                 {project.status.charAt(0).toUpperCase() + project.status.slice(1)}
@@ -123,35 +123,90 @@ export const WorkspacePanel = ({
                             </button>
 
                             {/* Dropdown Menu */}
-                            {openMenuId === project.id && (
-                                <div
-                                    className="absolute top-full right-0 mt-2 w-36 bg-white border border-gray-200 rounded-lg shadow-xl z-50"
-                                    onClick={(e) => e.stopPropagation()}
-                                >
-                                    <div className="max-h-40 overflow-y-auto">
-                                        <ul className="py-1 text-sm text-gray-700">
-                                            <li>
-                                                <a
-                                                    href="#"
-                                                    className="flex items-center justify-left px-4 py-2 hover:bg-gray-100"
-                                                >
-                                                    <Pencil size={16} className="text-gray-400 mr-2" />
-                                                    Edit
-                                                </a>
-                                            </li>
-                                            <li>
-                                                <a
-                                                    href="#"
-                                                    className="flex items-center justify-left   px-4 py-2 hover:bg-gray-100"
-                                                >
-                                                    <Copy size={16} className="text-gray-400  mr-2" />
-                                                    Clone
-                                                </a>
-                                            </li>
-                                        </ul>
+                            {project.published ? (
+                                // Team menu (if project is published)
+                                openMenuId === project.id && (
+                                    <div
+                                        className="absolute top-full right-0 mt-2 w-36 bg-white border border-gray-200 rounded-lg shadow-xl z-50"
+                                        onClick={(e) => e.stopPropagation()}
+                                    >
+                                        <div className="max-h-40 overflow-y-auto">
+                                            <ul className="py-1 text-sm text-gray-700">
+                                                <li>
+                                                    <a
+                                                        href="#"
+                                                        className="flex items-center justify-left px-4 py-2 hover:bg-gray-100"
+                                                    >
+                                                        <Pencil size={16} className="text-gray-400 mr-2" />
+                                                        Edit
+                                                    </a>
+                                                </li>
+                                                <li>
+                                                    <a
+                                                        href="#"
+                                                        className="flex items-center justify-left px-4 py-2 hover:bg-gray-100"
+                                                    >
+                                                        <Copy size={16} className="text-gray-400 mr-2" />
+                                                        Clone
+                                                    </a>
+                                                </li>
+                                                {/* Add more options for the "team" menu if needed */}
+                                            </ul>
+                                        </div>
                                     </div>
-                                </div>
+                                )
+                            ) : (
+                                // My Workspace menu (if project is not published)
+                                openMenuId === project.id && (
+                                    <div
+                                        className="absolute top-full right-0 mt-2 w-36 bg-white border border-gray-200 rounded-lg shadow-xl z-50"
+                                        onClick={(e) => e.stopPropagation()}
+                                    >
+                                        <div className="max-h-40 overflow-y-auto">
+                                            <ul className="py-1 text-sm text-gray-700">
+                                                <li>
+                                                    <a
+                                                        href="#"
+                                                        className="flex items-center justify-left px-4 py-2 hover:bg-gray-100"
+                                                    >
+                                                        <Pencil size={16} className="text-gray-400 mr-2" />
+                                                        Edit
+                                                    </a>
+                                                </li>
+                                                <li>
+                                                    <a
+                                                        href="#"
+                                                        className="flex items-center justify-left px-4 py-2 hover:bg-gray-100"
+                                                    >
+                                                        <Copy size={16} className="text-gray-400 mr-2" />
+                                                        Clone 
+                                                    </a>
+                                                </li>
+                                                <li>
+                                                    <a
+                                                        href="#"
+                                                        className="flex items-center justify-left px-4 py-2 hover:bg-gray-100"
+                                                    >
+                                                        <Upload size={16} className="text-gray-400 mr-2" />
+                                                        Publish
+                                                    </a>
+                                                </li>
+                                                <li>
+                                                    <a
+                                                        href="#"
+                                                        className="flex items-center justify-left px-4 py-2 hover:bg-gray-100"
+                                                    >
+                                                        <Trash size={16} className="text-gray-400 mr-2" />
+                                                        Delete
+                                                    </a>
+                                                </li>
+                                                {/* Add more options for the "myworkspace" menu if needed */}
+                                            </ul>
+                                        </div>
+                                    </div>
+                                )
                             )}
+
 
                         </div>
                     </div>
