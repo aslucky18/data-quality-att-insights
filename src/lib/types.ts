@@ -6,7 +6,8 @@ export interface DQProject {
   published: boolean;
   totalRuns: number | string;
   statusPercent: number;
-  lastRun: string;
+  lastRun: Date;
+  createdAt: Date; 
 }
 export interface DQRun {
   id: string;

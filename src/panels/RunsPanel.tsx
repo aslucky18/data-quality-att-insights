@@ -40,7 +40,7 @@ const RunItem = ({ run, onRunSelect, isSelected }: RunItemProps) => {
   return (
     <div 
       className={`flex items-center p-3 rounded-lg border ${selectedClasses} space-x-4 transition-colors cursor-pointer`}
-      onClick={() => onRunSelect(run)}
+      
     >
       <div className="flex-1 font-semibold text-gray-800">Run {run.id}</div>
       <div className="flex-1">
@@ -55,7 +55,7 @@ const RunItem = ({ run, onRunSelect, isSelected }: RunItemProps) => {
         <span className={`px-4 py-1 text-xs font-bold rounded-full ${getAlertClasses(run.alerts)}`}>
           {run.alerts}
         </span>
-        <button className="bg-white border border-gray-300 rounded-md px-5 py-1.5 text-sm font-semibold text-gray-700 hover:bg-gray-50 transition-colors">
+        <button onClick={() => onRunSelect(run)} className="bg-white border border-gray-300 rounded-md px-5 py-1.5 text-sm font-semibold text-gray-700 hover:bg-gray-50 transition-colors">
           View
         </button>
       </div>

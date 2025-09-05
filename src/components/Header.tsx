@@ -51,7 +51,7 @@ export const Header = ({ userInfo, alerts, onLogout }) => {
 
         {/* Left Section - Hidden on mobile, visible on medium screens and up */}
         <div className="hidden md:flex items-center space-x-4">
-          <h1 className="text-xl font-bold text-white">ATT Data Quality</h1>
+          <h1 className="text-xl font-bold text-white">Data Quality</h1>
         </div>
 
         {/* Center Section (Search Bar) - Hidden on mobile, visible on medium screens and up */}

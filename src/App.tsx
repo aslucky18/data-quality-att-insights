@@ -10,7 +10,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 
 // Import your pages and components
 import { LoginPage } from "@/components/LoginPage";
-import { DQProjects } from "@/pages/DQProjects";
+import { DQProjects } from "@/pages/DashBoard";
 import { DQEngine } from "@/pages/DQEngine";
 import { DQProjectConfiguration } from "@/pages/DQProjectConfiguration";
 import { DQProjectRuns } from "@/pages/DQProjectRuns";
@@ -47,10 +47,6 @@ const App = () => {
               <Routes >
                 {/* 3. Your routes are now cleaner! No need for redundant props. */}
                 <Route path="/" element={<DQProjects userInfo={userInfo} onLogout={handleLogout}/>} />
-                <Route path="/dq-engine" element={<DQEngine userInfo={userInfo} onLogout={handleLogout} />} />
-                <Route path="/project-configuration" element={<DQProjectConfiguration userInfo={userInfo} onLogout={handleLogout} />} />
-                <Route path="/project-configuration/:projectId" element={<DQProjectConfiguration userInfo={userInfo} onLogout={handleLogout} />} />
-                <Route path="/project-runs/:projectId" element={<DQProjectRuns userInfo={userInfo} onLogout={handleLogout} />} />
                 
                 {/* Catch-all route should be last */}
                 <Route path="*" element={<NotFound />} />
@@ -64,3 +60,12 @@ const App = () => {
 };
 
 export default App;
+
+{/**
+  
+                <Route path="/dq-engine" element={<DQEngine userInfo={userInfo} onLogout={handleLogout} />} />
+                <Route path="/project-configuration" element={<DQProjectConfiguration userInfo={userInfo} onLogout={handleLogout} />} />
+                <Route path="/project-configuration/:projectId" element={<DQProjectConfiguration userInfo={userInfo} onLogout={handleLogout} />} />
+                <Route path="/project-runs/:projectId" element={<DQProjectRuns userInfo={userInfo} onLogout={handleLogout} />} />
+  
+  */}
