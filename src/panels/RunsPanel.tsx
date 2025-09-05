@@ -1,12 +1,11 @@
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, LabelList } from 'recharts';
 import { Plus, Search, List, Bell, ChevronDown, Loader2 } from 'lucide-react';
 import { DQRun } from '@/lib/types';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogHeader, DialogDescription, DialogFooter } from '@/components/ui/dialog';
 
 // --- 1. Define Clear TypeScript Interfaces ---
-
 interface ChartDataPoint {
   name: string;
   dataQuality: number;
@@ -17,7 +16,7 @@ interface Project {
   name: string;
 }
 
-// --- Helper component for individual run items (Now correctly used) ---
+// --- Helper component for individual run items ---
 const RunItem = ({ run }: { run: DQRun }) => {
   const getAlertClasses = (alerts: DQRun['alerts']) => {
     switch (alerts) {
@@ -58,16 +57,16 @@ const RunItem = ({ run }: { run: DQRun }) => {
 // --- Props for the main dashboard component ---
 interface RunsPanelProps {
   runs?: DQRun[];
-  chartData?: ChartDataPoint[];
   selectedProject?: Project;
   onExecuteRun?: (projectId: string) => void;
 }
 
 // --- Refactored Run Dashboard Component ---
-export const RunsPanel = ({ runs = [], chartData = [], selectedProject, onExecuteRun }: RunsPanelProps) => {
+export const RunsPanel = ({ runs = [], selectedProject, onExecuteRun }: RunsPanelProps) => {
   const [showConfirmDialog, setShowConfirmDialog] = useState(false);
   const [isExecuting, setIsExecuting] = useState(false);
   const [showAllRuns, setShowAllRuns] = useState(false);
+  const [chartData, setChartData] = useState<ChartDataPoint[]>([]);
 
   const displayedRuns = showAllRuns ? runs : runs.slice(0, 3);
   const hasMoreRuns = runs.length > 3;
@@ -79,18 +78,37 @@ export const RunsPanel = ({ runs = [], chartData = [], selectedProject, onExecut
 
   const handleConfirmExecution = async () => {
     if (!selectedProject || !onExecuteRun) return;
-    
+
     setShowConfirmDialog(false);
     setIsExecuting(true);
-    
+
     // Simulate execution time (10-15 seconds)
     const executionTime = Math.floor(Math.random() * 6000) + 10000; // 10-15 seconds
-    
+
     setTimeout(() => {
       onExecuteRun(selectedProject.id);
       setIsExecuting(false);
     }, executionTime);
   };
+
+  // --- Generate Random Data for the Chart ---
+  const generateRandomChartData = (): ChartDataPoint[] => {
+    const data = [];
+    for (let i = 0; i < (runs.length <= 7 ? runs.length : 7); i++) {
+      const randomQuality = Math.floor(Math.random() * (90 - 60 + 1)) + 60; // Random quality between 60% and 90%
+      data.push({ name: `Run ${i + 1}`, dataQuality: randomQuality });
+    }
+    return data;
+  };
+
+  // --- Effect to generate new chart data when project changes ---
+  useEffect(() => {
+    if (selectedProject) {
+      const newChartData = generateRandomChartData();
+      setChartData(newChartData);
+    }
+  }, [selectedProject]);
+
   return (
     <div className="bg-white w-full h-full rounded-xl p-6 font-sans overflow-y-auto">
       <div className="max-w-7xl mx-auto">
@@ -104,7 +122,7 @@ export const RunsPanel = ({ runs = [], chartData = [], selectedProject, onExecut
             )}
           </div>
           <div className="flex items-center space-x-3">
-            <Button 
+            <Button
               onClick={handleExecuteClick}
               disabled={!selectedProject || isExecuting}
               className="flex items-center bg-blue-600 text-white font-semibold px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors disabled:opacity-50"
@@ -130,7 +148,7 @@ export const RunsPanel = ({ runs = [], chartData = [], selectedProject, onExecut
           </div>
         </header>
 
-        {/* Most Recent Runs List (Now uses the RunItem component) */}
+        {/* Most Recent Runs List */}
         <section className="bg-white p-6 rounded-xl shadow-sm">
           <h2 className="text-lg font-semibold text-gray-700 mb-4">
             {selectedProject ? `Runs for ${selectedProject.name}` : 'Most Recent Runs'}
@@ -148,7 +166,7 @@ export const RunsPanel = ({ runs = [], chartData = [], selectedProject, onExecut
           </div>
           {hasMoreRuns && !showAllRuns && (
             <div className="text-center mt-4">
-              <button 
+              <button
                 onClick={() => setShowAllRuns(true)}
                 className="text-sm font-semibold text-gray-600 hover:text-gray-900 transition-colors"
               >
@@ -158,7 +176,7 @@ export const RunsPanel = ({ runs = [], chartData = [], selectedProject, onExecut
           )}
           {showAllRuns && hasMoreRuns && (
             <div className="text-center mt-4">
-              <button 
+              <button
                 onClick={() => setShowAllRuns(false)}
                 className="text-sm font-semibold text-gray-600 hover:text-gray-900 transition-colors"
               >
@@ -168,34 +186,42 @@ export const RunsPanel = ({ runs = [], chartData = [], selectedProject, onExecut
           )}
         </section>
 
-        {/* 7 Last Runs Chart (Data is now passed via props) */}
+        {/* Recent Run Trends */}
         <section className="mt-8 bg-white p-6 rounded-xl shadow-sm">
-          <h2 className="text-lg font-semibold text-gray-700">7 Last Runs</h2>
-          <p className="text-sm text-gray-500 mb-4">Last 7 Runs – Data Quality %</p>
+          <h2 className="text-lg font-semibold text-gray-700">Recent Run Trends</h2>
+          <p className="text-sm text-gray-500 mb-4">
+            Data Quality % Over Latest {runs.length >= 7 ? 7 : runs.length} Executions (Recent Runs)
+          </p>
           <div style={{ width: '100%', height: 300 }}>
-            <ResponsiveContainer>
-              <AreaChart data={chartData} margin={{ top: 20, right: 30, left: 0, bottom: 0 }}>
-                <defs>
-                  <linearGradient id="colorDataQuality" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="5%" stopColor="#8884d8" stopOpacity={0.2} />
-                    <stop offset="95%" stopColor="#8884d8" stopOpacity={0} />
-                  </linearGradient>
-                </defs>
-                <CartesianGrid strokeDasharray="3 3" stroke="#e0e0e0" />
-                <XAxis dataKey="name" tick={{ fontSize: 12 }} stroke="#a0a0a0" tickLine={false} axisLine={false} />
-                <YAxis unit="%" tick={{ fontSize: 12 }} stroke="#a0a0a0" tickLine={false} axisLine={false} domain={[60, 90]} />
-                <Tooltip
-                  contentStyle={{
-                    borderRadius: "0.5rem",
-                    border: "1px solid #e0e0e0",
-                    boxShadow: "0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1)"
-                  }}
-                />
-                <Area type="monotone" dataKey="dataQuality" stroke="#5a52d1" strokeWidth={2} fillOpacity={1} fill="url(#colorDataQuality)">
-                  <LabelList dataKey="dataQuality" position="top" formatter={(value: number) => `${value}%`} fontSize={12} />
-                </Area>
-              </AreaChart>
-            </ResponsiveContainer>
+            {runs.length <= 0 ? (
+              <div className="flex items-center justify-center h-full text-gray-500">
+                No data available to display the chart.
+              </div>
+            ) : (
+              <ResponsiveContainer>
+                <AreaChart data={chartData} margin={{ top: 20, right: 30, left: 0, bottom: 0 }}>
+                  <defs>
+                    <linearGradient id="colorDataQuality" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="5%" stopColor="#8884d8" stopOpacity={0.2} />
+                      <stop offset="95%" stopColor="#8884d8" stopOpacity={0} />
+                    </linearGradient>
+                  </defs>
+                  <CartesianGrid strokeDasharray="3 3" stroke="#e0e0e0" />
+                  <XAxis dataKey="name" tick={{ fontSize: 12 }} stroke="#a0a0a0" tickLine={false} axisLine={false} />
+                  <YAxis unit="%" tick={{ fontSize: 12 }} stroke="#a0a0a0" tickLine={false} axisLine={false} domain={[60, 90]} />
+                  <Tooltip
+                    contentStyle={{
+                      borderRadius: "0.5rem",
+                      border: "1px solid #e0e0e0",
+                      boxShadow: "0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1)"
+                    }}
+                  />
+                  <Area type="monotone" dataKey="dataQuality" stroke="#5a52d1" strokeWidth={2} fillOpacity={1} fill="url(#colorDataQuality)">
+                    <LabelList dataKey="dataQuality" position="top" formatter={(value) => `${value}%`} fontSize={12} />
+                  </Area>
+                </AreaChart>
+              </ResponsiveContainer>
+            )}
           </div>
         </section>
       </div>
@@ -204,7 +230,6 @@ export const RunsPanel = ({ runs = [], chartData = [], selectedProject, onExecut
       <Dialog open={showConfirmDialog} onOpenChange={setShowConfirmDialog}>
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
-            
             <DialogDescription>
               Are you sure you want to <b> execute </b>the run  ?
             </DialogDescription>

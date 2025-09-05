@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 
 interface WorkspacePanelProps {
     dqProjects: DQProject[];
-    onProjectSelect: (projectId: string) => void;
+    onProjectSelect: (projectId: string | null) => void; // updated to allow resetting selection
     selectedProjectId: string | null;
 }
 
@@ -68,7 +68,10 @@ export const WorkspacePanel = ({
             {/* Workspace Toggle */}
             <div className="flex items-center rounded-full border border-gray-200 bg-white p-1 text-sm font-semibold">
                 <button
-                    onClick={() => setActiveWorkspace('team')}
+                    onClick={() => { 
+                        setActiveWorkspace('team'); 
+                        onProjectSelect(null); // reset selection
+                    }}
                     className={`w-1/2 rounded-full py-2 px-4 transition-colors duration-300 ${activeWorkspace === 'team'
                         ? 'bg-[#0a5bb6] text-white'
                         : 'text-[#0a5bb6] hover:bg-gray-100'
@@ -77,7 +80,10 @@ export const WorkspacePanel = ({
                     Team's Workspace
                 </button>
                 <button
-                    onClick={() => setActiveWorkspace('myworkspace')}
+                    onClick={() => { 
+                        setActiveWorkspace('myworkspace');
+                        onProjectSelect(null); // reset selection
+                    }}
                     className={`w-1/2 rounded-full py-2 px-4 transition-colors duration-300 ${activeWorkspace === 'myworkspace'
                         ? 'bg-[#0a5bb6] text-white'
                         : 'text-[#0a5bb6] hover:bg-gray-100'
