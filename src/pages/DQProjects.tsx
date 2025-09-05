@@ -7,7 +7,7 @@ import { Header } from "@/components/Header";
 import { Button } from "@/components/ui/button";
 import { ListFilter, Plus, CheckCircle, XCircle, Clock, AlertTriangle, Filter, Menu } from "lucide-react";
 import { DQProject, DQRun } from '@/lib/types';
-import { initialProjects, initialRuns } from "@/constants";
+import { initialProjects, initialRuns, generateInsightsForRun } from "@/constants";
 
 interface DQProjectsProps {
   userInfo: { userid: string } | null;
@@ -172,9 +172,16 @@ export const DQProjects = ({ userInfo, onLogout }: DQProjectsProps) => {
     );
   }
   const [selectedProjectId, setSelectedProjectId] = useState<string | null>(null);
+  const [selectedRunId, setSelectedRunId] = useState<string | null>(null);
 
   const handleProjectSelect = (projectId: string) => {
     setSelectedProjectId(projectId);
+    // Reset run selection when project changes to prevent stale data
+    setSelectedRunId(null);
+  };
+
+  const handleRunSelect = (run: DQRun) => {
+    setSelectedRunId(run.id);
   };
 
   // Get runs for the selected project, sorted by most recent first
@@ -184,6 +191,15 @@ export const DQProjects = ({ userInfo, onLogout }: DQProjectsProps) => {
       .filter(run => run.projectId === projectId)
       .sort((a, b) => new Date(b.startTime).getTime() - new Date(a.startTime).getTime());
   };
+
+  // Get selected project and run objects
+  const selectedProject = projects.find(p => p.id === selectedProjectId) || null;
+  const selectedRun = runs.find(r => r.id === selectedRunId) || null;
+  
+  // Generate insights for the selected run
+  const selectedInsights = selectedRun && selectedProject 
+    ? generateInsightsForRun(selectedRun, selectedProject)
+    : null;
 
   console.log("Rendering DQProjects with projects:", projects.length);
   return (
@@ -214,12 +230,18 @@ export const DQProjects = ({ userInfo, onLogout }: DQProjectsProps) => {
         <div className="w-full lg:w-1/2 min-w-[400px]">
           <RunsPanel
             runs={getProjectRuns(selectedProjectId)}
-            selectedProject={projects.find(p => p.id === selectedProjectId)}
+            selectedProject={selectedProject}
+            selectedRun={selectedRun}
             onExecuteRun={handleRunProject}
+            onRunSelect={handleRunSelect}
           />
         </div>
         <div className="w-full lg:w-1/4 min-w-[300px]">
-          <InsightsPanel />
+          <InsightsPanel 
+            insights={selectedInsights}
+            selectedProject={selectedProject}
+            selectedRun={selectedRun}
+          />
         </div>
       </main>
     </div>

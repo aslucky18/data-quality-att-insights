@@ -21,3 +21,24 @@ export interface DQRun {
   alerts: string; // added alerts property
   isSelected?: boolean; // added optional property for selection state
 }
+
+export interface DQInsights {
+  id: string;
+  runId: string; // primary foreign key
+  projectId: string; // secondary foreign key
+  dataOverview: {
+    columns: number;
+    rows: number;
+    integerColumns: number;
+    booleanColumns: number;
+  };
+  dataTypeDistribution: Array<{
+    name: string;
+    value: number;
+  }>;
+  anomalies: Array<{
+    name: string;
+    value: number;
+  }>;
+  createdAt: string;
+}

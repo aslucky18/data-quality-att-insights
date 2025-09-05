@@ -16,8 +16,14 @@ interface Project {
   name: string;
 }
 
+interface RunItemProps {
+  run: DQRun;
+  onRunSelect: (run: DQRun) => void;
+  isSelected: boolean;
+}
+
 // --- Helper component for individual run items ---
-const RunItem = ({ run }: { run: DQRun }) => {
+const RunItem = ({ run, onRunSelect, isSelected }: RunItemProps) => {
   const getAlertClasses = (alerts: DQRun['alerts']) => {
     switch (alerts) {
       case '1/3': return 'bg-red-100 text-red-700';
@@ -27,12 +33,15 @@ const RunItem = ({ run }: { run: DQRun }) => {
     }
   };
 
-  const selectedClasses = run.isSelected
+  const selectedClasses = isSelected
     ? 'bg-blue-50 border-blue-200'
     : 'bg-white border-transparent hover:bg-gray-50';
 
   return (
-    <div className={`flex items-center p-3 rounded-lg border ${selectedClasses} space-x-4 transition-colors`}>
+    <div 
+      className={`flex items-center p-3 rounded-lg border ${selectedClasses} space-x-4 transition-colors cursor-pointer`}
+      onClick={() => onRunSelect(run)}
+    >
       <div className="flex-1 font-semibold text-gray-800">Run {run.id}</div>
       <div className="flex-1">
         <p className="text-xs text-gray-500">Start: {run.startTime}</p>
@@ -58,11 +67,13 @@ const RunItem = ({ run }: { run: DQRun }) => {
 interface RunsPanelProps {
   runs?: DQRun[];
   selectedProject?: Project;
+  selectedRun?: DQRun | null;
   onExecuteRun?: (projectId: string) => void;
+  onRunSelect?: (run: DQRun) => void;
 }
 
 // --- Refactored Run Dashboard Component ---
-export const RunsPanel = ({ runs = [], selectedProject, onExecuteRun }: RunsPanelProps) => {
+export const RunsPanel = ({ runs = [], selectedProject, selectedRun, onExecuteRun, onRunSelect }: RunsPanelProps) => {
   const [showConfirmDialog, setShowConfirmDialog] = useState(false);
   const [isExecuting, setIsExecuting] = useState(false);
   const [showAllRuns, setShowAllRuns] = useState(false);
@@ -156,7 +167,12 @@ export const RunsPanel = ({ runs = [], selectedProject, onExecuteRun }: RunsPane
           <div className="space-y-2">
             {displayedRuns.length > 0 ? (
               displayedRuns.map(run => (
-                <RunItem key={run.id} run={run} />
+                <RunItem 
+                  key={run.id} 
+                  run={run} 
+                  onRunSelect={onRunSelect || (() => {})}
+                  isSelected={selectedRun?.id === run.id}
+                />
               ))
             ) : (
               <div className="text-center py-8 text-gray-500">

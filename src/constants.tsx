@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { DQProject, DQRun } from "./lib/types";
+import { DQProject, DQRun, DQInsights } from "./lib/types";
 
 export const searchBarColor = "#a1a7b2";
 export const searchBarTextColor = "#ffffff";
@@ -349,3 +349,43 @@ export const initialRuns: DQRun[] = [
 
   // The rest (proj-014 to proj-025) continues below...
 ];
+
+// Generate mock insights data for runs
+export const generateInsightsForRun = (run: DQRun, project: DQProject): DQInsights => {
+  const baseData = {
+    id: `insights-${run.id}`,
+    runId: run.id,
+    projectId: run.projectId,
+    createdAt: run.startTime
+  };
+
+  // Generate data based on project and run characteristics
+  const seed = parseInt(run.id) + parseInt(project.id.replace('proj-', ''));
+  
+  return {
+    ...baseData,
+    dataOverview: {
+      columns: 6 + (seed % 8),
+      rows: run.records || (15000 + (seed * 1000) % 50000),
+      integerColumns: 1 + (seed % 4),
+      booleanColumns: 2 + (seed % 6)
+    },
+    dataTypeDistribution: [
+      { name: 'Int64', value: 30 + (seed % 20) },
+      { name: 'Float64', value: 25 + (seed % 15) },
+      { name: 'String', value: 20 + (seed % 25) },
+      { name: 'Boolean', value: 15 + (seed % 10) }
+    ].map(item => ({
+      ...item,
+      value: Math.round((item.value / 
+        [30 + (seed % 20), 25 + (seed % 15), 20 + (seed % 25), 15 + (seed % 10)]
+        .reduce((sum, val) => sum + val, 0)) * 100 * 100) / 100
+    })),
+    anomalies: [
+      { name: '0.05', value: 100 + (seed % 100) },
+      { name: '0.1', value: 150 + (seed % 150) },
+      { name: '0.2', value: 80 + (seed % 120) },
+      { name: '0.3', value: 120 + (seed % 180) }
+    ]
+  };
+};
