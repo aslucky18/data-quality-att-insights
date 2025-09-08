@@ -22,7 +22,7 @@ interface RunItemProps {
   isSelected: boolean;
 }
 
-// --- Helper component for individual run items ---
+// --- Helper component for individual run items - Responsive design ---
 const RunItem = ({ run, onRunSelect, isSelected }: RunItemProps) => {
   const getAlertClasses = (alerts: DQRun['alerts']) => {
     switch (alerts) {
@@ -39,23 +39,44 @@ const RunItem = ({ run, onRunSelect, isSelected }: RunItemProps) => {
 
   return (
     <div 
-      className={`flex items-center p-3 rounded-lg border ${selectedClasses} space-x-4 transition-colors cursor-pointer`}
-      
+      className={`flex flex-col sm:flex-row items-start sm:items-center p-2 sm:p-3 rounded-lg border ${selectedClasses} space-y-2 sm:space-y-0 sm:space-x-2 lg:space-x-4 transition-colors cursor-pointer`}
+      onClick={() => onRunSelect(run)}
     >
-      <div className="flex-1 font-semibold text-gray-800">Run {run.id}</div>
-      <div className="flex-1">
+      {/* Run ID - Full width on mobile, flex-1 on larger screens */}
+      <div className="w-full sm:flex-1 font-semibold text-gray-800 text-sm sm:text-base">
+        Run {run.id}
+      </div>
+      
+      {/* Time Info - Stack on mobile, side by side on larger screens */}
+      <div className="w-full sm:flex-1">
         <p className="text-xs text-gray-500">Start: {run.startTime}</p>
         <p className="text-xs text-gray-500">Duration: {run.duration}</p>
       </div>
-      <div className="flex-1 text-sm text-gray-600">Status: {run.status}</div>
-      <div className="flex-1 flex items-center text-sm text-gray-600 cursor-pointer">
-        <Bell size={16} className="mr-2 text-gray-400" /> View Alerts
+      
+      {/* Status - Full width on mobile */}
+      <div className="w-full sm:flex-1 text-xs sm:text-sm text-gray-600">
+        Status: {run.status}
       </div>
-      <div className="flex items-center space-x-4">
-        <span className={`px-4 py-1 text-xs font-bold rounded-full ${getAlertClasses(run.alerts)}`}>
+      
+      {/* Alerts - Hidden on very small screens, shown on tablets+ */}
+      <div className="hidden md:flex sm:flex-1 items-center text-xs sm:text-sm text-gray-600 cursor-pointer">
+        <Bell size={14} className="mr-1 sm:mr-2 text-gray-400" /> 
+        <span className="hidden lg:inline">View Alerts</span>
+        <span className="lg:hidden">Alerts</span>
+      </div>
+      
+      {/* Actions - Responsive layout */}
+      <div className="flex items-center justify-between w-full sm:w-auto space-x-2 sm:space-x-4">
+        <span className={`px-2 sm:px-4 py-0.5 sm:py-1 text-xs font-bold rounded-full ${getAlertClasses(run.alerts)}`}>
           {run.alerts}
         </span>
-        <button onClick={() => onRunSelect(run)} className="bg-white border border-gray-300 rounded-md px-5 py-1.5 text-sm font-semibold text-gray-700 hover:bg-gray-50 transition-colors">
+        <button 
+          onClick={(e) => {
+            e.stopPropagation();
+            onRunSelect(run);
+          }} 
+          className="bg-white border border-gray-300 rounded-md px-3 sm:px-5 py-1 sm:py-1.5 text-xs sm:text-sm font-semibold text-gray-700 hover:bg-gray-50 transition-colors"
+        >
           View
         </button>
       </div>
@@ -121,50 +142,57 @@ export const RunsPanel = ({ runs = [], selectedProject, selectedRun, onExecuteRu
   }, [selectedProject]);
 
   return (
-    <div className="bg-white w-full h-full rounded-xl p-6 font-sans overflow-y-auto">
+    <div className="bg-white w-full h-full rounded-xl p-2 sm:p-4 lg:p-6 font-sans overflow-y-auto">
       <div className="max-w-7xl mx-auto">
 
-        {/* Header */}
-        <header className="flex justify-between items-center mb-3">
-          <div>
-            <h1 className="text-3xl font-bold text-gray-800">Runs</h1>
+        {/* Header - Responsive layout and typography */}
+        <header className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-3 gap-2">
+          <div className="flex-1">
+            <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold text-gray-800">Runs</h1>
             {selectedProject && (
-              <p className="text-sm text-gray-600">Project: {selectedProject.name}</p>
+              <p className="text-xs sm:text-sm text-gray-600 truncate">Project: {selectedProject.name}</p>
             )}
           </div>
-          <div className="flex items-center space-x-3">
+          {/* Action Buttons - Responsive sizing and layout */}
+          <div className="flex items-center space-x-1 sm:space-x-3 flex-shrink-0">
             <Button
               onClick={handleExecuteClick}
               disabled={!selectedProject || isExecuting}
-              className="flex items-center bg-blue-600 text-white font-semibold px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors disabled:opacity-50"
+              className="flex items-center bg-blue-600 text-white font-semibold px-2 sm:px-4 py-1.5 sm:py-2 text-xs sm:text-sm rounded-lg hover:bg-blue-700 transition-colors disabled:opacity-50"
             >
               {isExecuting ? (
                 <>
-                  <Loader2 size={20} className="mr-2 animate-spin" />
-                  Executing...
+                  <Loader2 size={16} className="mr-1 sm:mr-2 animate-spin" />
+                  <span className="hidden sm:inline">Executing...</span>
+                  <span className="sm:hidden">...</span>
                 </>
               ) : (
                 <>
-                  <Plus size={20} className="mr-2" />
-                  Execute Run
+                  <Plus size={16} className="mr-1 sm:mr-2" />
+                  <span className="hidden sm:inline">Execute Run</span>
+                  <span className="sm:hidden">Run</span>
                 </>
               )}
             </Button>
-            <button className="p-2 text-gray-500 hover:bg-gray-200 rounded-lg transition-colors">
-              <Search size={20} />
+            {/* Search and List buttons - Responsive sizing */}
+            <button className="p-1 sm:p-2 text-gray-500 hover:bg-gray-200 rounded-lg transition-colors">
+              <Search size={16} className="sm:hidden" />
+              <Search size={20} className="hidden sm:block" />
             </button>
-            <button className="p-2 text-gray-500 hover:bg-gray-200 rounded-lg transition-colors">
-              <List size={20} />
+            <button className="p-1 sm:p-2 text-gray-500 hover:bg-gray-200 rounded-lg transition-colors">
+              <List size={16} className="sm:hidden" />
+              <List size={20} className="hidden sm:block" />
             </button>
           </div>
         </header>
 
-        {/* Most Recent Runs List */}
-        <section className="bg-white p-6 rounded-xl shadow-sm">
-          <h2 className="text-lg font-semibold text-gray-700 mb-4">
+        {/* Most Recent Runs List - Responsive layout */}
+        <section className="bg-white p-2 sm:p-4 lg:p-6 rounded-xl shadow-sm">
+          <h2 className="text-base sm:text-lg font-semibold text-gray-700 mb-2 sm:mb-4">
             {selectedProject ? `Runs for ${selectedProject.name}` : 'Most Recent Runs'}
           </h2>
-          <div className="space-y-2">
+          {/* Runs List - Responsive spacing */}
+          <div className="space-y-1 sm:space-y-2">
             {displayedRuns.length > 0 ? (
               displayedRuns.map(run => (
                 <RunItem 
@@ -175,7 +203,7 @@ export const RunsPanel = ({ runs = [], selectedProject, selectedRun, onExecuteRu
                 />
               ))
             ) : (
-              <div className="text-center py-8 text-gray-500">
+              <div className="text-center py-4 sm:py-8 text-gray-500 text-sm">
                 {selectedProject ? 'No runs found for this project.' : 'Select a project to view its runs.'}
               </div>
             )}
@@ -202,15 +230,16 @@ export const RunsPanel = ({ runs = [], selectedProject, selectedRun, onExecuteRu
           )}
         </section>
 
-        {/* Recent Run Trends */}
-        <section className="mt-8 bg-white p-6 rounded-xl shadow-sm">
-          <h2 className="text-lg font-semibold text-gray-700">Recent Run Trends</h2>
-          <p className="text-sm text-gray-500 mb-4">
+        {/* Recent Run Trends - Responsive layout */}
+        <section className="mt-4 sm:mt-8 bg-white p-2 sm:p-4 lg:p-6 rounded-xl shadow-sm">
+          <h2 className="text-base sm:text-lg font-semibold text-gray-700">Recent Run Trends</h2>
+          <p className="text-xs sm:text-sm text-gray-500 mb-2 sm:mb-4">
             Data Quality % Over Latest {runs.length >= 7 ? 7 : runs.length} Executions (Recent Runs)
           </p>
-          <div style={{ width: '100%', height: 300 }}>
+          {/* Chart Container - Responsive height */}
+          <div style={{ width: '100%', height: window.innerWidth < 640 ? 200 : 300 }}>
             {runs.length <= 0 ? (
-              <div className="flex items-center justify-center h-full text-gray-500">
+              <div className="flex items-center justify-center h-full text-gray-500 text-sm">
                 No data available to display the chart.
               </div>
             ) : (

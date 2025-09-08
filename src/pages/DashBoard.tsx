@@ -178,25 +178,32 @@ export const DQProjects = ({ userInfo, onLogout }: DQProjectsProps) => {
    ========================= */
   return (
     <div>
-      {/* DashBoard Header */}
-      <header className="flex justify-end items-center mb-4">
-        <div className="flex items-center space-x-4">
+      {/* DashBoard Header - Responsive layout and button sizing */}
+      <header className="flex flex-col sm:flex-row justify-end items-stretch sm:items-center mb-2 sm:mb-4 gap-2">
+        <div className="flex flex-col sm:flex-row items-stretch sm:items-center space-y-2 sm:space-y-0 sm:space-x-2 lg:space-x-4">
+          {/* Create Project Button - Full width on mobile */}
           <button
-            className="bg-[#0a5bb6] text-white font-semibold rounded-full py-2 px-4 flex items-center text-sm"
+            className="bg-[#0a5bb6] text-white font-semibold rounded-full py-2 px-3 sm:px-4 flex items-center justify-center text-xs sm:text-sm"
             onClick={handleCreateProject}
           >
-            <Plus size={16} className="mr-2" /> Create Project
+            <Plus size={14} className="mr-1 sm:mr-2" /> 
+            <span className="hidden sm:inline">Create Project</span>
+            <span className="sm:hidden">Create</span>
           </button>
-          <button
-            className="flex items-center gap-x-2 rounded-full border border-black bg-white px-4 py-2 text-sm font-semibold text-black">
-            <ListFilter size={16} className="mr-2" /> Advanced Filters
+          
+          {/* Advanced Filters Button - Responsive sizing */}
+          <button className="flex items-center justify-center gap-x-1 sm:gap-x-2 rounded-full border border-black bg-white px-3 sm:px-4 py-2 text-xs sm:text-sm font-semibold text-black hover:bg-gray-50 transition-colors">
+            <ListFilter size={14} className="sm:mr-0" /> 
+            <span className="hidden sm:inline">Advanced Filters</span>
+            <span className="sm:hidden">Filters</span>
           </button>
         </div>
       </header>
 
-      {/* Panels */}
-      <main className="flex flex-col lg:flex-row gap-4 w-full min-h-[calc(100vh-200px)]">
-        <div className="w-full lg:w-1/4 min-w-[300px]">
+      {/* Panels - Responsive grid layout for all devices */}
+      <main className="flex flex-col xl:flex-row gap-2 sm:gap-4 w-full min-h-[calc(100vh-200px)]">
+        {/* Workspace Panel - Full width on mobile, 1/4 on desktop */}
+        <div className="w-full xl:w-1/4 min-w-0 xl:min-w-[280px]">
           <WorkspacePanel
             dqProjects={projects}
             onProjectSelect={handleProjectSelect}
@@ -205,7 +212,9 @@ export const DQProjects = ({ userInfo, onLogout }: DQProjectsProps) => {
             handleCloneProject={handleCloneProject}
           />
         </div>
-        <div className="w-full lg:w-1/2 min-w-[400px]">
+        
+        {/* Runs Panel - Full width on mobile/tablet, 1/2 on desktop */}
+        <div className="w-full xl:w-1/2 min-w-0 xl:min-w-[400px]">
           <RunsPanel
             runs={getProjectRuns(selectedProjectId)}
             selectedProject={selectedProject}
@@ -214,7 +223,9 @@ export const DQProjects = ({ userInfo, onLogout }: DQProjectsProps) => {
             onRunSelect={handleRunSelect}
           />
         </div>
-        <div className="w-full lg:w-1/4 min-w-[300px]">
+        
+        {/* Insights Panel - Full width on mobile, 1/4 on desktop */}
+        <div className="w-full xl:w-1/4 min-w-0 xl:min-w-[280px]">
           <InsightsPanel
             insights={selectedInsights}
             selectedProject={selectedProject}

@@ -88,7 +88,7 @@ export const WorkspacePanel = ({ dqProjects = [], onProjectSelect, selectedProje
                         </div>
                         <div>
                             <p className="text-gray-500">Last Run:</p>
-                            <p className="font-semibold">{project.lastRun}</p>
+                            <p className="font-semibold">{project.lastRun instanceof Date ? project.lastRun.toLocaleDateString("en-GB") : new Date(project.lastRun).toLocaleDateString("en-GB")}</p>
                         </div>
                     </div>
                 </Card>

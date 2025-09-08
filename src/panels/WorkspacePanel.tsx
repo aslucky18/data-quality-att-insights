@@ -99,15 +99,15 @@ export const WorkspacePanel = ({
 
     // --- Component JSX ---
     return (
-        <div className="w-full h-full p-4 flex flex-col space-y-4">
-            {/* Workspace Toggle Buttons */}
-            <div className="flex items-center rounded-full border border-gray-200 bg-white p-1 text-sm font-semibold">
+        <div className="w-full h-full p-2 sm:p-4 flex flex-col space-y-2 sm:space-y-4">
+            {/* Workspace Toggle Buttons - Responsive design for all screen sizes */}
+            <div className="flex items-center rounded-full border border-gray-200 bg-white p-1 text-xs sm:text-sm font-semibold">
                 <button
                     onClick={() => {
                         setActiveWorkspace('team');
                         onProjectSelect(null); // Reset selection when switching workspaces
                     }}
-                    className={`w-1/2 rounded-full py-2 px-4 transition-colors duration-300 ${activeWorkspace === 'team'
+                    className={`w-1/2 rounded-full py-1.5 sm:py-2 px-2 sm:px-4 transition-colors duration-300 ${activeWorkspace === 'team'
                         ? 'bg-[#0a5bb6] text-white'
                         : 'text-[#0a5bb6] hover:bg-gray-100'
                         }`}
@@ -119,7 +119,7 @@ export const WorkspacePanel = ({
                         setActiveWorkspace('myworkspace');
                         onProjectSelect(null); // Reset selection
                     }}
-                    className={`w-1/2 rounded-full py-2 px-4 transition-colors duration-300 ${activeWorkspace === 'myworkspace'
+                    className={`w-1/2 rounded-full py-1.5 sm:py-2 px-2 sm:px-4 transition-colors duration-300 ${activeWorkspace === 'myworkspace'
                         ? 'bg-[#0a5bb6] text-white'
                         : 'text-[#0a5bb6] hover:bg-gray-100'
                         }`}
@@ -128,27 +128,29 @@ export const WorkspacePanel = ({
                 </button>
             </div>
 
-            {/* Project Cards */}
+            {/* Project Cards - Responsive layout for mobile, tablet, desktop */}
             {projectsToShow.map((project) => (
                 <Card
                     key={project.id}
-                    className={`space-y-3 cursor-pointer transition-all duration-300 border-2 ${selectedProjectId === project.id
+                    className={`space-y-2 sm:space-y-3 cursor-pointer transition-all duration-300 border-2 ${selectedProjectId === project.id
                         ? 'bg-[#cfe6ff] border-[#0a5bb6]'
                         : 'border-transparent hover:bg-gray-100 hover:border-gray-200'
                         }`}
                     onClick={() => onProjectSelect(project.id)}
                 >
                     <div className="flex justify-between items-start">
-                        <div>
-                            <h4 className="text-black font-bold">{project.name}</h4>
-                            <p className="text-xs text-gray-500">
+                        {/* Project Info - Responsive text sizing */}
+                        <div className="flex-1 min-w-0 pr-2">
+                            <h4 className="text-sm sm:text-base font-bold text-black truncate">{project.name}</h4>
+                            <p className="text-xs text-gray-500 truncate">
                                 Created by: {project.createdBy}
                             </p>
                         </div>
-                        <div className="flex items-center space-x-2 relative" id={`menu-${project.id}`}>
-                            {/* Project Status Badge */}
+                        {/* Actions Area - Responsive spacing and sizing */}
+                        <div className="flex items-center space-x-1 sm:space-x-2 relative flex-shrink-0" id={`menu-${project.id}`}>
+                            {/* Project Status Badge - Responsive sizing */}
                             <span
-                                className={`text-xs font-semibold px-2 py-1 rounded-full ${project.status === 'active'
+                                className={`text-xs font-semibold px-1.5 sm:px-2 py-0.5 sm:py-1 rounded-full ${project.status === 'active'
                                     ? 'bg-green-100 text-green-800'
                                     : 'bg-yellow-100 text-yellow-800'
                                     }`}
@@ -156,27 +158,28 @@ export const WorkspacePanel = ({
                                 {project.status ? project.status.charAt(0).toUpperCase() + project.status.slice(1) : 'Unknown'}
                             </span>
 
-                            {/* Menu Button */}
+                            {/* Menu Button - Responsive sizing */}
                             <button
                                 onClick={(e) => handleMenuClick(e, project.id)}
-                                className="text-gray-400 hover:text-black p-1 rounded-full hover:bg-gray-200"
+                                className="text-gray-400 hover:text-black p-0.5 sm:p-1 rounded-full hover:bg-gray-200"
                             >
-                                <MoreVertical size={18} />
+                                <MoreVertical size={16} className="sm:hidden" />
+                                <MoreVertical size={18} className="hidden sm:block" />
                             </button>
 
-                            {/* Dropdown Menu based on project's published status */}
+                            {/* Dropdown Menu - Responsive width and positioning */}
                             {openMenuId === project.id && (
                                 <div
-                                    className="absolute top-full right-0 mt-2 w-36 bg-white border border-gray-200 rounded-lg shadow-xl z-50"
+                                    className="absolute top-full right-0 mt-2 w-32 sm:w-36 bg-white border border-gray-200 rounded-lg shadow-xl z-50"
                                     onClick={(e) => e.stopPropagation()}
                                 >
                                     <div className="max-h-40 overflow-y-auto">
-                                        <ul className="py-1 text-sm text-gray-700">
+                                        <ul className="py-1 text-xs sm:text-sm text-gray-700">
                                             {/* Edit Option */}
                                             <li>
                                                 <a
                                                     href="#"
-                                                    className="flex items-center justify-left px-4 py-2 hover:bg-gray-100"
+                                                    className="flex items-center justify-left px-2 sm:px-4 py-1.5 sm:py-2 hover:bg-gray-100"
                                                     onClick={() => handleEditProject(project.id)}
                                                 >
                                                     <Pencil size={16} className="text-gray-400 mr-2" />
@@ -187,7 +190,7 @@ export const WorkspacePanel = ({
                                             <li>
                                                 <a
                                                     href="#"
-                                                    className="flex items-center justify-left px-4 py-2 hover:bg-gray-100"
+                                                    className="flex items-center justify-left px-2 sm:px-4 py-1.5 sm:py-2 hover:bg-gray-100"
                                                     onClick={() => { handleCloneProject(project); setOpenMenuId(null); }}
                                                 >
                                                     <Copy size={16} className="text-gray-400 mr-2" />
@@ -199,7 +202,7 @@ export const WorkspacePanel = ({
                                                 <li>
                                                     <a
                                                         href="#"
-                                                        className="flex items-center justify-left px-4 py-2 hover:bg-gray-100"
+                                                        className="flex items-center justify-left px-2 sm:px-4 py-1.5 sm:py-2 hover:bg-gray-100"
                                                         onClick={() => handlePublishProject(project.id)}
                                                     >
                                                         <Upload size={16} className="text-gray-400 mr-2" />
@@ -212,7 +215,7 @@ export const WorkspacePanel = ({
                                                 <li>
                                                     <a
                                                         href="#"
-                                                        className="flex items-center justify-left px-4 py-2 hover:bg-gray-100"
+                                                        className="flex items-center justify-left px-2 sm:px-4 py-1.5 sm:py-2 hover:bg-gray-100"
                                                         onClick={() => handleDeleteProject(project.id)}
                                                     >
                                                         <Trash size={16} className="text-gray-400 mr-2" />
@@ -227,29 +230,32 @@ export const WorkspacePanel = ({
                         </div>
                     </div>
 
-                    {/* Card Footer with project stats */}
-                    <div className="flex justify-between text-xs text-gray-400 pt-2">
-                        <div className="text-center">
-                            <p className="text-gray-500">Total:</p>
-                            <p className="font-semibold text-black">{project.totalRuns} runs</p>
+                    {/* Card Footer with project stats - Responsive layout for mobile/tablet/desktop */}
+                    <div className="flex justify-between text-xs text-gray-400 pt-2 gap-1">
+                        {/* Mobile: Stack vertically on very small screens, horizontal on larger */}
+                        <div className="text-center flex-1">
+                            <p className="text-gray-500 text-xs">Total:</p>
+                            <p className="font-semibold text-black text-xs sm:text-sm">{project.totalRuns} runs</p>
                         </div>
-                        <div className="text-center">
-                            <p className="text-gray-500">Status:</p>
-                            <p className="font-semibold text-black">{project.statusPercent}%</p>
+                        <div className="text-center flex-1">
+                            <p className="text-gray-500 text-xs">Status:</p>
+                            <p className="font-semibold text-black text-xs sm:text-sm">{project.statusPercent}%</p>
                         </div>
-                        <div className="text-center">
-                            <p className="text-gray-500">Last Run:</p>
-                            <p className="font-semibold text-black">{new Date(project.lastRun).toLocaleDateString("en-GB")}</p>
+                        <div className="text-center flex-1">
+                            <p className="text-gray-500 text-xs">Last Run:</p>
+                            <p className="font-semibold text-black text-xs sm:text-sm break-all">
+                                {project.lastRun instanceof Date ? project.lastRun.toLocaleDateString("en-GB") : new Date(project.lastRun).toLocaleDateString("en-GB")}
+                            </p>
                         </div>
                     </div>
                 </Card>
             ))}
 
-            {/* Show More / Show Less Button */}
+            {/* Show More / Show Less Button - Responsive sizing */}
             {filteredProjects.length > DISPLAY_LIMIT && (
                 <button
                     onClick={() => setIsExpanded(!isExpanded)}
-                    className="w-full text-center text-gray-500 hover:text-black py-2 rounded-lg bg-white text-sm flex items-center justify-center font-semibold hover:bg-gray-100"
+                    className="w-full text-center text-gray-500 hover:text-black py-2 rounded-lg bg-white text-xs sm:text-sm flex items-center justify-center font-semibold hover:bg-gray-100"
                 >
                     {isExpanded ? 'Show Less' : 'Show More'}
                     {isExpanded ? (
