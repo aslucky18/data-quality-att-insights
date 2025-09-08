@@ -1256,3 +1256,84 @@ export const userdata = [
     email: 'aslucky0143@gmail.com',
     role: 'Admin',
   },];
+
+export const runKey = 'dq-runs';
+export const projectKey = 'dq-projects';
+
+{/* User Profiles */ }
+export interface User {
+  id: string;
+  name: string;
+  email: string;
+  // Using a union type for 'role' makes the type safer,
+  // allowing only specific string values.
+  role: "Admin" | "User";
+  avatarURL: string;
+}
+const allUsers: User[] = [
+
+  {
+    id: "mb065b",
+    name: "Michael Brown",
+    email: "aslucky0143@gmail.com",
+    role: "Admin",
+    avatarURL: "https://randomuser.me/api/portraits/men/75.jpg"
+  },
+  {
+    id: "mb065a",
+    name: "Michael Ross",
+    email: "pemmani.anjaneyulu@accenture.com",
+    role: "User",
+    avatarURL: "https://randomuser.me/api/portraits/men/75.jpg"
+  }
+];
+
+{/* Alerts Data */}
+
+export const alertsData = [
+  {
+    title: 'AT&T CleanStream: Missing Value Percentage Exceeded (the given threshold)',
+    description: 'Data quality check failed: 23% of values are missing in the latest run. The threshold requires at least 90% completeness for reliable processing.',
+    timestamp: '15th April, 2025, 10:32 AM',
+  },
+  {
+    title: 'AT&T VeriSure: Accuracy Below Requirement',
+    description: 'The accuracy rate dropped to 78%, below the target of 85%. Re-examine transformation logic and rule mappings to regain proper quality levels.',
+    timestamp: '15th April, 2025, 10:32 AM',
+  },
+  {
+    title: 'AT&T DataPulse: Data Freshness SLA Outstanding',
+    description: 'Last refresh occurred 14 hours ago, exceeding our 6-hour freshness SLA. Please check the ingestion pipeline to ensure timely data delivery.',
+    timestamp: '15th April, 2025, 10:32 AM',
+  },
+  {
+    title: 'AT&T IntegrityCheck: Duplicate Records Detected',
+    description: 'Duplicate entries found in the \'Customer_Profiles\' dataset. Deduplication is required to avoid skewed downstream reporting.',
+    timestamp: '15th April, 2025, 10:32 AM',
+  },
+  {
+    title: 'AT&T SchemaGuard: Schema Drift Identified',
+    description: 'New columns or types detected compared to expected schema—source sync is out of date. Please align with target schema specifications to prevent data mismatches.',
+    timestamp: '15th April, 2025, 10:32 AM',
+  },
+  {
+    title: 'AT&T InsightIQ: Anomaly Detection Threshold Exceeded',
+    description: 'Anomaly score has surged above acceptable levels in Run-4152. Investigate the data spike—potential outliers or operational irregularities detected.',
+    timestamp: '15th April, 2025, 10:32 AM',
+  },
+  {
+    title: 'AT&T QualityBeacon: High Null Values in Key Fields',
+    description: 'Critical field \'billing_amount\' shows 25% nulls—target is under 5%. Review upstream data sources to restore value consistency.',
+    timestamp: '15th April, 2025, 10:32 AM',
+  },
+  {
+    title: 'AT&T PurePath: Data Transformation Error Count Elevated',
+    description: 'Transformational error rate currently at 4%, exceeding the 1% threshold. Examine recent script changes or ETL logic for faults.',
+    timestamp: '15th April, 2025, 10:32 AM',
+  },
+    {
+    title: 'AT&T DQ Forge: Data Duplication Causing Violations',
+    description: 'Duplicate transaction IDs detected beyond the 0.1% tolerance level. Enforce stricter key constraints to maintain deduplication compliance.',
+    timestamp: '15th April, 2025, 10:32 AM',
+  },
+];

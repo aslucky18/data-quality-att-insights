@@ -28,7 +28,7 @@ export const AppLayout = ({ children, userInfo, onLogout }) => {
         onLogout={onLogout}
       />
 
-      <TitleHeader title={currentTitleHeader} />
+      
       {/* Main content area where routed pages will appear */}
       <main className="ml-28 pt-48"> {/* Using a standard ml-36 instead of ml-38 */}
         <div className="p-8">
